@@ -116,6 +116,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const updatePatient = useCallback(async (id: string, data: Partial<Patient>) => {
     const update: any = {};
     if (data.name !== undefined) update.name = data.name;
+    if (data.susCard !== undefined) update.sus_card = data.susCard || null;
     if (data.cpf !== undefined) update.cpf = data.cpf;
     if (data.phone !== undefined) update.phone = data.phone || null;
     if (data.email !== undefined) update.email = data.email || null;
