@@ -25,7 +25,7 @@ export default function PatientList() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo" as PatientStatus, notes: "",
+    name: "", susCard: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo" as PatientStatus, notes: "",
   });
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
