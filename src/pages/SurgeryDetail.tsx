@@ -4,14 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { PrintChecklist } from "@/components/PrintChecklist";
 import type { SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
   agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
-};
-const statusColor: Record<SurgeryStatus, string> = {
-  agendada: "bg-info/10 text-info", em_preparo: "bg-warning/10 text-warning",
-  realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
 };
 
 export default function SurgeryDetail() {
@@ -27,9 +24,9 @@ export default function SurgeryDetail() {
   const totalCount = surgery.checklist.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm("Tem certeza que deseja excluir esta cirurgia?")) {
-      deleteSurgery(surgery.id);
+      await deleteSurgery(surgery.id);
       navigate("/cirurgias");
     }
   };
@@ -44,6 +41,7 @@ export default function SurgeryDetail() {
           <h1 className="text-2xl font-bold text-foreground">{surgery.type}</h1>
           <p className="text-muted-foreground">{surgery.size === "pequena" ? "Pequeno porte" : "Grande porte"}</p>
         </div>
+        <PrintChecklist surgery={surgery} patientName={patient?.name ?? "—"} />
         <Select value={surgery.status} onValueChange={v => updateSurgery(surgery.id, { status: v as SurgeryStatus })}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -58,7 +56,6 @@ export default function SurgeryDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Checklist */}
           <div className="glass-card rounded-xl p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-semibold text-foreground">Checklist Pré-operatório</h2>
@@ -118,10 +115,7 @@ export default function SurgeryDetail() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="w-4 h-4" />
-                <span
-                  className="text-primary cursor-pointer hover:underline"
-                  onClick={() => patient && navigate(`/pacientes/${patient.id}`)}
-                >
+                <span className="text-primary cursor-pointer hover:underline" onClick={() => patient && navigate(`/pacientes/${patient.id}`)}>
                   {patient?.name ?? "—"}
                 </span>
               </div>
@@ -140,20 +134,8 @@ export default function SurgeryDetail() {
             <h2 className="font-semibold text-foreground mb-3">Progresso</h2>
             <div className="relative w-32 h-32 mx-auto">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="hsl(var(--muted))"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="3"
-                  strokeDasharray={`${progress}, 100`}
-                  className="transition-all duration-700"
-                />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${progress}, 100`} className="transition-all duration-700" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-2xl font-bold text-foreground">{progress}%</span>

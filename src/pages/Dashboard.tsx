@@ -1,5 +1,5 @@
 import { useApp } from "@/contexts/AppContext";
-import { Users, Scissors, ClipboardCheck, Calendar, TrendingUp, Clock } from "lucide-react";
+import { Users, Scissors, ClipboardCheck, Clock, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -25,12 +25,20 @@ function StatCard({ icon: Icon, label, value, color, onClick }: {
   );
 }
 
+const statusLabel: Record<string, string> = {
+  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+};
+const statusColor: Record<string, string> = {
+  agendada: "bg-info/10 text-info", em_preparo: "bg-warning/10 text-warning",
+  realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
+};
+
 export default function Dashboard() {
-  const { patients, surgeries } = useApp();
+  const { patients, surgeries, loading } = useApp();
   const navigate = useNavigate();
 
-  const totalPatients = patients.length;
-  const totalSurgeries = surgeries.length;
+  if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
+
   const scheduledSurgeries = surgeries.filter(s => s.status === "agendada" || s.status === "em_preparo").length;
   const completedSurgeries = surgeries.filter(s => s.status === "realizada").length;
 
@@ -41,20 +49,6 @@ export default function Dashboard() {
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "Desconhecido";
 
-  const statusLabel: Record<string, string> = {
-    agendada: "Agendada",
-    em_preparo: "Em preparo",
-    realizada: "Realizada",
-    cancelada: "Cancelada",
-  };
-
-  const statusColor: Record<string, string> = {
-    agendada: "bg-info/10 text-info",
-    em_preparo: "bg-warning/10 text-warning",
-    realizada: "bg-success/10 text-success",
-    cancelada: "bg-destructive/10 text-destructive",
-  };
-
   return (
     <div className="space-y-8">
       <div>
@@ -63,8 +57,8 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Users} label="Total de Pacientes" value={totalPatients} color="bg-primary/10 text-primary" onClick={() => navigate("/pacientes")} />
-        <StatCard icon={Scissors} label="Total de Cirurgias" value={totalSurgeries} color="bg-info/10 text-info" onClick={() => navigate("/cirurgias")} />
+        <StatCard icon={Users} label="Total de Pacientes" value={patients.length} color="bg-primary/10 text-primary" onClick={() => navigate("/pacientes")} />
+        <StatCard icon={Scissors} label="Total de Cirurgias" value={surgeries.length} color="bg-info/10 text-info" onClick={() => navigate("/cirurgias")} />
         <StatCard icon={Clock} label="Cirurgias Pendentes" value={scheduledSurgeries} color="bg-warning/10 text-warning" onClick={() => navigate("/cirurgias")} />
         <StatCard icon={ClipboardCheck} label="Cirurgias Realizadas" value={completedSurgeries} color="bg-success/10 text-success" onClick={() => navigate("/cirurgias")} />
       </div>
@@ -81,9 +75,7 @@ export default function Dashboard() {
           <div className="space-y-3">
             {upcomingSurgeries.map((surgery, i) => {
               const progress = surgery.checklist.length > 0
-                ? Math.round((surgery.checklist.filter(c => c.completed).length / surgery.checklist.length) * 100)
-                : 0;
-
+                ? Math.round((surgery.checklist.filter(c => c.completed).length / surgery.checklist.length) * 100) : 0;
               return (
                 <motion.div
                   key={surgery.id}
@@ -99,9 +91,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">
-                        {new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}
-                      </p>
+                      <p className="text-sm font-medium text-foreground">{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${progress}%` }} />
@@ -109,9 +99,7 @@ export default function Dashboard() {
                         <span className="text-xs text-muted-foreground">{progress}%</span>
                       </div>
                     </div>
-                    <span className={`status-badge ${statusColor[surgery.status]}`}>
-                      {statusLabel[surgery.status]}
-                    </span>
+                    <span className={`status-badge ${statusColor[surgery.status]}`}>{statusLabel[surgery.status]}</span>
                   </div>
                 </motion.div>
               );

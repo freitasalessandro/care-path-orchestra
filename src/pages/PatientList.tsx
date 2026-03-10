@@ -9,22 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import type { PatientStatus } from "@/types";
 
 const statusLabel: Record<PatientStatus, string> = {
-  ativo: "Ativo",
-  aguardando: "Aguardando",
-  cirurgia_realizada: "Cirurgia Realizada",
+  ativo: "Ativo", aguardando: "Aguardando", cirurgia_realizada: "Cirurgia Realizada",
 };
-
 const statusColor: Record<PatientStatus, string> = {
-  ativo: "bg-success/10 text-success",
-  aguardando: "bg-warning/10 text-warning",
-  cirurgia_realizada: "bg-info/10 text-info",
+  ativo: "bg-success/10 text-success", aguardando: "bg-warning/10 text-warning", cirurgia_realizada: "bg-info/10 text-info",
 };
 
 export default function PatientList() {
-  const { patients, addPatient } = useApp();
+  const { patients, addPatient, loading } = useApp();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -32,15 +28,18 @@ export default function PatientList() {
     name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo" as PatientStatus, notes: "",
   });
 
+  if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
+
   const filtered = patients.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) || p.cpf.includes(search)
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addPatient(form);
+    await addPatient(form);
     setForm({ name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo", notes: "" });
     setOpen(false);
+    toast.success("Paciente cadastrado!");
   };
 
   return (
@@ -55,9 +54,7 @@ export default function PatientList() {
             <Button><Plus className="w-4 h-4 mr-2" />Novo Paciente</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Cadastrar Paciente</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Cadastrar Paciente</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
@@ -110,12 +107,7 @@ export default function PatientList() {
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por nome ou CPF..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="pl-10"
-        />
+        <Input placeholder="Buscar por nome ou CPF..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
       </div>
 
       <div className="grid gap-3">
@@ -145,9 +137,7 @@ export default function PatientList() {
                   {patient.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{patient.phone}</span>}
                   {patient.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{patient.email}</span>}
                 </div>
-                <span className={`status-badge ${statusColor[patient.status]}`}>
-                  {statusLabel[patient.status]}
-                </span>
+                <span className={`status-badge ${statusColor[patient.status]}`}>{statusLabel[patient.status]}</span>
               </div>
             </div>
           </motion.div>

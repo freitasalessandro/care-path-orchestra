@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2 } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus } from "lucide-react";
 import { useRef } from "react";
+import { toast } from "sonner";
 import type { PatientStatus } from "@/types";
 
 const statusLabel: Record<PatientStatus, string> = {
@@ -23,17 +24,18 @@ export default function PatientDetail() {
 
   const patientSurgeries = surgeries.filter(s => s.patientId === patient.id);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach(file => {
-      addAttachment(patient.id, { name: file.name, type: file.type, size: file.size, url: URL.createObjectURL(file) });
-    });
+    for (const file of Array.from(files)) {
+      await addAttachment(patient.id, { name: file.name, type: file.type, size: file.size, url: URL.createObjectURL(file) });
+    }
+    toast.success("Arquivo(s) anexado(s)!");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm("Tem certeza que deseja excluir este paciente?")) {
-      deletePatient(patient.id);
+      await deletePatient(patient.id);
       navigate("/pacientes");
     }
   };
@@ -74,7 +76,7 @@ export default function PatientDetail() {
               <h2 className="font-semibold text-foreground flex items-center gap-2">
                 <Scissors className="w-4 h-4 text-primary" />Cirurgias ({patientSurgeries.length})
               </h2>
-              <Button size="sm" onClick={() => navigate(`/cirurgias/nova?paciente=${patient.id}`)}>
+              <Button size="sm" onClick={() => navigate(`/cirurgias`)}>
                 <Plus className="w-3 h-3 mr-1" />Nova Cirurgia
               </Button>
             </div>
@@ -85,11 +87,8 @@ export default function PatientDetail() {
                 {patientSurgeries.map(s => {
                   const progress = s.checklist.length > 0 ? Math.round((s.checklist.filter(c => c.completed).length / s.checklist.length) * 100) : 0;
                   return (
-                    <div
-                      key={s.id}
-                      onClick={() => navigate(`/cirurgias/${s.id}`)}
-                      className="p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors flex items-center justify-between"
-                    >
+                    <div key={s.id} onClick={() => navigate(`/cirurgias/${s.id}`)}
+                      className="p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors flex items-center justify-between">
                       <div>
                         <p className="font-medium text-sm text-foreground">{s.type}</p>
                         <p className="text-xs text-muted-foreground">{new Date(s.scheduledDate).toLocaleDateString("pt-BR")}</p>
@@ -124,7 +123,8 @@ export default function PatientDetail() {
             ) : (
               <div className="space-y-2">
                 {patient.attachments.map(a => (
-                  <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50 hover:bg-secondary text-sm transition-colors">
+                  <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50 hover:bg-secondary text-sm transition-colors">
                     <Paperclip className="w-3 h-3 text-muted-foreground" />
                     <span className="truncate text-foreground">{a.name}</span>
                     <span className="text-xs text-muted-foreground ml-auto">{(a.size / 1024).toFixed(0)}KB</span>
@@ -138,6 +138,3 @@ export default function PatientDetail() {
     </div>
   );
 }
-
-// Need Plus icon
-import { Plus } from "lucide-react";
