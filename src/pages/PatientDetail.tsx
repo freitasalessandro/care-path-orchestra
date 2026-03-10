@@ -63,6 +63,7 @@ export default function PatientDetail() {
               <div className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" />{patient.email || "—"}</div>
               <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="w-4 h-4" />{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString("pt-BR") : "—"}</div>
               <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-4 h-4" />{patient.address || "—"}</div>
+              <div className="flex items-center gap-2 text-muted-foreground"><CreditCard className="w-4 h-4" />SUS: {patient.susCard || "—"}</div>
             </div>
             {patient.notes && (
               <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
