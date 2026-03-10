@@ -108,7 +108,7 @@ export default function ChecklistTemplates() {
               <div className="flex-1">
                 <p className="font-semibold text-foreground">{template.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {template.surgeryType === "pequena" ? "Pequeno porte" : "Grande porte"} • {template.items.length} itens
+                  {template.surgeryType} • {template.items.length} itens
                 </p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => handleDelete(template.id)}>
