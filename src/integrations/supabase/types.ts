@@ -14,7 +14,199 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      checklist_templates: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          name: string
+          surgery_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: Json
+          name: string
+          surgery_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          name?: string
+          surgery_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      patient_attachments: {
+        Row: {
+          file_size: number | null
+          file_type: string | null
+          id: string
+          name: string
+          patient_id: string
+          uploaded_at: string
+          url: string
+        }
+        Insert: {
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          name: string
+          patient_id: string
+          uploaded_at?: string
+          url: string
+        }
+        Update: {
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          name?: string
+          patient_id?: string
+          uploaded_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_attachments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          cpf: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          cpf: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          cpf?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      print_settings: {
+        Row: {
+          created_at: string
+          footer_text: string | null
+          header_subtitle: string | null
+          header_title: string | null
+          id: string
+          logo_url: string | null
+          show_footer: boolean | null
+          show_header: boolean | null
+          show_logo: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          footer_text?: string | null
+          header_subtitle?: string | null
+          header_title?: string | null
+          id?: string
+          logo_url?: string | null
+          show_footer?: boolean | null
+          show_header?: boolean | null
+          show_logo?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          footer_text?: string | null
+          header_subtitle?: string | null
+          header_title?: string | null
+          id?: string
+          logo_url?: string | null
+          show_footer?: boolean | null
+          show_header?: boolean | null
+          show_logo?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      surgeries: {
+        Row: {
+          checklist: Json
+          created_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          scheduled_date: string
+          size: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          checklist?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          scheduled_date: string
+          size: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          scheduled_date?: string
+          size?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surgeries_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
