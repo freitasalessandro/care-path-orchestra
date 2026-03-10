@@ -14,7 +14,7 @@ export default function ChecklistTemplates() {
   const { checklistTemplates, addChecklistTemplate, deleteChecklistTemplate } = useApp();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [surgeryType, setSurgeryType] = useState("pequena");
+  const [surgeryType, setSurgeryType] = useState("");
   const [items, setItems] = useState<string[]>([""]);
 
   const handleAddItem = () => setItems(prev => [...prev, ""]);
