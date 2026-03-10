@@ -48,7 +48,7 @@ export default function PatientDetail() {
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-foreground">{patient.name}</h1>
-          <p className="text-muted-foreground">CPF: {patient.cpf}</p>
+          <p className="text-muted-foreground">CPF: {patient.cpf} {patient.susCard && `• SUS: ${patient.susCard}`}</p>
         </div>
         <span className={`status-badge ${statusColor[patient.status]}`}>{statusLabel[patient.status]}</span>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-1" />Excluir</Button>
