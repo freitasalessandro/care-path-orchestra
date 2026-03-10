@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 import type { PatientStatus } from "@/types";
@@ -48,7 +48,7 @@ export default function PatientDetail() {
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-foreground">{patient.name}</h1>
-          <p className="text-muted-foreground">CPF: {patient.cpf}</p>
+          <p className="text-muted-foreground">CPF: {patient.cpf} {patient.susCard && `• SUS: ${patient.susCard}`}</p>
         </div>
         <span className={`status-badge ${statusColor[patient.status]}`}>{statusLabel[patient.status]}</span>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-1" />Excluir</Button>
@@ -63,6 +63,7 @@ export default function PatientDetail() {
               <div className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" />{patient.email || "—"}</div>
               <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="w-4 h-4" />{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString("pt-BR") : "—"}</div>
               <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-4 h-4" />{patient.address || "—"}</div>
+              <div className="flex items-center gap-2 text-muted-foreground"><CreditCard className="w-4 h-4" />SUS: {patient.susCard || "—"}</div>
             </div>
             {patient.notes && (
               <div className="mt-4 p-3 bg-secondary/50 rounded-lg">

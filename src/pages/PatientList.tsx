@@ -25,7 +25,7 @@ export default function PatientList() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo" as PatientStatus, notes: "",
+    name: "", susCard: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo" as PatientStatus, notes: "",
   });
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
@@ -37,7 +37,7 @@ export default function PatientList() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await addPatient(form);
-    setForm({ name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo", notes: "" });
+    setForm({ name: "", susCard: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo", notes: "" });
     setOpen(false);
     toast.success("Paciente cadastrado!");
   };
@@ -60,6 +60,10 @@ export default function PatientList() {
                 <div className="col-span-2">
                   <Label>Nome completo</Label>
                   <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+                </div>
+                <div>
+                  <Label>Cartão SUS</Label>
+                  <Input value={form.susCard} onChange={e => setForm(f => ({ ...f, susCard: e.target.value }))} placeholder="000 0000 0000 0000" />
                 </div>
                 <div>
                   <Label>CPF</Label>

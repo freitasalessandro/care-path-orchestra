@@ -38,7 +38,7 @@ const AppContext = createContext<AppState | null>(null);
 
 function mapPatient(row: any): Patient {
   return {
-    id: row.id, name: row.name, cpf: row.cpf, phone: row.phone ?? "",
+    id: row.id, name: row.name, susCard: row.sus_card ?? "", cpf: row.cpf, phone: row.phone ?? "",
     email: row.email ?? "", birthDate: row.birth_date ?? "", address: row.address ?? "",
     status: row.status, notes: row.notes ?? "", createdAt: row.created_at, attachments: [],
   };
@@ -104,7 +104,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addPatient = useCallback(async (data: Omit<Patient, "id" | "createdAt" | "attachments">) => {
     const { data: row, error } = await supabase.from("patients").insert({
-      name: data.name, cpf: data.cpf, phone: data.phone || null, email: data.email || null,
+      name: data.name, sus_card: data.susCard || null, cpf: data.cpf, phone: data.phone || null, email: data.email || null,
       birth_date: data.birthDate || null, address: data.address || null, status: data.status, notes: data.notes || null,
     }).select().single();
     if (error) throw error;
@@ -116,6 +116,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const updatePatient = useCallback(async (id: string, data: Partial<Patient>) => {
     const update: any = {};
     if (data.name !== undefined) update.name = data.name;
+    if (data.susCard !== undefined) update.sus_card = data.susCard || null;
     if (data.cpf !== undefined) update.cpf = data.cpf;
     if (data.phone !== undefined) update.phone = data.phone || null;
     if (data.email !== undefined) update.email = data.email || null;
