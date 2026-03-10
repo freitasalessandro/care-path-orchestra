@@ -62,6 +62,10 @@ export default function PatientList() {
                   <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
                 </div>
                 <div>
+                  <Label>Cartão SUS</Label>
+                  <Input value={form.susCard} onChange={e => setForm(f => ({ ...f, susCard: e.target.value }))} placeholder="000 0000 0000 0000" />
+                </div>
+                <div>
                   <Label>CPF</Label>
                   <Input value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: e.target.value }))} placeholder="000.000.000-00" required />
                 </div>
