@@ -38,7 +38,7 @@ const AppContext = createContext<AppState | null>(null);
 
 function mapPatient(row: any): Patient {
   return {
-    id: row.id, name: row.name, cpf: row.cpf, phone: row.phone ?? "",
+    id: row.id, name: row.name, susCard: row.sus_card ?? "", cpf: row.cpf, phone: row.phone ?? "",
     email: row.email ?? "", birthDate: row.birth_date ?? "", address: row.address ?? "",
     status: row.status, notes: row.notes ?? "", createdAt: row.created_at, attachments: [],
   };
