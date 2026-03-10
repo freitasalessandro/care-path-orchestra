@@ -5,6 +5,7 @@ export type SurgeryStatus = "agendada" | "em_preparo" | "realizada" | "cancelada
 export interface Patient {
   id: string;
   name: string;
+  susCard: string;
   cpf: string;
   phone: string;
   email: string;
