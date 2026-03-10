@@ -104,7 +104,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addPatient = useCallback(async (data: Omit<Patient, "id" | "createdAt" | "attachments">) => {
     const { data: row, error } = await supabase.from("patients").insert({
-      name: data.name, cpf: data.cpf, phone: data.phone || null, email: data.email || null,
+      name: data.name, sus_card: data.susCard || null, cpf: data.cpf, phone: data.phone || null, email: data.email || null,
       birth_date: data.birthDate || null, address: data.address || null, status: data.status, notes: data.notes || null,
     }).select().single();
     if (error) throw error;
