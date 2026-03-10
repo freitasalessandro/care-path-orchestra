@@ -37,7 +37,7 @@ export default function PatientList() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await addPatient(form);
-    setForm({ name: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo", notes: "" });
+    setForm({ name: "", susCard: "", cpf: "", phone: "", email: "", birthDate: "", address: "", status: "ativo", notes: "" });
     setOpen(false);
     toast.success("Paciente cadastrado!");
   };
