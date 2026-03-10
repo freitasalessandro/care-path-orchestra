@@ -29,7 +29,7 @@ export default function ChecklistTemplates() {
       name, surgeryType,
       items: validItems.map(label => ({ id: crypto.randomUUID(), label })),
     });
-    setName(""); setSurgeryType("pequena"); setItems([""]); setOpen(false);
+    setName(""); setSurgeryType(""); setItems([""]); setOpen(false);
     toast.success("Modelo criado com sucesso!");
   };
 
