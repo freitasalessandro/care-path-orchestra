@@ -14,7 +14,7 @@ export default function ChecklistTemplates() {
   const { checklistTemplates, addChecklistTemplate, deleteChecklistTemplate } = useApp();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [surgeryType, setSurgeryType] = useState("pequena");
+  const [surgeryType, setSurgeryType] = useState("");
   const [items, setItems] = useState<string[]>([""]);
 
   const handleAddItem = () => setItems(prev => [...prev, ""]);
@@ -29,7 +29,7 @@ export default function ChecklistTemplates() {
       name, surgeryType,
       items: validItems.map(label => ({ id: crypto.randomUUID(), label })),
     });
-    setName(""); setSurgeryType("pequena"); setItems([""]); setOpen(false);
+    setName(""); setSurgeryType(""); setItems([""]); setOpen(false);
     toast.success("Modelo criado com sucesso!");
   };
 
@@ -62,13 +62,7 @@ export default function ChecklistTemplates() {
                 </div>
                 <div>
                   <Label>Tipo de cirurgia</Label>
-                  <Select value={surgeryType} onValueChange={setSurgeryType}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pequena">Pequena</SelectItem>
-                      <SelectItem value="grande">Grande</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input value={surgeryType} onChange={e => setSurgeryType(e.target.value)} placeholder="Ex: Herniorrafia, Colecistectomia" required />
                 </div>
                 <div>
                   <Label>Itens do checklist</Label>
@@ -114,7 +108,7 @@ export default function ChecklistTemplates() {
               <div className="flex-1">
                 <p className="font-semibold text-foreground">{template.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {template.surgeryType === "pequena" ? "Pequeno porte" : "Grande porte"} • {template.items.length} itens
+                  {template.surgeryType} • {template.items.length} itens
                 </p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => handleDelete(template.id)}>

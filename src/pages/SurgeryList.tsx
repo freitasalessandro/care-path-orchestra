@@ -101,7 +101,9 @@ export default function SurgeryList() {
                   <Select value={form.templateId} onValueChange={v => setForm(f => ({ ...f, templateId: v }))}>
                     <SelectTrigger><SelectValue placeholder="Selecionar modelo" /></SelectTrigger>
                     <SelectContent>
-                      {checklistTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                      {checklistTemplates
+                        .filter(t => !form.type || t.surgeryType.toLowerCase().includes(form.type.toLowerCase()))
+                        .map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.surgeryType})</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
