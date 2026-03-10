@@ -62,13 +62,7 @@ export default function ChecklistTemplates() {
                 </div>
                 <div>
                   <Label>Tipo de cirurgia</Label>
-                  <Select value={surgeryType} onValueChange={setSurgeryType}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pequena">Pequena</SelectItem>
-                      <SelectItem value="grande">Grande</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input value={surgeryType} onChange={e => setSurgeryType(e.target.value)} placeholder="Ex: Herniorrafia, Colecistectomia" required />
                 </div>
                 <div>
                   <Label>Itens do checklist</Label>
