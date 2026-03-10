@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import type { SurgerySize, SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
@@ -20,7 +21,7 @@ const statusColor: Record<SurgeryStatus, string> = {
 };
 
 export default function SurgeryList() {
-  const { surgeries, patients, addSurgery, checklistTemplates } = useApp();
+  const { surgeries, patients, addSurgery, checklistTemplates, loading } = useApp();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -30,6 +31,8 @@ export default function SurgeryList() {
     scheduledDate: "", notes: "", templateId: "",
   });
 
+  if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
+
   const filtered = surgeries.filter(s => {
     const patient = patients.find(p => p.id === s.patientId);
     const matchSearch = patient?.name.toLowerCase().includes(search.toLowerCase()) || s.type.toLowerCase().includes(search.toLowerCase());
@@ -37,15 +40,16 @@ export default function SurgeryList() {
     return matchSearch && matchStatus;
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const template = checklistTemplates.find(t => t.id === form.templateId);
     const checklist = template
       ? template.items.map(item => ({ ...item, id: crypto.randomUUID(), completed: false }))
       : [];
-    addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, scheduledDate: form.scheduledDate, notes: form.notes, checklist });
+    await addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, scheduledDate: form.scheduledDate, notes: form.notes, checklist });
     setForm({ patientId: "", type: "", size: "pequena", status: "agendada", scheduledDate: "", notes: "", templateId: "" });
     setOpen(false);
+    toast.success("Cirurgia agendada!");
   };
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "—";
