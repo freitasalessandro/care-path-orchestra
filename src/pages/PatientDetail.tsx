@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 import type { PatientStatus } from "@/types";
