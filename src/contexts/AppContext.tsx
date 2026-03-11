@@ -153,6 +153,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (data.checklist !== undefined) update.checklist = data.checklist;
     if (data.notes !== undefined) update.notes = data.notes;
     if (data.scheduledDate !== undefined) update.scheduled_date = data.scheduledDate || null;
+    if (data.waitingReason !== undefined) update.waiting_reason = data.waitingReason || null;
     await supabase.from("surgeries").update(update).eq("id", id);
     setSurgeries(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
   }, []);
