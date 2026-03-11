@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import type { ChecklistTemplate } from "@/types";
 
 export default function ChecklistTemplates() {
-  const { checklistTemplates, addChecklistTemplate, updateChecklistTemplate, deleteChecklistTemplate } = useApp();
+  const { checklistTemplates, addChecklistTemplate, updateChecklistTemplate, deleteChecklistTemplate, printSettings } = useApp();
   const [open, setOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ChecklistTemplate | null>(null);
   const [name, setName] = useState("");
