@@ -89,7 +89,11 @@ export default function Dashboard() {
 
   const upcomingSurgeries = filteredSurgeries
     .filter(s => s.status === "pendente" || s.status === "agendada" || s.status === "aguardando")
-    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
+    .sort((a, b) => {
+      const dateA = a.scheduledDate ? new Date(a.scheduledDate).getTime() : Infinity;
+      const dateB = b.scheduledDate ? new Date(b.scheduledDate).getTime() : Infinity;
+      return dateA - dateB;
+    })
     .slice(0, 5);
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "Desconhecido";
@@ -151,7 +155,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</p>
+                      <p className="text-sm font-medium text-foreground">{surgery.scheduledDate ? new Date(surgery.scheduledDate).toLocaleDateString("pt-BR") : "Sem data"}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${progress}%` }} />
