@@ -88,7 +88,7 @@ export default function Dashboard() {
   const completedSurgeries = filteredSurgeries.filter(s => s.status === "realizada").length;
 
   const upcomingSurgeries = filteredSurgeries
-    .filter(s => s.status === "agendada" || s.status === "em_preparo")
+    .filter(s => s.status === "pendente" || s.status === "agendada" || s.status === "aguardando")
     .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
     .slice(0, 5);
 

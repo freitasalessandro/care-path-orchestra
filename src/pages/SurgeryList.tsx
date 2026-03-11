@@ -127,10 +127,10 @@ export default function SurgeryList() {
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
+            <SelectItem value="pendente">Pendente</SelectItem>
             <SelectItem value="agendada">Agendada</SelectItem>
-            <SelectItem value="em_preparo">Em preparo</SelectItem>
+            <SelectItem value="aguardando">Aguardando</SelectItem>
             <SelectItem value="realizada">Realizada</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
           </SelectContent>
         </Select>
       </div>
