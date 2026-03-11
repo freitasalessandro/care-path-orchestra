@@ -89,7 +89,11 @@ export default function Dashboard() {
 
   const upcomingSurgeries = filteredSurgeries
     .filter(s => s.status === "pendente" || s.status === "agendada" || s.status === "aguardando")
-    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
+    .sort((a, b) => {
+      const dateA = a.scheduledDate ? new Date(a.scheduledDate).getTime() : Infinity;
+      const dateB = b.scheduledDate ? new Date(b.scheduledDate).getTime() : Infinity;
+      return dateA - dateB;
+    })
     .slice(0, 5);
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "Desconhecido";
