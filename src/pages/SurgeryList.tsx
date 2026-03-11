@@ -160,7 +160,7 @@ export default function SurgeryList() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right hidden md:block">
-                    <p className="text-sm font-medium text-foreground">{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</p>
+                    <p className="text-sm font-medium text-foreground">{surgery.scheduledDate ? new Date(surgery.scheduledDate).toLocaleDateString("pt-BR") : "Sem data"}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
