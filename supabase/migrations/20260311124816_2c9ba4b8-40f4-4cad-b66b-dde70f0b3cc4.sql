@@ -1,0 +1,2 @@
+ALTER TABLE public.surgeries DROP CONSTRAINT IF EXISTS surgeries_status_check;
+ALTER TABLE public.surgeries ADD CONSTRAINT surgeries_status_check CHECK (status IN ('pendente', 'agendada', 'aguardando', 'realizada'));
