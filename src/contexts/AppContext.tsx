@@ -181,6 +181,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setChecklistTemplates(prev => [...prev, mapTemplate(row)]);
   }, []);
 
+  const updateChecklistTemplate = useCallback(async (id: string, template: Omit<ChecklistTemplate, "id">) => {
+    const { error } = await supabase.from("checklist_templates").update({
+      name: template.name, surgery_type: template.surgeryType, items: template.items as any,
+    }).eq("id", id);
+    if (error) throw error;
+    setChecklistTemplates(prev => prev.map(t => t.id === id ? { ...t, ...template } : t));
+  }, []);
+
   const deleteChecklistTemplate = useCallback(async (id: string) => {
     await supabase.from("checklist_templates").delete().eq("id", id);
     setChecklistTemplates(prev => prev.filter(t => t.id !== id));
