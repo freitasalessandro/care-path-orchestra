@@ -46,10 +46,10 @@ export default function SurgeryList() {
     const checklist = template
       ? template.items.map(item => ({ ...item, id: crypto.randomUUID(), completed: false }))
       : [];
-    await addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, scheduledDate: form.scheduledDate, notes: form.notes, waitingReason: "", checklist });
-    setForm({ patientId: "", type: "", size: "pequena", status: "agendada", scheduledDate: "", notes: "", templateId: "" });
+    await addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, requestDate: form.requestDate, scheduledDate: "", notes: form.notes, waitingReason: "", checklist });
+    setForm({ patientId: "", type: "", size: "pequena", status: "pendente", requestDate: new Date().toISOString().split("T")[0], notes: "", templateId: "" });
     setOpen(false);
-    toast.success("Cirurgia agendada!");
+    toast.success("Cirurgia registrada!");
   };
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "—";
