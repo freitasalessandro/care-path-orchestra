@@ -48,7 +48,8 @@ function mapPatient(row: any): Patient {
 function mapSurgery(row: any): Surgery {
   return {
     id: row.id, patientId: row.patient_id, type: row.type, size: row.size,
-    status: row.status, scheduledDate: row.scheduled_date, notes: row.notes ?? "",
+    status: row.status, scheduledDate: row.scheduled_date ?? "", notes: row.notes ?? "",
+    waitingReason: row.waiting_reason ?? "",
     checklist: Array.isArray(row.checklist) ? row.checklist : [],
     createdAt: row.created_at,
   };
