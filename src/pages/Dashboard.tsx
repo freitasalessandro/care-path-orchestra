@@ -1,7 +1,9 @@
+import { useState, useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Users, Scissors, ClipboardCheck, Clock, Calendar } from "lucide-react";
+import { Users, Scissors, ClipboardCheck, CalendarCheck, Calendar, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function StatCard({ icon: Icon, label, value, color, onClick }: {
   icon: React.ElementType; label: string; value: string | number; color: string; onClick?: () => void;
@@ -33,16 +35,59 @@ const statusColor: Record<string, string> = {
   realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
 };
 
+type PeriodFilter = "today" | "week" | "month" | "year" | "all";
+
+function getDateRange(period: PeriodFilter): { start: Date; end: Date } | null {
+  if (period === "all") return null;
+  const now = new Date();
+  const start = new Date(now);
+  const end = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  switch (period) {
+    case "today":
+      break;
+    case "week":
+      start.setDate(now.getDate() - now.getDay());
+      end.setDate(start.getDate() + 6);
+      break;
+    case "month":
+      start.setDate(1);
+      end.setMonth(end.getMonth() + 1, 0);
+      break;
+    case "year":
+      start.setMonth(0, 1);
+      end.setMonth(11, 31);
+      break;
+  }
+  return { start, end };
+}
+
+const periodLabels: Record<PeriodFilter, string> = {
+  today: "Hoje", week: "Esta semana", month: "Este mês", year: "Este ano", all: "Todo período",
+};
+
 export default function Dashboard() {
   const { patients, surgeries, loading } = useApp();
   const navigate = useNavigate();
+  const [period, setPeriod] = useState<PeriodFilter>("month");
+
+  const filteredSurgeries = useMemo(() => {
+    const range = getDateRange(period);
+    if (!range) return surgeries;
+    return surgeries.filter(s => {
+      const d = new Date(s.scheduledDate);
+      return d >= range.start && d <= range.end;
+    });
+  }, [surgeries, period]);
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
 
-  const scheduledSurgeries = surgeries.filter(s => s.status === "agendada" || s.status === "em_preparo").length;
-  const completedSurgeries = surgeries.filter(s => s.status === "realizada").length;
+  const scheduledSurgeries = filteredSurgeries.filter(s => s.status === "agendada").length;
+  const completedSurgeries = filteredSurgeries.filter(s => s.status === "realizada").length;
 
-  const upcomingSurgeries = surgeries
+  const upcomingSurgeries = filteredSurgeries
     .filter(s => s.status === "agendada" || s.status === "em_preparo")
     .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
     .slice(0, 5);
@@ -51,15 +96,30 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
-        <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
+          <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Select value={period} onValueChange={v => setPeriod(v as PeriodFilter)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(periodLabels).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users} label="Total de Pacientes" value={patients.length} color="bg-primary/10 text-primary" onClick={() => navigate("/pacientes")} />
-        <StatCard icon={Scissors} label="Total de Cirurgias" value={surgeries.length} color="bg-info/10 text-info" onClick={() => navigate("/cirurgias")} />
-        <StatCard icon={Clock} label="Cirurgias Pendentes" value={scheduledSurgeries} color="bg-warning/10 text-warning" onClick={() => navigate("/cirurgias")} />
+        <StatCard icon={Scissors} label="Total de Cirurgias" value={filteredSurgeries.length} color="bg-info/10 text-info" onClick={() => navigate("/cirurgias")} />
+        <StatCard icon={CalendarCheck} label="Cirurgias Agendadas" value={scheduledSurgeries} color="bg-warning/10 text-warning" onClick={() => navigate("/cirurgias")} />
         <StatCard icon={ClipboardCheck} label="Cirurgias Realizadas" value={completedSurgeries} color="bg-success/10 text-success" onClick={() => navigate("/cirurgias")} />
       </div>
 
