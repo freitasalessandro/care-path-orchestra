@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AppTopbar } from "@/components/AppTopbar";
 import Dashboard from "@/pages/Dashboard";
 import PatientList from "@/pages/PatientList";
 import PatientDetail from "@/pages/PatientDetail";
@@ -22,19 +23,22 @@ const App = () => (
       <Sonner />
       <AppProvider>
         <BrowserRouter>
-          <div className="flex h-screen overflow-hidden">
-            <AppSidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/pacientes" element={<PatientList />} />
-                <Route path="/pacientes/:id" element={<PatientDetail />} />
-                <Route path="/cirurgias" element={<SurgeryList />} />
-                <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
-                <Route path="/checklists" element={<ChecklistTemplates />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
+          <div className="h-screen overflow-hidden">
+            <AppTopbar />
+            <div className="flex pt-14 h-screen">
+              <AppSidebar />
+              <main className="flex-1 ml-60 p-8 overflow-y-auto">
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/pacientes" element={<PatientList />} />
+                  <Route path="/pacientes/:id" element={<PatientDetail />} />
+                  <Route path="/cirurgias" element={<SurgeryList />} />
+                  <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
+                  <Route path="/checklists" element={<ChecklistTemplates />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+            </div>
           </div>
         </BrowserRouter>
       </AppProvider>
