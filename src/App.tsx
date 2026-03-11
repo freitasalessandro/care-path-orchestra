@@ -5,9 +5,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
+import { SidebarProvider, useSidebarContext } from "@/contexts/SidebarContext";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
-
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const PatientList = lazy(() => import("@/pages/PatientList"));
 const PatientDetail = lazy(() => import("@/pages/PatientDetail"));
