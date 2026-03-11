@@ -49,6 +49,7 @@ export interface Surgery {
   status: SurgeryStatus;
   scheduledDate: string;
   notes: string;
+  waitingReason: string;
   checklist: ChecklistItem[];
   createdAt: string;
 }

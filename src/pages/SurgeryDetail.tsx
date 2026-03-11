@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2, CalendarIcon, Pencil } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2, CalendarIcon, Pencil, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,6 +26,7 @@ export default function SurgeryDetail() {
 
   const surgery = surgeries.find(s => s.id === id);
   const [dateOpen, setDateOpen] = useState(false);
+  const [waitingReason, setWaitingReason] = useState(surgery?.waitingReason ?? "");
 
   if (!surgery) return <div className="text-center py-12 text-muted-foreground">Cirurgia não encontrada</div>;
 
@@ -84,6 +86,27 @@ export default function SurgeryDetail() {
         </Select>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>
       </div>
+
+      {surgery.status === "aguardando" && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-xl p-4 border-l-4 border-orange-500"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="w-4 h-4 text-orange-500" />
+            <h3 className="font-semibold text-foreground text-sm">Motivo do Aguardo</h3>
+          </div>
+          <Textarea
+            placeholder="Ex: Faltam exames de sangue, aguardando vaga no hospital..."
+            value={waitingReason}
+            onChange={e => setWaitingReason(e.target.value)}
+            onBlur={() => updateSurgery(surgery.id, { waitingReason })}
+            rows={2}
+            className="text-sm"
+          />
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

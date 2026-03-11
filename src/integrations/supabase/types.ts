@@ -175,6 +175,7 @@ export type Database = {
           status: string
           type: string
           updated_at: string
+          waiting_reason: string | null
         }
         Insert: {
           checklist?: Json
@@ -187,6 +188,7 @@ export type Database = {
           status?: string
           type: string
           updated_at?: string
+          waiting_reason?: string | null
         }
         Update: {
           checklist?: Json
@@ -199,6 +201,7 @@ export type Database = {
           status?: string
           type?: string
           updated_at?: string
+          waiting_reason?: string | null
         }
         Relationships: [
           {

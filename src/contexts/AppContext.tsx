@@ -48,7 +48,8 @@ function mapPatient(row: any): Patient {
 function mapSurgery(row: any): Surgery {
   return {
     id: row.id, patientId: row.patient_id, type: row.type, size: row.size,
-    status: row.status, scheduledDate: row.scheduled_date, notes: row.notes ?? "",
+    status: row.status, scheduledDate: row.scheduled_date ?? "", notes: row.notes ?? "",
+    waitingReason: row.waiting_reason ?? "",
     checklist: Array.isArray(row.checklist) ? row.checklist : [],
     createdAt: row.created_at,
   };
@@ -152,6 +153,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (data.checklist !== undefined) update.checklist = data.checklist;
     if (data.notes !== undefined) update.notes = data.notes;
     if (data.scheduledDate !== undefined) update.scheduled_date = data.scheduledDate || null;
+    if (data.waitingReason !== undefined) update.waiting_reason = data.waitingReason || null;
     await supabase.from("surgeries").update(update).eq("id", id);
     setSurgeries(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
   }, []);
