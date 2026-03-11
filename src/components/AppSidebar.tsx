@@ -43,7 +43,7 @@ export function AppSidebar() {
       </nav>
 
       <button
-        onClick={() => setCollapsed(c => !c)}
+        onClick={toggle}
         className="flex items-center justify-center p-2 mx-2 mb-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         title={collapsed ? "Expandir" : "Recolher"}
       >
