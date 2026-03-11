@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { useSidebarContext } from "@/contexts/SidebarContext";
 const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/pacientes", label: "Pacientes", icon: Users },
@@ -12,8 +11,7 @@ const links = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
-
+  const { collapsed, toggle } = useSidebarContext();
   return (
     <aside
       className={cn(
@@ -45,7 +43,7 @@ export function AppSidebar() {
       </nav>
 
       <button
-        onClick={() => setCollapsed(c => !c)}
+        onClick={toggle}
         className="flex items-center justify-center p-2 mx-2 mb-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         title={collapsed ? "Expandir" : "Recolher"}
       >
@@ -55,6 +53,3 @@ export function AppSidebar() {
   );
 }
 
-export function useAppSidebarWidth() {
-  return { collapsed: false };
-}
