@@ -22,9 +22,9 @@ const App = () => (
       <Sonner />
       <AppProvider>
         <BrowserRouter>
-          <div className="flex min-h-screen">
+          <div className="flex h-screen overflow-hidden">
             <AppSidebar />
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-64 p-8 overflow-y-auto">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/pacientes" element={<PatientList />} />
