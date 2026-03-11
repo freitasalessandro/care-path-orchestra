@@ -53,6 +53,3 @@ export function AppSidebar() {
   );
 }
 
-export function useAppSidebarWidth() {
-  return { collapsed: false };
-}

@@ -22,6 +22,31 @@ const PageLoader = () => (
   <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>
 );
 
+function AppLayout() {
+  const { collapsed } = useSidebarContext();
+  return (
+    <div className="h-screen overflow-hidden">
+      <AppTopbar />
+      <div className="flex pt-14 h-screen">
+        <AppSidebar />
+        <main className={`flex-1 p-8 overflow-y-auto transition-all duration-200 ${collapsed ? "ml-16" : "ml-60"}`}>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/pacientes" element={<PatientList />} />
+              <Route path="/pacientes/:id" element={<PatientDetail />} />
+              <Route path="/cirurgias" element={<SurgeryList />} />
+              <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
+              <Route path="/checklists" element={<ChecklistTemplates />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </main>
+      </div>
+    </div>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -29,25 +54,9 @@ const App = () => (
       <Sonner />
       <AppProvider>
         <BrowserRouter>
-          <div className="h-screen overflow-hidden">
-            <AppTopbar />
-            <div className="flex pt-14 h-screen">
-              <AppSidebar />
-              <main className="flex-1 ml-60 p-8 overflow-y-auto">
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/pacientes" element={<PatientList />} />
-                    <Route path="/pacientes/:id" element={<PatientDetail />} />
-                    <Route path="/cirurgias" element={<SurgeryList />} />
-                    <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
-                    <Route path="/checklists" element={<ChecklistTemplates />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </main>
-            </div>
-          </div>
+          <SidebarProvider>
+            <AppLayout />
+          </SidebarProvider>
         </BrowserRouter>
       </AppProvider>
     </TooltipProvider>
