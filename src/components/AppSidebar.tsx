@@ -1,55 +1,60 @@
+import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Scissors, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/pacientes", label: "Pacientes", icon: Users },
   { to: "/cirurgias", label: "Cirurgias", icon: Scissors },
-  { to: "/checklists", label: "Checklists", icon: ClipboardList },
+  { to: "/checklists", label: "Cadastro de Cirurgias", icon: ClipboardList },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
-      <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-sidebar-primary flex items-center justify-center">
-            <Scissors className="w-5 h-5 text-sidebar-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-sidebar-foreground">Gestão Cirúrgica</h1>
-            <p className="text-xs text-sidebar-foreground/60">Secretaria de Saúde</p>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 p-4 space-y-1">
+    <aside
+      className={cn(
+        "fixed left-0 top-14 h-[calc(100vh-3.5rem)] bg-card border-r border-border flex flex-col z-40 transition-all duration-200",
+        collapsed ? "w-16" : "w-60"
+      )}
+    >
+      <nav className="flex-1 p-2 space-y-1 mt-2">
         {links.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to || (to !== "/" && location.pathname.startsWith(to));
           return (
             <NavLink
               key={to}
               to={to}
+              title={label}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                collapsed && "justify-center px-0",
                 active
-                  ? "bg-sidebar-accent text-sidebar-primary"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
-              <Icon className="w-4 h-4" />
-              {label}
+              <Icon className="w-4 h-4 shrink-0" />
+              {!collapsed && <span>{label}</span>}
             </NavLink>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
-        <p className="text-xs text-sidebar-foreground/40 text-center">v1.0 — Saúde Municipal</p>
-      </div>
+      <button
+        onClick={() => setCollapsed(c => !c)}
+        className="flex items-center justify-center p-2 mx-2 mb-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        title={collapsed ? "Expandir" : "Recolher"}
+      >
+        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </button>
     </aside>
   );
+}
+
+export function useAppSidebarWidth() {
+  return { collapsed: false };
 }
