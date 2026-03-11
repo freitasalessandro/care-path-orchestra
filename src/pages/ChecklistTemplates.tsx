@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, ClipboardList, Trash2, X, Pencil, Printer } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Plus, Scissors, Trash2, X, Pencil, Printer, ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
 import { PrintSettingsDialog } from "@/components/PrintSettingsDialog";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -17,19 +18,25 @@ export default function ChecklistTemplates() {
   const [name, setName] = useState("");
   const [surgeryType, setSurgeryType] = useState("");
   const [items, setItems] = useState<string[]>([""]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const handleAddItem = () => setItems(prev => [...prev, ""]);
   const handleRemoveItem = (idx: number) => setItems(prev => prev.filter((_, i) => i !== idx));
   const handleItemChange = (idx: number, value: string) => setItems(prev => prev.map((item, i) => i === idx ? value : item));
 
+  const toggleExpanded = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
   const resetForm = () => {
     setName(""); setSurgeryType(""); setItems([""]); setEditingTemplate(null);
   };
 
-  const openCreate = () => {
-    resetForm();
-    setOpen(true);
-  };
+  const openCreate = () => { resetForm(); setOpen(true); };
 
   const openEdit = (template: ChecklistTemplate) => {
     setEditingTemplate(template);
@@ -49,18 +56,18 @@ export default function ChecklistTemplates() {
     };
     if (editingTemplate) {
       await updateChecklistTemplate(editingTemplate.id, payload);
-      toast.success("Modelo atualizado com sucesso!");
+      toast.success("Cirurgia atualizada com sucesso!");
     } else {
       await addChecklistTemplate(payload);
-      toast.success("Modelo criado com sucesso!");
+      toast.success("Cirurgia cadastrada com sucesso!");
     }
     resetForm(); setOpen(false);
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Excluir este modelo?")) {
+    if (confirm("Excluir esta cirurgia e seu checklist?")) {
       await deleteChecklistTemplate(id);
-      toast.success("Modelo excluído");
+      toast.success("Cirurgia excluída");
     }
   };
 
@@ -101,29 +108,25 @@ export default function ChecklistTemplates() {
             ${printSettings?.headerSubtitle ? `<h2>${printSettings.headerSubtitle}</h2>` : ""}
           </div>
         ` : ""}
-
         <div class="info">
-          <p><strong>Modelo:</strong> ${template.name}</p>
-          <p><strong>Tipo de Cirurgia:</strong> ${template.surgeryType}</p>
+          <p><strong>Cirurgia:</strong> ${template.name}</p>
+          <p><strong>Tipo:</strong> ${template.surgeryType}</p>
           <div class="patient-fields" style="margin-top: 12px;">
             <p><strong>Paciente:</strong> <span class="field-line" style="display:inline-block; width: 200px;"></span></p>
             <p><strong>Data:</strong> <span class="field-line" style="display:inline-block; width: 200px;"></span></p>
           </div>
         </div>
-
-        <div class="checklist-title">Checklist Pré-operatório</div>
+        <div class="checklist-title">Exames Solicitados</div>
         ${template.items.map(item => `
           <div class="item">
             <div class="checkbox"></div>
             <span class="item-label">${item.label}</span>
           </div>
         `).join("")}
-
         <div class="signatures">
           <div class="sig-line">Responsável Técnico</div>
           <div class="sig-line">Paciente / Responsável</div>
         </div>
-
         ${printSettings?.showFooter && printSettings?.footerText ? `<div class="footer">${printSettings.footerText}</div>` : ""}
       </body>
       </html>
@@ -136,34 +139,34 @@ export default function ChecklistTemplates() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Modelos de Checklist</h1>
-          <p className="text-muted-foreground mt-1">Crie e gerencie modelos reutilizáveis</p>
+          <h1 className="text-2xl font-bold text-foreground">Cadastro de Cirurgias</h1>
+          <p className="text-muted-foreground mt-1">Cadastre cirurgias e defina os exames solicitados em cada uma</p>
         </div>
         <div className="flex gap-2">
           <PrintSettingsDialog />
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Novo Modelo</Button>
+              <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Nova Cirurgia</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingTemplate ? "Editar Modelo" : "Criar Modelo de Checklist"}</DialogTitle>
+                <DialogTitle>{editingTemplate ? "Editar Cirurgia" : "Cadastrar Cirurgia"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label>Nome do modelo</Label>
-                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Cirurgia Cardíaca" required />
+                  <Label>Nome da cirurgia</Label>
+                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Herniorrafia" required />
                 </div>
                 <div>
-                  <Label>Tipo de cirurgia</Label>
-                  <Input value={surgeryType} onChange={e => setSurgeryType(e.target.value)} placeholder="Ex: Herniorrafia, Colecistectomia" required />
+                  <Label>Tipo / Categoria</Label>
+                  <Input value={surgeryType} onChange={e => setSurgeryType(e.target.value)} placeholder="Ex: Geral, Cardíaca, Ortopédica" required />
                 </div>
                 <div>
-                  <Label>Itens do checklist</Label>
-                  <div className="space-y-2 mt-2">
+                  <Label>Exames solicitados (checklist)</Label>
+                  <div className="space-y-2 mt-2 max-h-[40vh] overflow-y-auto pr-1">
                     {items.map((item, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <Input value={item} onChange={e => handleItemChange(i, e.target.value)} placeholder={`Item ${i + 1}`} />
+                        <Input value={item} onChange={e => handleItemChange(i, e.target.value)} placeholder={`Exame ${i + 1}`} />
                         {items.length > 1 && (
                           <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(i)}>
                             <X className="w-4 h-4" />
@@ -172,13 +175,13 @@ export default function ChecklistTemplates() {
                       </div>
                     ))}
                     <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
-                      <Plus className="w-3 h-3 mr-1" />Adicionar item
+                      <Plus className="w-3 h-3 mr-1" />Adicionar exame
                     </Button>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => { setOpen(false); resetForm(); }}>Cancelar</Button>
-                  <Button type="submit">{editingTemplate ? "Salvar" : "Criar Modelo"}</Button>
+                  <Button type="submit">{editingTemplate ? "Salvar" : "Cadastrar"}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -186,49 +189,78 @@ export default function ChecklistTemplates() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {checklistTemplates.map((template, i) => (
-          <motion.div
-            key={template.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="glass-card rounded-xl p-5"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <ClipboardList className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-foreground">{template.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {template.surgeryType} • {template.items.length} itens
-                </p>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => handlePrintTemplate(template)}>
-                <Printer className="w-4 h-4 text-muted-foreground" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => openEdit(template)}>
-                <Pencil className="w-4 h-4 text-muted-foreground" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(template.id)}>
-                <Trash2 className="w-4 h-4 text-muted-foreground" />
-              </Button>
-            </div>
-            <div className="space-y-1.5">
-              {template.items.map((item) => (
-                <div key={item.id} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/40 flex-shrink-0" />
-                  {item.label}
+      <div className="space-y-3">
+        {checklistTemplates.map((template, i) => {
+          const isExpanded = expandedIds.has(template.id);
+          return (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              className="glass-card rounded-xl overflow-hidden"
+            >
+              <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(template.id)}>
+                <div className="flex items-center gap-3 p-4">
+                  <CollapsibleTrigger asChild>
+                    <button className="flex items-center gap-3 flex-1 text-left">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Scissors className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground">{template.name}</p>
+                        <p className="text-xs text-muted-foreground">{template.surgeryType} • {template.items.length} exame(s)</p>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </CollapsibleTrigger>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => handlePrintTemplate(template)}>
+                      <Printer className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(template)}>
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(template.id)}>
+                      <Trash2 className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 pt-0">
+                    <div className="border-t border-border pt-3 space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                        <ClipboardList className="w-3.5 h-3.5" /> Exames Solicitados
+                      </p>
+                      {template.items.length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic">Nenhum exame cadastrado</p>
+                      ) : (
+                        template.items.map((item, idx) => (
+                          <div key={item.id} className="flex items-center gap-2 text-sm text-foreground py-1.5 px-3 rounded-lg bg-secondary/50">
+                            <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center flex-shrink-0 font-medium">
+                              {idx + 1}
+                            </span>
+                            {item.label}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </motion.div>
+          );
+        })}
         {checklistTemplates.length === 0 && (
-          <div className="col-span-2 text-center py-12 text-muted-foreground">
-            <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Nenhum modelo cadastrado</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <Scissors className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <p>Nenhuma cirurgia cadastrada</p>
+            <p className="text-sm mt-1">Cadastre cirurgias e defina os exames necessários</p>
           </div>
         )}
       </div>
