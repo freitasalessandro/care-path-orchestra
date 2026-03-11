@@ -101,8 +101,8 @@ export default function SurgeryList() {
                   </Select>
                 </div>
                 <div>
-                  <Label>Data do Agendamento</Label>
-                  <Input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))} required />
+                  <Label>Data da Solicitação</Label>
+                  <Input type="date" value={form.requestDate} onChange={e => setForm(f => ({ ...f, requestDate: e.target.value }))} required />
                 </div>
               </div>
               <div>
