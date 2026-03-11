@@ -28,7 +28,7 @@ export default function SurgeryList() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     patientId: "", type: "", size: "pequena" as SurgerySize, status: "pendente" as SurgeryStatus,
-    scheduledDate: "", notes: "", templateId: "",
+    requestDate: new Date().toISOString().split("T")[0], notes: "", templateId: "",
   });
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
