@@ -87,6 +87,27 @@ export default function SurgeryDetail() {
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>
       </div>
 
+      {surgery.status === "aguardando" && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-xl p-4 border-l-4 border-orange-500"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="w-4 h-4 text-orange-500" />
+            <h3 className="font-semibold text-foreground text-sm">Motivo do Aguardo</h3>
+          </div>
+          <Textarea
+            placeholder="Ex: Faltam exames de sangue, aguardando vaga no hospital..."
+            value={waitingReason}
+            onChange={e => setWaitingReason(e.target.value)}
+            onBlur={() => updateSurgery(surgery.id, { waitingReason })}
+            rows={2}
+            className="text-sm"
+          />
+        </motion.div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="glass-card rounded-xl p-6">
