@@ -4,15 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, ClipboardList, Trash2, X } from "lucide-react";
+import { Plus, ClipboardList, Trash2, X, Pencil } from "lucide-react";
 import { PrintSettingsDialog } from "@/components/PrintSettingsDialog";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import type { ChecklistTemplate } from "@/types";
 
 export default function ChecklistTemplates() {
-  const { checklistTemplates, addChecklistTemplate, deleteChecklistTemplate } = useApp();
+  const { checklistTemplates, addChecklistTemplate, updateChecklistTemplate, deleteChecklistTemplate } = useApp();
   const [open, setOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<ChecklistTemplate | null>(null);
   const [name, setName] = useState("");
   const [surgeryType, setSurgeryType] = useState("");
   const [items, setItems] = useState<string[]>([""]);
@@ -21,16 +22,39 @@ export default function ChecklistTemplates() {
   const handleRemoveItem = (idx: number) => setItems(prev => prev.filter((_, i) => i !== idx));
   const handleItemChange = (idx: number, value: string) => setItems(prev => prev.map((item, i) => i === idx ? value : item));
 
+  const resetForm = () => {
+    setName(""); setSurgeryType(""); setItems([""]); setEditingTemplate(null);
+  };
+
+  const openCreate = () => {
+    resetForm();
+    setOpen(true);
+  };
+
+  const openEdit = (template: ChecklistTemplate) => {
+    setEditingTemplate(template);
+    setName(template.name);
+    setSurgeryType(template.surgeryType);
+    setItems(template.items.map(i => i.label));
+    setOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validItems = items.filter(i => i.trim());
     if (!name.trim() || validItems.length === 0) return;
-    await addChecklistTemplate({
+    const payload = {
       name, surgeryType,
       items: validItems.map(label => ({ id: crypto.randomUUID(), label })),
-    });
-    setName(""); setSurgeryType(""); setItems([""]); setOpen(false);
-    toast.success("Modelo criado com sucesso!");
+    };
+    if (editingTemplate) {
+      await updateChecklistTemplate(editingTemplate.id, payload);
+      toast.success("Modelo atualizado com sucesso!");
+    } else {
+      await addChecklistTemplate(payload);
+      toast.success("Modelo criado com sucesso!");
+    }
+    resetForm(); setOpen(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -49,12 +73,14 @@ export default function ChecklistTemplates() {
         </div>
         <div className="flex gap-2">
           <PrintSettingsDialog />
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button><Plus className="w-4 h-4 mr-2" />Novo Modelo</Button>
+              <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Novo Modelo</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>Criar Modelo de Checklist</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>{editingTemplate ? "Editar Modelo" : "Criar Modelo de Checklist"}</DialogTitle>
+              </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label>Nome do modelo</Label>
@@ -83,8 +109,8 @@ export default function ChecklistTemplates() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                  <Button type="submit">Criar Modelo</Button>
+                  <Button type="button" variant="outline" onClick={() => { setOpen(false); resetForm(); }}>Cancelar</Button>
+                  <Button type="submit">{editingTemplate ? "Salvar" : "Criar Modelo"}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -111,6 +137,9 @@ export default function ChecklistTemplates() {
                   {template.surgeryType} • {template.items.length} itens
                 </p>
               </div>
+              <Button variant="ghost" size="icon" onClick={() => openEdit(template)}>
+                <Pencil className="w-4 h-4 text-muted-foreground" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => handleDelete(template.id)}>
                 <Trash2 className="w-4 h-4 text-muted-foreground" />
               </Button>
