@@ -1,0 +1,1 @@
+ALTER TABLE public.surgeries ADD COLUMN IF NOT EXISTS waiting_reason text;
