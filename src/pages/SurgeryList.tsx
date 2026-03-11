@@ -13,11 +13,11 @@ import { toast } from "sonner";
 import type { SurgerySize, SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
-  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+  pendente: "Pendente", agendada: "Agendada", aguardando: "Aguardando", realizada: "Realizada",
 };
 const statusColor: Record<SurgeryStatus, string> = {
-  agendada: "bg-info/10 text-info", em_preparo: "bg-warning/10 text-warning",
-  realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
+  pendente: "bg-warning/10 text-warning", agendada: "bg-info/10 text-info",
+  aguardando: "bg-orange-500/10 text-orange-500", realizada: "bg-success/10 text-success",
 };
 
 export default function SurgeryList() {
