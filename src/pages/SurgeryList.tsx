@@ -13,11 +13,11 @@ import { toast } from "sonner";
 import type { SurgerySize, SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
-  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+  pendente: "Pendente", agendada: "Agendada", aguardando: "Aguardando", realizada: "Realizada",
 };
 const statusColor: Record<SurgeryStatus, string> = {
-  agendada: "bg-info/10 text-info", em_preparo: "bg-warning/10 text-warning",
-  realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
+  pendente: "bg-warning/10 text-warning", agendada: "bg-info/10 text-info",
+  aguardando: "bg-orange-500/10 text-orange-500", realizada: "bg-success/10 text-success",
 };
 
 export default function SurgeryList() {
@@ -27,7 +27,7 @@ export default function SurgeryList() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    patientId: "", type: "", size: "pequena" as SurgerySize, status: "agendada" as SurgeryStatus,
+    patientId: "", type: "", size: "pequena" as SurgerySize, status: "pendente" as SurgeryStatus,
     scheduledDate: "", notes: "", templateId: "",
   });
 
@@ -127,10 +127,10 @@ export default function SurgeryList() {
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
+            <SelectItem value="pendente">Pendente</SelectItem>
             <SelectItem value="agendada">Agendada</SelectItem>
-            <SelectItem value="em_preparo">Em preparo</SelectItem>
+            <SelectItem value="aguardando">Aguardando</SelectItem>
             <SelectItem value="realizada">Realizada</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
           </SelectContent>
         </Select>
       </div>

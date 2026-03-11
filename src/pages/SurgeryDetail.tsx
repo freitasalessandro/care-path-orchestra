@@ -8,7 +8,7 @@ import { PrintChecklist } from "@/components/PrintChecklist";
 import type { SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
-  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+  pendente: "Pendente", agendada: "Agendada", aguardando: "Aguardando", realizada: "Realizada",
 };
 
 export default function SurgeryDetail() {
@@ -45,10 +45,10 @@ export default function SurgeryDetail() {
         <Select value={surgery.status} onValueChange={v => updateSurgery(surgery.id, { status: v as SurgeryStatus })}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
+            <SelectItem value="pendente">Pendente</SelectItem>
             <SelectItem value="agendada">Agendada</SelectItem>
-            <SelectItem value="em_preparo">Em preparo</SelectItem>
+            <SelectItem value="aguardando">Aguardando</SelectItem>
             <SelectItem value="realizada">Realizada</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>

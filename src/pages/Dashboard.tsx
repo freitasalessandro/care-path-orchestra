@@ -28,11 +28,11 @@ function StatCard({ icon: Icon, label, value, color, onClick }: {
 }
 
 const statusLabel: Record<string, string> = {
-  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+  pendente: "Pendente", agendada: "Agendada", aguardando: "Aguardando", realizada: "Realizada",
 };
 const statusColor: Record<string, string> = {
-  agendada: "bg-info/10 text-info", em_preparo: "bg-warning/10 text-warning",
-  realizada: "bg-success/10 text-success", cancelada: "bg-destructive/10 text-destructive",
+  pendente: "bg-warning/10 text-warning", agendada: "bg-info/10 text-info",
+  aguardando: "bg-orange-500/10 text-orange-500", realizada: "bg-success/10 text-success",
 };
 
 type PeriodFilter = "today" | "week" | "month" | "year" | "all";
@@ -88,7 +88,7 @@ export default function Dashboard() {
   const completedSurgeries = filteredSurgeries.filter(s => s.status === "realizada").length;
 
   const upcomingSurgeries = filteredSurgeries
-    .filter(s => s.status === "agendada" || s.status === "em_preparo")
+    .filter(s => s.status === "pendente" || s.status === "agendada" || s.status === "aguardando")
     .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
     .slice(0, 5);
 
