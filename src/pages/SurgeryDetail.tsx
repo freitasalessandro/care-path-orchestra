@@ -35,10 +35,15 @@ export default function SurgeryDetail() {
 
   const handleStatusChange = async (v: string) => {
     const newStatus = v as SurgeryStatus;
-    await updateSurgery(surgery.id, { status: newStatus });
-    if (newStatus === "agendada") {
-      setDateOpen(true);
-      toast.info("Selecione a data do agendamento");
+    if (newStatus === "pendente") {
+      await updateSurgery(surgery.id, { status: newStatus, scheduledDate: "" });
+      toast.info("Data do agendamento removida");
+    } else {
+      await updateSurgery(surgery.id, { status: newStatus });
+      if (newStatus === "agendada") {
+        setDateOpen(true);
+        toast.info("Selecione a data do agendamento");
+      }
     }
   };
 
@@ -147,7 +152,14 @@ export default function SurgeryDetail() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                <span>{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium">Data do Agendamento</span>
+                  {surgery.scheduledDate ? (
+                    <span>{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</span>
+                  ) : (
+                    <span className="text-xs italic">Sem data definida</span>
+                  )}
+                </div>
                 <Popover open={dateOpen} onOpenChange={setDateOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
@@ -157,7 +169,7 @@ export default function SurgeryDetail() {
                   <PopoverContent className="w-auto p-0" align="start">
                     <CalendarComponent
                       mode="single"
-                      selected={new Date(surgery.scheduledDate + "T00:00:00")}
+                      selected={surgery.scheduledDate ? new Date(surgery.scheduledDate + "T00:00:00") : undefined}
                       onSelect={handleDateSelect}
                       locale={ptBR}
                       initialFocus

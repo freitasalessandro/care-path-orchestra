@@ -1,0 +1,1 @@
+ALTER TABLE public.surgeries ALTER COLUMN scheduled_date DROP NOT NULL;
