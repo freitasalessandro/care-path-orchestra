@@ -8,7 +8,7 @@ import { PrintChecklist } from "@/components/PrintChecklist";
 import type { SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
-  agendada: "Agendada", em_preparo: "Em preparo", realizada: "Realizada", cancelada: "Cancelada",
+  pendente: "Pendente", agendada: "Agendada", aguardando: "Aguardando", realizada: "Realizada",
 };
 
 export default function SurgeryDetail() {
