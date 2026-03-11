@@ -205,6 +205,9 @@ export default function ChecklistTemplates() {
                   {template.surgeryType} • {template.items.length} itens
                 </p>
               </div>
+              <Button variant="ghost" size="icon" onClick={() => handlePrintTemplate(template)}>
+                <Printer className="w-4 h-4 text-muted-foreground" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => openEdit(template)}>
                 <Pencil className="w-4 h-4 text-muted-foreground" />
               </Button>
