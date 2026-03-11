@@ -80,7 +80,15 @@ export default function SurgeryList() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Tipo de Cirurgia</Label>
-                  <Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Ex: Herniorrafia" required />
+                  <Select value={form.templateId} onValueChange={v => {
+                    const tpl = checklistTemplates.find(t => t.id === v);
+                    setForm(f => ({ ...f, templateId: v, type: tpl?.name ?? "" }));
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Selecione a cirurgia" /></SelectTrigger>
+                    <SelectContent>
+                      {checklistTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.surgeryType})</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Porte</Label>
