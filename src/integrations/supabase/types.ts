@@ -170,7 +170,7 @@ export type Database = {
           id: string
           notes: string | null
           patient_id: string
-          scheduled_date: string
+          scheduled_date: string | null
           size: string
           status: string
           type: string
@@ -182,7 +182,7 @@ export type Database = {
           id?: string
           notes?: string | null
           patient_id: string
-          scheduled_date: string
+          scheduled_date?: string | null
           size: string
           status?: string
           type: string
@@ -194,7 +194,7 @@ export type Database = {
           id?: string
           notes?: string | null
           patient_id?: string
-          scheduled_date?: string
+          scheduled_date?: string | null
           size?: string
           status?: string
           type?: string
