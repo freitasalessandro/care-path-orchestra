@@ -27,7 +27,7 @@ export default function SurgeryList() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    patientId: "", type: "", size: "pequena" as SurgerySize, status: "agendada" as SurgeryStatus,
+    patientId: "", type: "", size: "pequena" as SurgerySize, status: "pendente" as SurgeryStatus,
     scheduledDate: "", notes: "", templateId: "",
   });
 
