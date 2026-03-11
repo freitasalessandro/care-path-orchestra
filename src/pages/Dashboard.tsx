@@ -77,7 +77,9 @@ export default function Dashboard() {
     const range = getDateRange(period);
     if (!range) return surgeries;
     return surgeries.filter(s => {
-      const d = new Date(s.scheduledDate);
+      const dateStr = s.scheduledDate || s.requestDate;
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
       return d >= range.start && d <= range.end;
     });
   }, [surgeries, period]);
