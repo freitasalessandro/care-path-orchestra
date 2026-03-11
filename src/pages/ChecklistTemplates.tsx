@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, ClipboardList, Trash2, X, Pencil } from "lucide-react";
+import { Plus, ClipboardList, Trash2, X, Pencil, Printer } from "lucide-react";
 import { PrintSettingsDialog } from "@/components/PrintSettingsDialog";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
