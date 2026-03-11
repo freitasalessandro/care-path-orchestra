@@ -80,7 +80,15 @@ export default function SurgeryList() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Tipo de Cirurgia</Label>
-                  <Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Ex: Herniorrafia" required />
+                  <Select value={form.templateId} onValueChange={v => {
+                    const tpl = checklistTemplates.find(t => t.id === v);
+                    setForm(f => ({ ...f, templateId: v, type: tpl?.name ?? "" }));
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Selecione a cirurgia" /></SelectTrigger>
+                    <SelectContent>
+                      {checklistTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.surgeryType})</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Porte</Label>
@@ -95,17 +103,6 @@ export default function SurgeryList() {
                 <div>
                   <Label>Data</Label>
                   <Input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))} required />
-                </div>
-                <div>
-                  <Label>Checklist</Label>
-                  <Select value={form.templateId} onValueChange={v => setForm(f => ({ ...f, templateId: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Selecionar modelo" /></SelectTrigger>
-                    <SelectContent>
-                      {checklistTemplates
-                        .filter(t => !form.type || t.surgeryType.toLowerCase().includes(form.type.toLowerCase()))
-                        .map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.surgeryType})</SelectItem>)}
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
               <div>
