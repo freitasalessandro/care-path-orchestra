@@ -139,7 +139,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addSurgery = useCallback(async (data: Omit<Surgery, "id" | "createdAt">) => {
     const { data: row, error } = await supabase.from("surgeries").insert({
       patient_id: data.patientId, type: data.type, size: data.size, status: data.status,
-      scheduled_date: data.scheduledDate, notes: data.notes || null, checklist: data.checklist as any,
+      request_date: data.requestDate || new Date().toISOString().split("T")[0],
+      scheduled_date: data.scheduledDate || null, notes: data.notes || null, checklist: data.checklist as any,
     }).select().single();
     if (error) throw error;
     const surgery = mapSurgery(row);
