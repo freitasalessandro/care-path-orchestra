@@ -27,6 +27,7 @@ interface AppState {
   deleteSurgery: (id: string) => Promise<void>;
   toggleChecklistItem: (surgeryId: string, itemId: string) => Promise<void>;
   addChecklistTemplate: (template: Omit<ChecklistTemplate, "id">) => Promise<void>;
+  updateChecklistTemplate: (id: string, template: Omit<ChecklistTemplate, "id">) => Promise<void>;
   deleteChecklistTemplate: (id: string) => Promise<void>;
   addAttachment: (patientId: string, attachment: Omit<Attachment, "id" | "uploadedAt">) => Promise<void>;
   updatePrintSettings: (settings: Partial<PrintSettings>) => Promise<void>;
