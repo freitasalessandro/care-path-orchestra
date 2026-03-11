@@ -1,10 +1,17 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2, CalendarIcon, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import { PrintChecklist } from "@/components/PrintChecklist";
+import { toast } from "sonner";
 import type { SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
@@ -17,12 +24,31 @@ export default function SurgeryDetail() {
   const { surgeries, patients, toggleChecklistItem, updateSurgery, deleteSurgery } = useApp();
 
   const surgery = surgeries.find(s => s.id === id);
+  const [dateOpen, setDateOpen] = useState(false);
+
   if (!surgery) return <div className="text-center py-12 text-muted-foreground">Cirurgia não encontrada</div>;
 
   const patient = patients.find(p => p.id === surgery.patientId);
   const completedCount = surgery.checklist.filter(c => c.completed).length;
   const totalCount = surgery.checklist.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const handleStatusChange = async (v: string) => {
+    const newStatus = v as SurgeryStatus;
+    await updateSurgery(surgery.id, { status: newStatus });
+    if (newStatus === "agendada") {
+      setDateOpen(true);
+      toast.info("Selecione a data do agendamento");
+    }
+  };
+
+  const handleDateSelect = async (date: Date | undefined) => {
+    if (!date) return;
+    const formatted = format(date, "yyyy-MM-dd");
+    await updateSurgery(surgery.id, { scheduledDate: formatted });
+    setDateOpen(false);
+    toast.success("Data do agendamento atualizada!");
+  };
 
   const handleDelete = async () => {
     if (confirm("Tem certeza que deseja excluir esta cirurgia?")) {
@@ -42,7 +68,7 @@ export default function SurgeryDetail() {
           <p className="text-muted-foreground">{surgery.size === "pequena" ? "Pequeno porte" : "Grande porte"}</p>
         </div>
         <PrintChecklist surgery={surgery} patientName={patient?.name ?? "—"} />
-        <Select value={surgery.status} onValueChange={v => updateSurgery(surgery.id, { status: v as SurgeryStatus })}>
+        <Select value={surgery.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="pendente">Pendente</SelectItem>
@@ -121,7 +147,24 @@ export default function SurgeryDetail() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                {new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}
+                <span>{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</span>
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={new Date(surgery.scheduledDate + "T00:00:00")}
+                      onSelect={handleDateSelect}
+                      locale={ptBR}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Scissors className="w-4 h-4" />
