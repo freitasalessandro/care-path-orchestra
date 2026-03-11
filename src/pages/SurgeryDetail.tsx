@@ -26,6 +26,7 @@ export default function SurgeryDetail() {
 
   const surgery = surgeries.find(s => s.id === id);
   const [dateOpen, setDateOpen] = useState(false);
+  const [waitingReason, setWaitingReason] = useState(surgery?.waitingReason ?? "");
 
   if (!surgery) return <div className="text-center py-12 text-muted-foreground">Cirurgia não encontrada</div>;
 
