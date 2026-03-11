@@ -6,8 +6,7 @@ export function AppTopbar() {
       <div className="flex items-center gap-4">
         <span className="text-xl font-bold text-primary-foreground tracking-wide">sisapi</span>
         <div className="w-px h-8 bg-primary-foreground/30" />
-          <img src={logoNeopolis} alt="Logo Neópolis" className="h-9 object-contain" />
-        </div>
+        <img src={logoNeopolis} alt="Logo Neópolis" className="h-9 object-contain" />
       </div>
     </header>
   );
