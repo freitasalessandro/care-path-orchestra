@@ -153,6 +153,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (data.status !== undefined) update.status = data.status;
     if (data.checklist !== undefined) update.checklist = data.checklist;
     if (data.notes !== undefined) update.notes = data.notes;
+    if (data.requestDate !== undefined) update.request_date = data.requestDate || null;
     if (data.scheduledDate !== undefined) update.scheduled_date = data.scheduledDate || null;
     if (data.waitingReason !== undefined) update.waiting_reason = data.waitingReason || null;
     await supabase.from("surgeries").update(update).eq("id", id);

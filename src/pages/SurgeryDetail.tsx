@@ -174,9 +174,20 @@ export default function SurgeryDetail() {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
                 <div className="flex flex-col">
+                  <span className="text-xs font-medium">Data da Solicitação</span>
+                  {surgery.requestDate ? (
+                    <span>{new Date(surgery.requestDate + "T00:00:00").toLocaleDateString("pt-BR")}</span>
+                  ) : (
+                    <span className="text-xs italic">Sem data</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CalendarIcon className="w-4 h-4" />
+                <div className="flex flex-col">
                   <span className="text-xs font-medium">Data do Agendamento</span>
                   {surgery.scheduledDate ? (
-                    <span>{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</span>
+                    <span>{new Date(surgery.scheduledDate + "T00:00:00").toLocaleDateString("pt-BR")}</span>
                   ) : (
                     <span className="text-xs italic">Sem data definida</span>
                   )}
