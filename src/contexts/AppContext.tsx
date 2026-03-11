@@ -234,7 +234,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       patients, surgeries, checklistTemplates, printSettings, loading,
       addPatient, updatePatient, deletePatient,
       addSurgery, updateSurgery, deleteSurgery,
-      toggleChecklistItem, addChecklistTemplate, deleteChecklistTemplate,
+      toggleChecklistItem, addChecklistTemplate, updateChecklistTemplate, deleteChecklistTemplate,
       addAttachment, updatePrintSettings, uploadLogo, refreshData,
     }}>
       {children}
