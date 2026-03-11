@@ -11,8 +11,7 @@ const links = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
-
+  const { collapsed, toggle } = useSidebarContext();
   return (
     <aside
       className={cn(
