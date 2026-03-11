@@ -147,7 +147,24 @@ export default function SurgeryDetail() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                {new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}
+                <span>{new Date(surgery.scheduledDate).toLocaleDateString("pt-BR")}</span>
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={new Date(surgery.scheduledDate + "T00:00:00")}
+                      onSelect={handleDateSelect}
+                      locale={ptBR}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Scissors className="w-4 h-4" />
