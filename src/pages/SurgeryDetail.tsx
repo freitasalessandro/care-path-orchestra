@@ -24,12 +24,31 @@ export default function SurgeryDetail() {
   const { surgeries, patients, toggleChecklistItem, updateSurgery, deleteSurgery } = useApp();
 
   const surgery = surgeries.find(s => s.id === id);
+  const [dateOpen, setDateOpen] = useState(false);
+
   if (!surgery) return <div className="text-center py-12 text-muted-foreground">Cirurgia não encontrada</div>;
 
   const patient = patients.find(p => p.id === surgery.patientId);
   const completedCount = surgery.checklist.filter(c => c.completed).length;
   const totalCount = surgery.checklist.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const handleStatusChange = async (v: string) => {
+    const newStatus = v as SurgeryStatus;
+    await updateSurgery(surgery.id, { status: newStatus });
+    if (newStatus === "agendada") {
+      setDateOpen(true);
+      toast.info("Selecione a data do agendamento");
+    }
+  };
+
+  const handleDateSelect = async (date: Date | undefined) => {
+    if (!date) return;
+    const formatted = format(date, "yyyy-MM-dd");
+    await updateSurgery(surgery.id, { scheduledDate: formatted });
+    setDateOpen(false);
+    toast.success("Data do agendamento atualizada!");
+  };
 
   const handleDelete = async () => {
     if (confirm("Tem certeza que deseja excluir esta cirurgia?")) {
