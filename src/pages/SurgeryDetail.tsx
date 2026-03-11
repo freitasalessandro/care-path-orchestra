@@ -68,7 +68,7 @@ export default function SurgeryDetail() {
           <p className="text-muted-foreground">{surgery.size === "pequena" ? "Pequeno porte" : "Grande porte"}</p>
         </div>
         <PrintChecklist surgery={surgery} patientName={patient?.name ?? "—"} />
-        <Select value={surgery.status} onValueChange={v => updateSurgery(surgery.id, { status: v as SurgeryStatus })}>
+        <Select value={surgery.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="pendente">Pendente</SelectItem>
