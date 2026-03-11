@@ -111,7 +111,7 @@ export default function SurgeryList() {
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button type="submit">Agendar</Button>
+                <Button type="submit">Registrar</Button>
               </div>
             </form>
           </DialogContent>
