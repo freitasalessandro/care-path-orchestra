@@ -1,10 +1,17 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { ArrowLeft, CheckCircle2, Circle, Scissors, User, Calendar, Trash2, CalendarIcon, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import { PrintChecklist } from "@/components/PrintChecklist";
+import { toast } from "sonner";
 import type { SurgeryStatus } from "@/types";
 
 const statusLabel: Record<SurgeryStatus, string> = {
