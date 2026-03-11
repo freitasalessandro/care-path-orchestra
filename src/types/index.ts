@@ -1,6 +1,6 @@
 export type PatientStatus = "ativo" | "aguardando" | "cirurgia_realizada";
 export type SurgerySize = "pequena" | "grande";
-export type SurgeryStatus = "agendada" | "em_preparo" | "realizada" | "cancelada";
+export type SurgeryStatus = "pendente" | "agendada" | "aguardando" | "realizada";
 
 export interface Patient {
   id: string;
