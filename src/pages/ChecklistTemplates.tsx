@@ -77,7 +77,7 @@ export default function ChecklistTemplates() {
             <DialogTrigger asChild>
               <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Novo Modelo</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingTemplate ? "Editar Modelo" : "Criar Modelo de Checklist"}</DialogTitle>
               </DialogHeader>

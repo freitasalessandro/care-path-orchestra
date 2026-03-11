@@ -53,7 +53,7 @@ export default function PatientList() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-2" />Novo Paciente</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Cadastrar Paciente</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
