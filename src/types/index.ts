@@ -47,6 +47,7 @@ export interface Surgery {
   type: string;
   size: SurgerySize;
   status: SurgeryStatus;
+  requestDate: string;
   scheduledDate: string;
   notes: string;
   waitingReason: string;

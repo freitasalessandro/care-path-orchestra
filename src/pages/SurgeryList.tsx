@@ -28,7 +28,7 @@ export default function SurgeryList() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     patientId: "", type: "", size: "pequena" as SurgerySize, status: "pendente" as SurgeryStatus,
-    scheduledDate: "", notes: "", templateId: "",
+    requestDate: new Date().toISOString().split("T")[0], notes: "", templateId: "",
   });
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>;
@@ -46,10 +46,10 @@ export default function SurgeryList() {
     const checklist = template
       ? template.items.map(item => ({ ...item, id: crypto.randomUUID(), completed: false }))
       : [];
-    await addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, scheduledDate: form.scheduledDate, notes: form.notes, waitingReason: "", checklist });
-    setForm({ patientId: "", type: "", size: "pequena", status: "agendada", scheduledDate: "", notes: "", templateId: "" });
+    await addSurgery({ patientId: form.patientId, type: form.type, size: form.size, status: form.status, requestDate: form.requestDate, scheduledDate: "", notes: form.notes, waitingReason: "", checklist });
+    setForm({ patientId: "", type: "", size: "pequena", status: "pendente", requestDate: new Date().toISOString().split("T")[0], notes: "", templateId: "" });
     setOpen(false);
-    toast.success("Cirurgia agendada!");
+    toast.success("Cirurgia registrada!");
   };
 
   const getPatientName = (id: string) => patients.find(p => p.id === id)?.name ?? "—";
@@ -66,7 +66,7 @@ export default function SurgeryList() {
             <Button><Plus className="w-4 h-4 mr-2" />Nova Cirurgia</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>Agendar Cirurgia</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Registrar Cirurgia</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label>Paciente</Label>
@@ -101,8 +101,8 @@ export default function SurgeryList() {
                   </Select>
                 </div>
                 <div>
-                  <Label>Data do Agendamento</Label>
-                  <Input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))} required />
+                  <Label>Data da Solicitação</Label>
+                  <Input type="date" value={form.requestDate} onChange={e => setForm(f => ({ ...f, requestDate: e.target.value }))} required />
                 </div>
               </div>
               <div>
@@ -111,7 +111,7 @@ export default function SurgeryList() {
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button type="submit">Agendar</Button>
+                <Button type="submit">Registrar</Button>
               </div>
             </form>
           </DialogContent>
@@ -160,7 +160,7 @@ export default function SurgeryList() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right hidden md:block">
-                    <p className="text-sm font-medium text-foreground">{surgery.scheduledDate ? new Date(surgery.scheduledDate).toLocaleDateString("pt-BR") : "Sem data"}</p>
+                    <p className="text-sm font-medium text-foreground">{surgery.scheduledDate ? new Date(surgery.scheduledDate).toLocaleDateString("pt-BR") : surgery.requestDate ? `Sol: ${new Date(surgery.requestDate).toLocaleDateString("pt-BR")}` : "Sem data"}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />

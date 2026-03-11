@@ -48,8 +48,8 @@ function mapPatient(row: any): Patient {
 function mapSurgery(row: any): Surgery {
   return {
     id: row.id, patientId: row.patient_id, type: row.type, size: row.size,
-    status: row.status, scheduledDate: row.scheduled_date ?? "", notes: row.notes ?? "",
-    waitingReason: row.waiting_reason ?? "",
+    status: row.status, requestDate: row.request_date ?? "", scheduledDate: row.scheduled_date ?? "",
+    notes: row.notes ?? "", waitingReason: row.waiting_reason ?? "",
     checklist: Array.isArray(row.checklist) ? row.checklist : [],
     createdAt: row.created_at,
   };
@@ -139,7 +139,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addSurgery = useCallback(async (data: Omit<Surgery, "id" | "createdAt">) => {
     const { data: row, error } = await supabase.from("surgeries").insert({
       patient_id: data.patientId, type: data.type, size: data.size, status: data.status,
-      scheduled_date: data.scheduledDate, notes: data.notes || null, checklist: data.checklist as any,
+      request_date: data.requestDate || new Date().toISOString().split("T")[0],
+      scheduled_date: data.scheduledDate || null, notes: data.notes || null, checklist: data.checklist as any,
     }).select().single();
     if (error) throw error;
     const surgery = mapSurgery(row);
@@ -152,6 +153,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (data.status !== undefined) update.status = data.status;
     if (data.checklist !== undefined) update.checklist = data.checklist;
     if (data.notes !== undefined) update.notes = data.notes;
+    if (data.requestDate !== undefined) update.request_date = data.requestDate || null;
     if (data.scheduledDate !== undefined) update.scheduled_date = data.scheduledDate || null;
     if (data.waitingReason !== undefined) update.waiting_reason = data.waitingReason || null;
     await supabase.from("surgeries").update(update).eq("id", id);

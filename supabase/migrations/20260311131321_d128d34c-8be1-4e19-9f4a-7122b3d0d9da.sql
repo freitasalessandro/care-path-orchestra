@@ -1,0 +1,1 @@
+ALTER TABLE public.surgeries ADD COLUMN request_date date NOT NULL DEFAULT CURRENT_DATE;
