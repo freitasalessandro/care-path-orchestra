@@ -104,17 +104,6 @@ export default function SurgeryList() {
                   <Label>Data</Label>
                   <Input type="date" value={form.scheduledDate} onChange={e => setForm(f => ({ ...f, scheduledDate: e.target.value }))} required />
                 </div>
-                <div>
-                  <Label>Checklist</Label>
-                  <Select value={form.templateId} onValueChange={v => setForm(f => ({ ...f, templateId: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Selecionar modelo" /></SelectTrigger>
-                    <SelectContent>
-                      {checklistTemplates
-                        .filter(t => !form.type || t.surgeryType.toLowerCase().includes(form.type.toLowerCase()))
-                        .map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.surgeryType})</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
               <div>
                 <Label>Observações</Label>
