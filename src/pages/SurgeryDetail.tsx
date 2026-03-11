@@ -35,10 +35,15 @@ export default function SurgeryDetail() {
 
   const handleStatusChange = async (v: string) => {
     const newStatus = v as SurgeryStatus;
-    await updateSurgery(surgery.id, { status: newStatus });
-    if (newStatus === "agendada") {
-      setDateOpen(true);
-      toast.info("Selecione a data do agendamento");
+    if (newStatus === "pendente") {
+      await updateSurgery(surgery.id, { status: newStatus, scheduledDate: "" });
+      toast.info("Data do agendamento removida");
+    } else {
+      await updateSurgery(surgery.id, { status: newStatus });
+      if (newStatus === "agendada") {
+        setDateOpen(true);
+        toast.info("Selecione a data do agendamento");
+      }
     }
   };
 
