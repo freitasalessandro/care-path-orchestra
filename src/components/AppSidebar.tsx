@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarContext } from "@/contexts/SidebarContext";
 const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
