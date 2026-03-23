@@ -57,6 +57,7 @@ export default function PatientDetail() {
           <p className="text-muted-foreground">CPF: {patient.cpf} {patient.susCard && `• SUS: ${patient.susCard}`}</p>
         </div>
         <span className={`status-badge ${statusColor[patient.status]}`}>{statusLabel[patient.status]}</span>
+        <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}><Pencil className="w-4 h-4 mr-1" />Editar</Button>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-1" />Excluir</Button>
       </div>
 
