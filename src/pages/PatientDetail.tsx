@@ -21,8 +21,9 @@ const statusColor: Record<PatientStatus, string> = {
 export default function PatientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { patients, surgeries, addAttachment, deletePatient } = useApp();
+  const { patients, surgeries, addAttachment, deletePatient, updatePatient } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const patient = patients.find(p => p.id === id);
   if (!patient) return <div className="text-center py-12 text-muted-foreground">Paciente não encontrado</div>;
