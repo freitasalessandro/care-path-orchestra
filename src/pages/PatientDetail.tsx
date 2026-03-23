@@ -1,9 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard } from "lucide-react";
-import { useRef } from "react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard, Pencil } from "lucide-react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { PatientStatus } from "@/types";
 
 const statusLabel: Record<PatientStatus, string> = {
