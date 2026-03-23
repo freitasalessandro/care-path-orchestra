@@ -1,9 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard } from "lucide-react";
-import { useRef } from "react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Paperclip, Scissors, Upload, Trash2, Plus, CreditCard, Pencil } from "lucide-react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { PatientStatus } from "@/types";
 
 const statusLabel: Record<PatientStatus, string> = {
@@ -16,8 +21,9 @@ const statusColor: Record<PatientStatus, string> = {
 export default function PatientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { patients, surgeries, addAttachment, deletePatient } = useApp();
+  const { patients, surgeries, addAttachment, deletePatient, updatePatient } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const patient = patients.find(p => p.id === id);
   if (!patient) return <div className="text-center py-12 text-muted-foreground">Paciente não encontrado</div>;
@@ -51,6 +57,7 @@ export default function PatientDetail() {
           <p className="text-muted-foreground">CPF: {patient.cpf} {patient.susCard && `• SUS: ${patient.susCard}`}</p>
         </div>
         <span className={`status-badge ${statusColor[patient.status]}`}>{statusLabel[patient.status]}</span>
+        <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}><Pencil className="w-4 h-4 mr-1" />Editar</Button>
         <Button variant="destructive" size="sm" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-1" />Excluir</Button>
       </div>
 
@@ -136,6 +143,93 @@ export default function PatientDetail() {
           </div>
         </div>
       </div>
+      <EditPatientDialog patient={patient} open={editOpen} onOpenChange={setEditOpen} onSave={updatePatient} />
     </div>
+  );
+}
+
+function EditPatientDialog({ patient, open, onOpenChange, onSave }: {
+  patient: import("@/types").Patient;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSave: (id: string, data: Partial<import("@/types").Patient>) => Promise<void>;
+}) {
+  const [form, setForm] = useState({
+    name: patient.name, susCard: patient.susCard, cpf: patient.cpf, phone: patient.phone,
+    email: patient.email, birthDate: patient.birthDate, address: patient.address,
+    status: patient.status as PatientStatus, notes: patient.notes,
+  });
+
+  // Sync form when patient changes or dialog opens
+  const [prevId, setPrevId] = useState(patient.id);
+  if (patient.id !== prevId) {
+    setPrevId(patient.id);
+    setForm({ name: patient.name, susCard: patient.susCard, cpf: patient.cpf, phone: patient.phone, email: patient.email, birthDate: patient.birthDate, address: patient.address, status: patient.status as PatientStatus, notes: patient.notes });
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSave(patient.id, form);
+    onOpenChange(false);
+    toast.success("Paciente atualizado!");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => {
+      if (v) setForm({ name: patient.name, susCard: patient.susCard, cpf: patient.cpf, phone: patient.phone, email: patient.email, birthDate: patient.birthDate, address: patient.address, status: patient.status as PatientStatus, notes: patient.notes });
+      onOpenChange(v);
+    }}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>Editar Paciente</DialogTitle></DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <Label>Nome completo</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+            </div>
+            <div>
+              <Label>Cartão SUS</Label>
+              <Input value={form.susCard} onChange={e => setForm(f => ({ ...f, susCard: e.target.value }))} />
+            </div>
+            <div>
+              <Label>CPF</Label>
+              <Input value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: e.target.value }))} required />
+            </div>
+            <div>
+              <Label>Data de Nascimento</Label>
+              <Input type="date" value={form.birthDate} onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Telefone</Label>
+              <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+            </div>
+            <div className="col-span-2">
+              <Label>Endereço</Label>
+              <Input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+            </div>
+            <div className="col-span-2">
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as PatientStatus }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ativo">Ativo</SelectItem>
+                  <SelectItem value="aguardando">Aguardando</SelectItem>
+                  <SelectItem value="cirurgia_realizada">Cirurgia Realizada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-2">
+              <Label>Observações</Label>
+              <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} />
+            </div>
+          </div>
+          <Button type="submit" className="w-full">Salvar Alterações</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
