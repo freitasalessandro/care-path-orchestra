@@ -87,8 +87,7 @@ function AppLayout() {
                   <Route path="/" element={<IoseDashboard />} />
                   <Route path="/pacientes" element={<IosePatientList />} />
                   <Route path="/lista" element={<IoseSurgeryList />} />
-                  {/* Reuse or add specific iose reports later */}
-                  <Route path="/relatorios" element={<HRReports />} />
+                  <Route path="/relatorios" element={<IoseReports />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
