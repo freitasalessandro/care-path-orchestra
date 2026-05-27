@@ -365,9 +365,16 @@ export default function StaffList() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => {
+                      setSelectedStaffForPrint(s);
+                      setIsPrintDialogOpen(true);
+                    }} title="Gerar Folha de Ponto">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => handleEditClick(s)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
