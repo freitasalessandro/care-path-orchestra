@@ -79,23 +79,71 @@ export default function StaffList() {
     
     const registration = newStaff.registration_code || `REG-${Date.now()}`;
     
-    const { error } = await supabase.from("staff").insert([{
-      ...newStaff,
-      registration_code: registration,
-      department_id: newStaff.department_id || null,
-      position_id: newStaff.position_id || null,
-      condition: newStaff.condition || null,
-    }]);
-    
-    if (error) {
-      toast.error(error.message || "Erro ao cadastrar funcionário");
+    if (editingStaff) {
+      const { error } = await supabase
+        .from("staff")
+        .update({
+          ...newStaff,
+          registration_code: registration,
+          department_id: newStaff.department_id || null,
+          position_id: newStaff.position_id || null,
+          condition: newStaff.condition || null,
+        })
+        .eq("id", editingStaff.id);
+
+      if (error) {
+        toast.error(error.message || "Erro ao atualizar funcionário");
+      } else {
+        toast.success("Funcionário atualizado com sucesso!");
+        setIsDialogOpen(false);
+        setEditingStaff(null);
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        fetchData();
+      }
     } else {
-      toast.success("Funcionário cadastrado com sucesso!");
-      setIsDialogOpen(false);
-      setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+      const { error } = await supabase.from("staff").insert([{
+        ...newStaff,
+        registration_code: registration,
+        department_id: newStaff.department_id || null,
+        position_id: newStaff.position_id || null,
+        condition: newStaff.condition || null,
+      }]);
+      
+      if (error) {
+        toast.error(error.message || "Erro ao cadastrar funcionário");
+      } else {
+        toast.success("Funcionário cadastrado com sucesso!");
+        setIsDialogOpen(false);
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        fetchData();
+      }
+    }
+  };
+
+  const handleEditClick = (s: any) => {
+    setEditingStaff(s);
+    setNewStaff({
+      registration_code: s.registration_code,
+      name: s.name,
+      position_id: s.position_id || "",
+      department_id: s.department_id || "",
+      condition: s.condition || "",
+      phone: s.phone || "",
+      cpf: s.cpf || "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteStaff = async (id: string) => {
+    const { error } = await supabase.from("staff").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao excluir funcionário.");
+    } else {
+      toast.success("Funcionário excluído com sucesso!");
       fetchData();
     }
   };
+
 
   const filteredStaff = staff.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
