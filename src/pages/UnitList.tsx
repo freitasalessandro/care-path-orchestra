@@ -65,12 +65,23 @@ export default function UnitList() {
     }
   };
 
+  const handleDeleteUnit = async (id: string) => {
+    const { error } = await supabase.from("units").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao excluir unidade.");
+    } else {
+      toast.success("Unidade excluída com sucesso!");
+      fetchUnits();
+    }
+  };
+
   const filteredUnits = units.filter(u => 
     u.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">UBS / Unidades</h1>
