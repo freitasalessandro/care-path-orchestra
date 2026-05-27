@@ -17,7 +17,6 @@ const hrLinks = [
   { to: "/funcionarios", label: "Funcionários", icon: UserCircle },
   { to: "/funcoes", label: "Funções", icon: GraduationCap },
   { to: "/unidades", label: "UBS / Unidades", icon: Building },
-  { to: "/setores", label: "Setores", icon: Briefcase },
   { to: "/configuracoes", label: "Dados da Secretaria", icon: Settings },
 ];
 
