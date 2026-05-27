@@ -163,24 +163,58 @@ export default function UnitList() {
                   onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="open_time">Horário de Abertura</Label>
+                  <Input 
+                    id="open_time" 
+                    type="time"
+                    value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[0] : ""} 
+                    onChange={e => {
+                      const parts = newUnit.operating_hours.split(" às ");
+                      const close = parts.length > 1 ? parts[1] : "17:00";
+                      setNewUnit({...newUnit, operating_hours: `${e.target.value} às ${close}`});
+                    }} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="close_time">Horário de Fechamento</Label>
+                  <Input 
+                    id="close_time" 
+                    type="time"
+                    value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[1] : ""} 
+                    onChange={e => {
+                      const parts = newUnit.operating_hours.split(" às ");
+                      const open = parts.length > 0 ? parts[0] : "07:00";
+                      setNewUnit({...newUnit, operating_hours: `${open} às ${e.target.value}`});
+                    }} 
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label htmlFor="hours">Horário de Funcionamento</Label>
-                <Select 
-                  value={newUnit.operating_hours} 
-                  onValueChange={value => setNewUnit({...newUnit, operating_hours: value})}
-                >
-                  <SelectTrigger id="hours">
-                    <SelectValue placeholder="Selecione o horário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="07:00 às 17:00">07:00 às 17:00</SelectItem>
-                    <SelectItem value="07:00 às 19:00">07:00 às 19:00</SelectItem>
-                    <SelectItem value="07:00 às 22:00">07:00 às 22:00</SelectItem>
-                    <SelectItem value="08:00 às 17:00">08:00 às 17:00</SelectItem>
-                    <SelectItem value="08:00 às 18:00">08:00 às 18:00</SelectItem>
-                    <SelectItem value="24 Horas">24 Horas</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="hours">Horário de Funcionamento (Manual)</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    id="hours" 
+                    value={newUnit.operating_hours} 
+                    onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})}
+                    placeholder="Ex: 07:00 às 17:00 ou 24 Horas"
+                  />
+                  <Select 
+                    onValueChange={value => setNewUnit({...newUnit, operating_hours: value})}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sugestões" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="07:00 às 17:00">07:00 às 17:00</SelectItem>
+                      <SelectItem value="07:00 às 19:00">07:00 às 19:00</SelectItem>
+                      <SelectItem value="07:00 às 22:00">07:00 às 22:00</SelectItem>
+                      <SelectItem value="08:00 às 17:00">08:00 às 17:00</SelectItem>
+                      <SelectItem value="24 Horas">24 Horas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <DialogFooter>
                 <Button type="submit">Salvar Unidade</Button>
