@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Building, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -164,12 +165,22 @@ export default function UnitList() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hours">Horário de Funcionamento</Label>
-                <Input 
-                  id="hours" 
+                <Select 
                   value={newUnit.operating_hours} 
-                  onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})} 
-                  placeholder="Ex: 07:00 às 17:00"
-                />
+                  onValueChange={value => setNewUnit({...newUnit, operating_hours: value})}
+                >
+                  <SelectTrigger id="hours">
+                    <SelectValue placeholder="Selecione o horário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="07:00 às 17:00">07:00 às 17:00</SelectItem>
+                    <SelectItem value="07:00 às 19:00">07:00 às 19:00</SelectItem>
+                    <SelectItem value="07:00 às 22:00">07:00 às 22:00</SelectItem>
+                    <SelectItem value="08:00 às 17:00">08:00 às 17:00</SelectItem>
+                    <SelectItem value="08:00 às 18:00">08:00 às 18:00</SelectItem>
+                    <SelectItem value="24 Horas">24 Horas</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <DialogFooter>
                 <Button type="submit">Salvar Unidade</Button>
