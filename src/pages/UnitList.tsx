@@ -425,7 +425,7 @@ export default function UnitList() {
                                 </div>
                               </TableCell>
                               <TableCell className="py-2 text-right space-x-1">
-                                <PrintSchedule unitId={editingUnit.id} unitName={editingUnit.name} />
+                                
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
                                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600">
