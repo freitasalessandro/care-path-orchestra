@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, ClipboardList, Wallet, Package, LogOut } from "lucide-react";
+import { ClipboardList, Users, LogOut } from "lucide-react";
 
 const modules = [
   {
@@ -14,20 +14,12 @@ const modules = [
     active: true,
   },
   {
-    id: "finance",
-    title: "Módulo Financeiro",
-    description: "Faturamento, contas a pagar e controle de caixa.",
-    icon: Wallet,
-    color: "bg-green-500",
-    active: false,
-  },
-  {
-    id: "stock",
-    title: "Controle de Estoque",
-    description: "Materiais cirúrgicos, OPMEs e insumos hospitalares.",
-    icon: Package,
-    color: "bg-orange-500",
-    active: false,
+    id: "hr",
+    title: "Recursos Humanos",
+    description: "Cadastro de funcionários, UBS, setores e gestão de pessoal.",
+    icon: Users,
+    color: "bg-purple-500",
+    active: true,
   },
 ];
 
