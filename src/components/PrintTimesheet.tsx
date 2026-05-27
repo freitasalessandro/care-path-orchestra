@@ -44,7 +44,7 @@ export function PrintTimesheet({ staff, month }: Props) {
         <style>
           @page { 
             size: A4; 
-            margin: 0.5cm 1cm 1cm 1cm; 
+            margin: 2cm 2.5cm 2cm 2.5cm; 
           }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
