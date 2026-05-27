@@ -48,6 +48,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          unit_id: string | null
           updated_at: string
         }
         Insert: {
@@ -56,6 +57,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          unit_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -64,9 +66,18 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          unit_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "departments_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_attachments: {
         Row: {
