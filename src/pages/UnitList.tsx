@@ -248,7 +248,12 @@ export default function UnitList() {
                   <TableCell>
                     <PrintSchedule unitId={u.id} unitName={u.name} />
                   </TableCell>
-                  <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
+                  <TableCell className="text-sm">
+                    <div className="flex flex-col">
+                      <span>{u.operating_days || "Segunda a Sexta"}</span>
+                      <span className="text-[10px] text-muted-foreground">{u.operating_hours || "-"}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
                     <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)}>
                       <Pencil className="w-4 h-4" />
