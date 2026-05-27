@@ -12,7 +12,6 @@ interface Props {
 }
 
 export function PrintSchedule({ departmentId, departmentName }: Props) {
-  const printRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
 
   const handlePrint = async () => {
@@ -26,7 +25,9 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
           name,
           work_schedule,
           positions (title),
-          units (name, operating_hours, address)
+          staff_assignments (
+            units (name, operating_hours, address)
+          )
         `)
         .eq("department_id", departmentId)
         .order("name");
@@ -43,14 +44,19 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
 
       if (!staffData || staffData.length === 0) {
         toast.error("Nenhum funcionário encontrado neste setor.");
+        setLoading(false);
         return;
       }
 
       const now = new Date();
       const monthYear = format(now, "MMMM 'de' yyyy", { locale: ptBR });
       
-      // Get the first unit's data for the header (as most professionals in a sector usually share units, or we pick the primary one)
-      const unit = staffData[0]?.units || { name: "Não informada", operating_hours: "Não informado", address: "Não informado" };
+      // Get the first unit's data for the header
+      const unitData = (staffData[0] as any)?.staff_assignments?.[0]?.units || { 
+        name: "Não informada", 
+        operating_hours: "Não informado", 
+        address: "Não informado" 
+      };
 
       const content = `
         <div class="print-container">
@@ -59,8 +65,8 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
           <div class="header-info">
             <h1 class="report-title">ESCALA DE PROFISSIONAIS - ${departmentName.toUpperCase()}</h1>
             <div class="unit-details">
-              <div><strong>UNIDADE:</strong> ${Array.isArray(unit) ? unit[0]?.name : (unit as any).name}</div>
-              <div><strong>FUNCIONAMENTO:</strong> ${Array.isArray(unit) ? unit[0]?.operating_hours : (unit as any).operating_hours}</div>
+              <div><strong>UNIDADE:</strong> ${unitData.name}</div>
+              <div><strong>FUNCIONAMENTO:</strong> ${unitData.operating_hours}</div>
               <div><strong>MÊS/ANO:</strong> ${monthYear.toUpperCase()}</div>
             </div>
           </div>
@@ -99,7 +105,11 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
       `;
 
       const win = window.open("", "_blank");
-      if (!win) return;
+      if (!win) {
+        toast.error("Por favor, habilite pop-ups para imprimir.");
+        setLoading(false);
+        return;
+      }
 
       win.document.write(`
         <html>
