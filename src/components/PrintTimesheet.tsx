@@ -66,22 +66,13 @@ export function PrintTimesheet({ staff, month }: Props) {
             object-fit: contain;
           }
           .employee-info {
-            margin: 0 0 10px 0;
-            font-size: 11px;
-            line-height: 1.4;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px 15px;
-            padding: 0 2px;
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            line-height: 1.5;
+            font-weight: bold;
           }
           .employee-info div {
-            border-bottom: 0.5px solid #000;
-            padding-bottom: 1px;
-          }
-          .employee-info div b {
-            font-weight: bold;
-            margin-right: 4px;
-            text-transform: uppercase;
+            padding: 0;
           }
           .title {
             text-align: center;
