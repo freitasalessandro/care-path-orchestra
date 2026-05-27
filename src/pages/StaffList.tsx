@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -24,9 +24,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FileText, Calendar as CalendarIcon } from "lucide-react";
-
-
 
 export default function StaffList() {
   const [staff, setStaff] = useState<any[]>([]);
@@ -40,7 +37,6 @@ export default function StaffList() {
   const [selectedStaffForPrint, setSelectedStaffForPrint] = useState<any>(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
-  
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
     name: "",
@@ -51,8 +47,6 @@ export default function StaffList() {
     cpf: "",
     work_schedule: "",
   });
-
-
 
   const fetchData = async () => {
     setLoading(true);
@@ -91,16 +85,18 @@ export default function StaffList() {
     
     const registration = newStaff.registration_code || `REG-${Date.now()}`;
     
+    const payload = {
+      ...newStaff,
+      registration_code: registration,
+      department_id: newStaff.department_id || null,
+      position_id: newStaff.position_id || null,
+      condition: newStaff.condition || null,
+    };
+
     if (editingStaff) {
       const { error } = await supabase
         .from("staff")
-        .update({
-          ...newStaff,
-          registration_code: registration,
-          department_id: newStaff.department_id || null,
-          position_id: newStaff.position_id || null,
-          condition: newStaff.condition || null,
-        })
+        .update(payload)
         .eq("id", editingStaff.id);
 
       if (error) {
@@ -110,17 +106,10 @@ export default function StaffList() {
         setIsDialogOpen(false);
         setEditingStaff(null);
         setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
-
         fetchData();
       }
     } else {
-      const { error } = await supabase.from("staff").insert([{
-        ...newStaff,
-        registration_code: registration,
-        department_id: newStaff.department_id || null,
-        position_id: newStaff.position_id || null,
-        condition: newStaff.condition || null,
-      }]);
+      const { error } = await supabase.from("staff").insert([payload]);
       
       if (error) {
         toast.error(error.message || "Erro ao cadastrar funcionário");
@@ -128,7 +117,6 @@ export default function StaffList() {
         toast.success("Funcionário cadastrado com sucesso!");
         setIsDialogOpen(false);
         setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
-
         fetchData();
       }
     }
@@ -137,8 +125,8 @@ export default function StaffList() {
   const handleEditClick = (s: any) => {
     setEditingStaff(s);
     setNewStaff({
-      registration_code: s.registration_code,
-      name: s.name,
+      registration_code: s.registration_code || "",
+      name: s.name || "",
       position_id: s.position_id || "",
       department_id: s.department_id || "",
       condition: s.condition || "",
@@ -146,7 +134,6 @@ export default function StaffList() {
       cpf: s.cpf || "",
       work_schedule: s.work_schedule || "",
     });
-
     setIsDialogOpen(true);
   };
 
@@ -160,10 +147,9 @@ export default function StaffList() {
     }
   };
 
-
   const filteredStaff = staff.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.registration_code.includes(searchTerm)
+    (s.registration_code && s.registration_code.includes(searchTerm))
   );
 
   return (
@@ -185,10 +171,9 @@ export default function StaffList() {
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
               Novo Funcionário
-
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[550px]">
+          <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingStaff ? "Editar Funcionário" : "Cadastrar Funcionário"}</DialogTitle>
             </DialogHeader>
@@ -269,30 +254,41 @@ export default function StaffList() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cond">Condição (Opcional)</Label>
-                <Select 
-                  value={newStaff.condition} 
-                  onValueChange={v => setNewStaff({...newStaff, condition: v})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a condição" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CONTRATO">CONTRATO</SelectItem>
-                    <SelectItem value="EFETIVO">EFETIVO</SelectItem>
-                    <SelectItem value="COMISSIONADO">COMISSIONADO</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cond">Condição (Opcional)</Label>
+                  <Select 
+                    value={newStaff.condition} 
+                    onValueChange={v => setNewStaff({...newStaff, condition: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a condição" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CONTRATO">CONTRATO</SelectItem>
+                      <SelectItem value="EFETIVO">EFETIVO</SelectItem>
+                      <SelectItem value="COMISSIONADO">COMISSIONADO</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg">Matrícula (Opcional)</Label>
+                  <Input 
+                    id="reg" 
+                    value={newStaff.registration_code} 
+                    onChange={e => setNewStaff({...newStaff, registration_code: e.target.value})} 
+                    placeholder="Automático se vazio"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reg">Matrícula / Código (Opcional)</Label>
+                <Label htmlFor="work_schedule">Horário / Turno de Trabalho</Label>
                 <Input 
-                  id="reg" 
-                  value={newStaff.registration_code} 
-                  onChange={e => setNewStaff({...newStaff, registration_code: e.target.value})} 
-                  placeholder="Gerado automaticamente se vazio"
+                  id="work_schedule" 
+                  value={newStaff.work_schedule} 
+                  onChange={e => setNewStaff({...newStaff, work_schedule: e.target.value})} 
+                  placeholder="Ex: 08:00 às 14:00 (Seg a Sex)"
                 />
               </div>
 
@@ -408,8 +404,6 @@ export default function StaffList() {
                       </AlertDialogContent>
                     </AlertDialog>
                   </TableCell>
-
-
                 </TableRow>
               ))
             )}
@@ -453,6 +447,5 @@ export default function StaffList() {
         </DialogContent>
       </Dialog>
     </div>
-
   );
 }
