@@ -272,7 +272,7 @@ export default function StaffList() {
                     <div className="flex flex-col">
                       <span>{s.positions?.title || "-"}</span>
                       {s.positions?.work_hours && (
-                        <span className="text-[10px] text-muted-foreground">{s.positions.work_hours}h semanais</span>
+                        <span className="text-[10px] text-muted-foreground">{s.positions.work_hours}h mensais</span>
                       )}
                     </div>
                   </TableCell>

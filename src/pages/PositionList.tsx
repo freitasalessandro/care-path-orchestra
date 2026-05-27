@@ -87,7 +87,7 @@ export default function PositionList() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hours">Carga Horária Semanal (Horas)</Label>
+                <Label htmlFor="hours">Carga Horária Mensal (Horas)</Label>
                 <Input 
                   id="hours" 
                   type="number"
@@ -96,6 +96,7 @@ export default function PositionList() {
                   required 
                 />
               </div>
+
               <DialogFooter>
                 <Button type="submit">Salvar Função</Button>
               </DialogFooter>
@@ -147,7 +148,7 @@ export default function PositionList() {
                       <span className="font-medium">{p.title}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{p.work_hours}h / semana</TableCell>
+                  <TableCell>{p.work_hours}h / mês</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm">Editar</Button>
                   </TableCell>
