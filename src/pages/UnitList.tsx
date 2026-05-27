@@ -17,8 +17,8 @@ export default function UnitList() {
   const [newUnit, setNewUnit] = useState({
     name: "",
     address: "",
-    phone: "",
   });
+
 
   const fetchUnits = async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ export default function UnitList() {
     } else {
       toast.success("Unidade cadastrada com sucesso!");
       setIsDialogOpen(false);
-      setNewUnit({ name: "", address: "", phone: "" });
+      setNewUnit({ name: "", address: "" });
       fetchUnits();
     }
   };
@@ -94,14 +94,6 @@ export default function UnitList() {
                   onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone de Contato</Label>
-                <Input 
-                  id="phone" 
-                  value={newUnit.phone} 
-                  onChange={e => setNewUnit({...newUnit, phone: e.target.value})} 
-                />
-              </div>
               <DialogFooter>
                 <Button type="submit">Salvar Unidade</Button>
               </DialogFooter>
@@ -126,7 +118,7 @@ export default function UnitList() {
             <TableRow>
               <TableHead>Unidade</TableHead>
               <TableHead>Endereço</TableHead>
-              <TableHead>Contato</TableHead>
+              
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -134,13 +126,14 @@ export default function UnitList() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+
                   Carregando...
                 </TableCell>
               </TableRow>
             ) : filteredUnits.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   Nenhuma unidade encontrada.
                 </TableCell>
               </TableRow>
@@ -156,7 +149,7 @@ export default function UnitList() {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{u.address || "-"}</TableCell>
-                  <TableCell className="text-sm">{u.phone || "-"}</TableCell>
+                  
                   <TableCell>
                     <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
                       Ativa
