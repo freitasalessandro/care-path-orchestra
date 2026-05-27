@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { Plus, Search, Building, Trash2, Pencil, Briefcase, Clock, Calendar } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import { PrintSchedule } from "@/components/PrintSchedule";
 import {
@@ -330,22 +331,26 @@ export default function UnitList() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="operating_days">Dias de Funcionamento</Label>
-                  <Select 
-                    value={newUnit.operating_days} 
-                    onValueChange={value => setNewUnit({...newUnit, operating_days: value})}
+                  <Label>Dias de Funcionamento</Label>
+                  <ToggleGroup 
+                    type="multiple" 
+                    variant="outline" 
+                    className="justify-start flex-wrap gap-2"
+                    value={newUnit.operating_days ? newUnit.operating_days.split(", ") : []}
+                    onValueChange={(values) => {
+                      const daysOrder = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+                      const sortedValues = daysOrder.filter(d => values.includes(d));
+                      setNewUnit({...newUnit, operating_days: sortedValues.join(", ")});
+                    }}
                   >
-                    <SelectTrigger id="operating_days">
-                      <SelectValue placeholder="Selecione os dias" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Segunda a Sexta">Segunda a Sexta</SelectItem>
-                      <SelectItem value="Segunda a Sábado">Segunda a Sábado</SelectItem>
-                      <SelectItem value="Segunda a Domingo">Segunda a Domingo (24h)</SelectItem>
-                      <SelectItem value="Todos os Dias">Todos os Dias</SelectItem>
-                      <SelectItem value="Segunda a Quinta">Segunda a Quinta</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <ToggleGroupItem value="Segunda" aria-label="Segunda" className="px-3">Seg</ToggleGroupItem>
+                    <ToggleGroupItem value="Terça" aria-label="Terça" className="px-3">Ter</ToggleGroupItem>
+                    <ToggleGroupItem value="Quarta" aria-label="Quarta" className="px-3">Qua</ToggleGroupItem>
+                    <ToggleGroupItem value="Quinta" aria-label="Quinta" className="px-3">Qui</ToggleGroupItem>
+                    <ToggleGroupItem value="Sexta" aria-label="Sexta" className="px-3">Sex</ToggleGroupItem>
+                    <ToggleGroupItem value="Sábado" aria-label="Sábado" className="px-3">Sáb</ToggleGroupItem>
+                    <ToggleGroupItem value="Domingo" aria-label="Domingo" className="px-3">Dom</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
