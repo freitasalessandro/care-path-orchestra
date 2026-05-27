@@ -34,6 +34,10 @@ export default function StaffList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<any>(null);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedStaffForPrint, setSelectedStaffForPrint] = useState<any>(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+
   
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
