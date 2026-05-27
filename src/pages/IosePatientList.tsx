@@ -197,7 +197,8 @@ export default function IosePatientList() {
               <TableHead>CPF</TableHead>
               <TableHead>Nascimento</TableHead>
               <TableHead>Telefone</TableHead>
-              <TableHead>Cartão SUS</TableHead>
+              <TableHead>Cartão SUS / Convênio</TableHead>
+              <TableHead>Cidade</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -226,11 +227,19 @@ export default function IosePatientList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="w-3 h-3 text-muted-foreground" />
-                      {patient.sus_card || "-"}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 text-muted-foreground" />
+                        {patient.sus_card || "-"}
+                      </div>
+                      {patient.health_insurance && (
+                        <div className="text-xs text-muted-foreground">
+                          {patient.health_insurance}
+                        </div>
+                      )}
                     </div>
                   </TableCell>
+                  <TableCell>{patient.city || "-"}</TableCell>
                 </TableRow>
               ))
             )}
