@@ -10,7 +10,9 @@ import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil } from "lucide-r
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { PrintTimesheet } from "@/components/PrintTimesheet";
+
 import {
   AlertDialog,
   AlertDialogAction,
