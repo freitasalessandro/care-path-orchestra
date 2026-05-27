@@ -358,7 +358,7 @@ export default function UnitList() {
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-sm uppercase text-muted-foreground">Setores Internos</h3>
                 {editingUnit && !isAddingSector && (
-                  <Button size="xs" variant="outline" className="h-7 text-[10px]" onClick={() => setIsAddingSector(true)}>
+                  <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => setIsAddingSector(true)}>
                     <Plus className="w-3 h-3 mr-1" /> Adicionar Setor
                   </Button>
                 )}
