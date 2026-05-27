@@ -273,7 +273,7 @@ export type Database = {
           phone: string | null
           position: string | null
           position_id: string | null
-          registration_code: string
+          registration_code: string | null
           status: string | null
           updated_at: string
           work_schedule: string | null
@@ -289,7 +289,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           position_id?: string | null
-          registration_code: string
+          registration_code?: string | null
           status?: string | null
           updated_at?: string
           work_schedule?: string | null
@@ -305,7 +305,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           position_id?: string | null
-          registration_code?: string
+          registration_code?: string | null
           status?: string | null
           updated_at?: string
           work_schedule?: string | null
