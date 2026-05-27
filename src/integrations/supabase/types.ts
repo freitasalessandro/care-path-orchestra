@@ -214,6 +214,39 @@ export type Database = {
         }
         Relationships: []
       }
+      secretariat_settings: {
+        Row: {
+          address: string | null
+          cnpj: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           condition: string | null
@@ -229,6 +262,7 @@ export type Database = {
           registration_code: string
           status: string | null
           updated_at: string
+          work_schedule: string | null
         }
         Insert: {
           condition?: string | null
@@ -244,6 +278,7 @@ export type Database = {
           registration_code: string
           status?: string | null
           updated_at?: string
+          work_schedule?: string | null
         }
         Update: {
           condition?: string | null
@@ -259,6 +294,7 @@ export type Database = {
           registration_code?: string
           status?: string | null
           updated_at?: string
+          work_schedule?: string | null
         }
         Relationships: [
           {
