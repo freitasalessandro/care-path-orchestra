@@ -408,6 +408,43 @@ export default function StaffList() {
           </TableBody>
         </Table>
       </div>
+      
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Gerar Folha de Ponto</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label>Funcionário</Label>
+              <Input value={selectedStaffForPrint?.name || ""} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="month-select">Selecione o Mês Inicial</Label>
+              <Input 
+                id="month-select"
+                type="month" 
+                value={format(selectedMonth, "yyyy-MM")}
+                onChange={(e) => {
+                  const [year, month] = e.target.value.split("-");
+                  setSelectedMonth(new Date(parseInt(year), parseInt(month) - 1, 1));
+                }}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                A folha será gerada do dia 10 de {format(selectedMonth, "MMMM", { locale: ptBR })} 
+                até o dia 10 do mês seguinte.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Cancelar</Button>
+            {selectedStaffForPrint && (
+              <PrintTimesheet staff={selectedStaffForPrint} month={selectedMonth} />
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
