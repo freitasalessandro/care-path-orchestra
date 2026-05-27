@@ -192,8 +192,10 @@ export type Database = {
       }
       staff: {
         Row: {
+          condition: string | null
           cpf: string | null
           created_at: string
+          department_id: string | null
           email: string | null
           id: string
           name: string
@@ -204,8 +206,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          condition?: string | null
           cpf?: string | null
           created_at?: string
+          department_id?: string | null
           email?: string | null
           id?: string
           name: string
@@ -216,8 +220,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          condition?: string | null
           cpf?: string | null
           created_at?: string
+          department_id?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -227,7 +233,15 @@ export type Database = {
           status?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "staff_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_assignments: {
         Row: {
