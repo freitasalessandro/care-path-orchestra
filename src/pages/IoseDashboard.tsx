@@ -18,9 +18,14 @@ export default function IoseDashboard() {
         .from("iose_surgery_list")
         .select("*", { count: "exact", head: true });
 
+      const { count: listsCount } = await supabase
+        .from("iose_lists")
+        .select("*", { count: "exact", head: true });
+
       return {
         patients: patientsCount || 0,
         surgeries: surgeriesCount || 0,
+        lists: listsCount || 0,
       };
     },
   });
@@ -63,10 +68,10 @@ export default function IoseDashboard() {
         <p className="text-gray-600">Gestão da lista de cirurgias oftalmológicas</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total de Pacientes</CardTitle>
+            <CardTitle className="text-sm font-medium">Pacientes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -75,7 +80,16 @@ export default function IoseDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Cirurgias Registradas</CardTitle>
+            <CardTitle className="text-sm font-medium">Listas Criadas</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.lists || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Cirurgias</CardTitle>
             <Scissors className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

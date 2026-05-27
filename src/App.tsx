@@ -34,6 +34,7 @@ const PositionList = lazy(() => import("@/pages/PositionList"));
 const IoseDashboard = lazy(() => import("@/pages/IoseDashboard"));
 const IosePatientList = lazy(() => import("@/pages/IosePatientList"));
 const IoseSurgeryList = lazy(() => import("@/pages/IoseSurgeryList"));
+const IoseReports = lazy(() => import("@/pages/IoseReports"));
 
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
 const queryClient = new QueryClient();
@@ -86,8 +87,7 @@ function AppLayout() {
                   <Route path="/" element={<IoseDashboard />} />
                   <Route path="/pacientes" element={<IosePatientList />} />
                   <Route path="/lista" element={<IoseSurgeryList />} />
-                  {/* Reuse or add specific iose reports later */}
-                  <Route path="/relatorios" element={<HRReports />} />
+                  <Route path="/relatorios" element={<IoseReports />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
