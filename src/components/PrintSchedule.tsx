@@ -79,7 +79,7 @@ export function PrintSchedule({ unitId, unitName }: Props) {
                       <tr>
                         <td>${s.name}</td>
                         <td>${s.positions?.title || "---"}</td>
-                        <td>${s.work_schedule || "DE ACORDO COM A UNIDADE"}</td>
+                        <td>${s.work_schedule || unitData.operating_hours || "---"}</td>
                       </tr>
                     `).join('')}
                   </tbody>
