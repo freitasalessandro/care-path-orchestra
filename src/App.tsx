@@ -72,7 +72,6 @@ function AppLayout() {
                   <Route path="/" element={<HRDashboard />} />
                   <Route path="/funcionarios" element={<StaffList />} />
                   <Route path="/unidades" element={<UnitList />} />
-                  <Route path="/setores" element={<DepartmentList />} />
                   <Route path="/funcoes" element={<PositionList />} />
                   <Route path="/configuracoes" element={<SecretariatSettings />} />
                 </>
