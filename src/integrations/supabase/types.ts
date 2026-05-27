@@ -50,6 +50,7 @@ export type Database = {
           name: string
           unit_id: string | null
           updated_at: string
+          work_hours: number | null
         }
         Insert: {
           active?: boolean | null
@@ -59,6 +60,7 @@ export type Database = {
           name: string
           unit_id?: string | null
           updated_at?: string
+          work_hours?: number | null
         }
         Update: {
           active?: boolean | null
@@ -68,6 +70,7 @@ export type Database = {
           name?: string
           unit_id?: string | null
           updated_at?: string
+          work_hours?: number | null
         }
         Relationships: [
           {
