@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Building, Trash2 } from "lucide-react";
+import { Plus, Search, Building, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -19,18 +19,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 export default function UnitList() {
   const [units, setUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<any>(null);
   
   const [newUnit, setNewUnit] = useState({
     name: "",
     address: "",
+    cnes: "",
+    operating_hours: "",
   });
-
 
   const fetchUnits = async () => {
     setLoading(true);
@@ -53,16 +54,45 @@ export default function UnitList() {
 
   const handleCreateUnit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from("units").insert([newUnit]);
     
-    if (error) {
-      toast.error(error.message || "Erro ao cadastrar unidade");
+    if (editingUnit) {
+      const { error } = await supabase
+        .from("units")
+        .update(newUnit)
+        .eq("id", editingUnit.id);
+
+      if (error) {
+        toast.error(error.message || "Erro ao atualizar unidade");
+      } else {
+        toast.success("Unidade atualizada com sucesso!");
+        setIsDialogOpen(false);
+        setEditingUnit(null);
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+        fetchUnits();
+      }
     } else {
-      toast.success("Unidade cadastrada com sucesso!");
-      setIsDialogOpen(false);
-      setNewUnit({ name: "", address: "" });
-      fetchUnits();
+      const { error } = await supabase.from("units").insert([newUnit]);
+      
+      if (error) {
+        toast.error(error.message || "Erro ao cadastrar unidade");
+      } else {
+        toast.success("Unidade cadastrada com sucesso!");
+        setIsDialogOpen(false);
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+        fetchUnits();
+      }
     }
+  };
+
+  const handleEditClick = (unit: any) => {
+    setEditingUnit(unit);
+    setNewUnit({
+      name: unit.name || "",
+      address: unit.address || "",
+      cnes: unit.cnes || "",
+      operating_hours: unit.operating_hours || "",
+    });
+    setIsDialogOpen(true);
   };
 
   const handleDeleteUnit = async (id: string) => {
@@ -76,19 +106,25 @@ export default function UnitList() {
   };
 
   const filteredUnits = units.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase())
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.cnes && u.cnes.includes(searchTerm))
   );
 
   return (
     <div className="space-y-6">
-
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">UBS / Unidades</h1>
           <p className="text-gray-600">Gestão de unidades de saúde e postos.</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingUnit(null);
+            setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
@@ -97,7 +133,7 @@ export default function UnitList() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Cadastrar Unidade</DialogTitle>
+              <DialogTitle>{editingUnit ? "Editar Unidade" : "Cadastrar Unidade"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateUnit} className="space-y-4 py-4">
               <div className="space-y-2">
@@ -110,11 +146,29 @@ export default function UnitList() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="cnes">CNES</Label>
+                <Input 
+                  id="cnes" 
+                  value={newUnit.cnes} 
+                  onChange={e => setNewUnit({...newUnit, cnes: e.target.value})} 
+                  placeholder="Código CNES"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="address">Endereço</Label>
                 <Input 
                   id="address" 
                   value={newUnit.address} 
                   onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hours">Horário de Funcionamento</Label>
+                <Input 
+                  id="hours" 
+                  value={newUnit.operating_hours} 
+                  onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})} 
+                  placeholder="Ex: 07:00 às 17:00"
                 />
               </div>
               <DialogFooter>
@@ -128,7 +182,7 @@ export default function UnitList() {
       <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-border shadow-sm">
         <Search className="w-4 h-4 text-muted-foreground ml-2" />
         <Input
-          placeholder="Buscar unidade pelo nome..."
+          placeholder="Buscar unidade pelo nome ou CNES..."
           className="border-none shadow-none focus-visible:ring-0"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -140,8 +194,8 @@ export default function UnitList() {
           <TableHeader>
             <TableRow>
               <TableHead>Unidade</TableHead>
-              <TableHead>Endereço</TableHead>
-              
+              <TableHead>CNES</TableHead>
+              <TableHead>Horário</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -149,14 +203,13 @@ export default function UnitList() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   Carregando...
                 </TableCell>
               </TableRow>
             ) : filteredUnits.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   Nenhuma unidade encontrada.
                 </TableCell>
               </TableRow>
@@ -168,17 +221,23 @@ export default function UnitList() {
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                         <Building className="w-4 h-4 text-green-600" />
                       </div>
-                      <span className="font-medium">{u.name}</span>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{u.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{u.address || "Sem endereço"}</span>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{u.address || "-"}</TableCell>
-                  
+                  <TableCell className="text-sm font-mono">{u.cnes || "-"}</TableCell>
+                  <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
                   <TableCell>
-                    <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                    <span className="px-2 py-1 rounded-full text-[10px] bg-green-100 text-green-700">
                       Ativa
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
@@ -204,8 +263,6 @@ export default function UnitList() {
                       </AlertDialogContent>
                     </AlertDialog>
                   </TableCell>
-
-
                 </TableRow>
               ))
             )}
