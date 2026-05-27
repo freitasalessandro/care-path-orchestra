@@ -52,7 +52,7 @@ export default function StaffList() {
     setLoading(true);
     const [staffRes, deptRes, posRes] = await Promise.all([
       supabase.from("staff").select("*, departments(name), positions(title, work_hours)").order("name"),
-      supabase.from("departments").select("*").order("name"),
+      supabase.from("departments").select("*, units(name)").order("name"),
       supabase.from("positions").select("*").order("title"),
     ]);
     
@@ -235,9 +235,6 @@ export default function StaffList() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="dept">Setor</Label>
-                  <Link to="/setores" className="text-[10px] text-primary hover:underline flex items-center gap-1">
-                    <Plus className="w-2.5 h-2.5" /> Cadastrar novo setor
-                  </Link>
                 </div>
                 <Select 
                   value={newStaff.department_id} 
@@ -248,7 +245,7 @@ export default function StaffList() {
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id}>{d.name} ({d.units?.name || "Sem unidade"})</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

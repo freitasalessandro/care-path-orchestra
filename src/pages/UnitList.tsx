@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Building, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, Building, Trash2, Pencil, Briefcase } from "lucide-react";
 import { toast } from "sonner";
+import { PrintSchedule } from "@/components/PrintSchedule";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +27,13 @@ export default function UnitList() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
   
+  // Sector Management State
+  const [selectedUnitForSectors, setSelectedUnitForSectors] = useState<any>(null);
+  const [isSectorsDialogOpen, setIsSectorsDialogOpen] = useState(false);
+  const [unitSectors, setUnitSectors] = useState<any[]>([]);
+  const [isNewSectorDialogOpen, setIsNewSectorDialogOpen] = useState(false);
+  const [newSector, setNewSector] = useState({ name: "", description: "" });
+  
   const [newUnit, setNewUnit] = useState({
     name: "",
     address: "",
@@ -38,7 +45,7 @@ export default function UnitList() {
     setLoading(true);
     const { data, error } = await supabase
       .from("units")
-      .select("*")
+      .select("*, departments(count)")
       .order("name");
     
     if (error) {
@@ -106,6 +113,60 @@ export default function UnitList() {
     }
   };
 
+  // Sector Management Functions
+  const handleOpenSectors = async (unit: any) => {
+    setSelectedUnitForSectors(unit);
+    setIsSectorsDialogOpen(true);
+    fetchUnitSectors(unit.id);
+  };
+
+  const fetchUnitSectors = async (unitId: string) => {
+    const { data, error } = await supabase
+      .from("departments")
+      .select("*")
+      .eq("unit_id", unitId)
+      .order("name");
+    
+    if (error) {
+      toast.error("Erro ao carregar setores da unidade");
+    } else {
+      setUnitSectors(data || []);
+    }
+  };
+
+  const handleCreateSector = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.from("departments").insert([{
+      ...newSector,
+      unit_id: selectedUnitForSectors.id
+    }]);
+
+    if (error) {
+      toast.error(error.message || "Erro ao cadastrar setor");
+    } else {
+      toast.success("Setor cadastrado com sucesso!");
+      setIsNewSectorDialogOpen(false);
+      setNewSector({ name: "", description: "" });
+      fetchUnitSectors(selectedUnitForSectors.id);
+      fetchUnits(); // Update sector count in main list
+    }
+  };
+
+  const handleDeleteSector = async (sectorId: string) => {
+    const { error } = await supabase.from("departments").delete().eq("id", sectorId);
+    if (error) {
+      if (error.code === "23503") {
+        toast.error("Não é possível excluir um setor que possui funcionários vinculados.");
+      } else {
+        toast.error("Erro ao excluir setor.");
+      }
+    } else {
+      toast.success("Setor excluído com sucesso!");
+      fetchUnitSectors(selectedUnitForSectors.id);
+      fetchUnits();
+    }
+  };
+
   const filteredUnits = units.filter(u => 
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (u.cnes && u.cnes.includes(searchTerm))
@@ -116,7 +177,7 @@ export default function UnitList() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">UBS / Unidades</h1>
-          <p className="text-gray-600">Gestão de unidades de saúde e postos.</p>
+          <p className="text-gray-600">Gestão de unidades de saúde, postos e seus setores internos.</p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -215,8 +276,8 @@ export default function UnitList() {
             <TableRow>
               <TableHead>Unidade</TableHead>
               <TableHead>CNES</TableHead>
+              <TableHead>Setores</TableHead>
               <TableHead>Horário</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -248,12 +309,18 @@ export default function UnitList() {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm font-mono">{u.cnes || "-"}</TableCell>
-                  <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
                   <TableCell>
-                    <span className="px-2 py-1 rounded-full text-[10px] bg-green-100 text-green-700">
-                      Ativa
-                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                      onClick={() => handleOpenSectors(u)}
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      {u.departments?.[0]?.count || 0} Setores
+                    </Button>
                   </TableCell>
+                  <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
                     <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)}>
                       <Pencil className="w-4 h-4" />
@@ -268,7 +335,7 @@ export default function UnitList() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Excluir Unidade</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita.
+                            Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita e removerá todos os setores vinculados.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -289,6 +356,111 @@ export default function UnitList() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Sectors Management Dialog */}
+      <Dialog open={isSectorsDialogOpen} onOpenChange={setIsSectorsDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between pr-8">
+              <div>
+                <DialogTitle>Setores da Unidade</DialogTitle>
+                <p className="text-sm text-muted-foreground">{selectedUnitForSectors?.name}</p>
+              </div>
+              <Button size="sm" className="gap-2" onClick={() => setIsNewSectorDialogOpen(true)}>
+                <Plus className="w-4 h-4" /> Novo Setor
+              </Button>
+            </div>
+          </DialogHeader>
+
+          <div className="py-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome do Setor</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {unitSectors.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
+                      Nenhum setor cadastrado nesta unidade.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  unitSectors.map((sector) => (
+                    <TableRow key={sector.id}>
+                      <TableCell className="font-medium">{sector.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{sector.description || "-"}</TableCell>
+                      <TableCell className="text-right space-x-2 flex items-center justify-end">
+                        <PrintSchedule departmentId={sector.id} departmentName={sector.name} />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir Setor</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Deseja excluir o setor "{sector.name}"?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteSector(sector.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Sector Dialog */}
+      <Dialog open={isNewSectorDialogOpen} onOpenChange={setIsNewSectorDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Cadastrar Novo Setor</DialogTitle>
+            <p className="text-sm text-muted-foreground">Vinculado a: {selectedUnitForSectors?.name}</p>
+          </DialogHeader>
+          <form onSubmit={handleCreateSector} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="sector-name">Nome do Setor</Label>
+              <Input 
+                id="sector-name" 
+                value={newSector.name} 
+                onChange={e => setNewSector({...newSector, name: e.target.value})} 
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sector-desc">Descrição (Opcional)</Label>
+              <Input 
+                id="sector-desc" 
+                value={newSector.description} 
+                onChange={e => setNewSector({...newSector, description: e.target.value})} 
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsNewSectorDialogOpen(false)}>Cancelar</Button>
+              <Button type="submit">Cadastrar Setor</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
