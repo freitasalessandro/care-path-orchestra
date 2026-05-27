@@ -29,6 +29,7 @@ export default function StaffList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
   
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
@@ -39,6 +40,7 @@ export default function StaffList() {
     phone: "",
     cpf: "",
   });
+
 
   const fetchData = async () => {
     setLoading(true);
