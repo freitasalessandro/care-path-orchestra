@@ -174,8 +174,9 @@ export default function StaffList() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
-              <DialogTitle>Cadastrar Funcionário</DialogTitle>
+              <DialogTitle>{editingStaff ? "Editar Funcionário" : "Cadastrar Funcionário"}</DialogTitle>
             </DialogHeader>
+
             <form onSubmit={handleCreateStaff} className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
