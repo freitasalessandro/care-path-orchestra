@@ -10,15 +10,21 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
 
+// Shared Pages
+const Login = lazy(() => import("@/pages/Login"));
+const ModuleSelection = lazy(() => import("@/pages/ModuleSelection"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+// Surgery Module Pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const PatientList = lazy(() => import("@/pages/PatientList"));
 const PatientDetail = lazy(() => import("@/pages/PatientDetail"));
 const SurgeryList = lazy(() => import("@/pages/SurgeryList"));
 const SurgeryDetail = lazy(() => import("@/pages/SurgeryDetail"));
 const ChecklistTemplates = lazy(() => import("@/pages/ChecklistTemplates"));
-const NotFound = lazy(() => import("@/pages/NotFound"));
-const Login = lazy(() => import("@/pages/Login"));
-const ModuleSelection = lazy(() => import("@/pages/ModuleSelection"));
+
+// HR Module Pages
+const HRDashboard = lazy(() => import("@/pages/HRDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -47,12 +53,24 @@ function AppLayout() {
         <main className={`flex-1 p-8 overflow-y-auto transition-all duration-200 ${collapsed ? "ml-16" : "ml-60"}`}>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/pacientes" element={<PatientList />} />
-              <Route path="/pacientes/:id" element={<PatientDetail />} />
-              <Route path="/cirurgias" element={<SurgeryList />} />
-              <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
-              <Route path="/checklists" element={<ChecklistTemplates />} />
+              {selectedModule === "surgeries" ? (
+                <>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/pacientes" element={<PatientList />} />
+                  <Route path="/pacientes/:id" element={<PatientDetail />} />
+                  <Route path="/cirurgias" element={<SurgeryList />} />
+                  <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
+                  <Route path="/checklists" element={<ChecklistTemplates />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<HRDashboard />} />
+                  {/* Future HR routes will go here */}
+                  <Route path="/funcionarios" element={<div className="p-8">Módulo de Funcionários (Em desenvolvimento)</div>} />
+                  <Route path="/unidades" element={<div className="p-8">Módulo de Unidades/UBS (Em desenvolvimento)</div>} />
+                  <Route path="/setores" element={<div className="p-8">Módulo de Setores (Em desenvolvimento)</div>} />
+                </>
+              )}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

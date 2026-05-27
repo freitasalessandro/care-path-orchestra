@@ -1,18 +1,31 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarContext } from "@/contexts/SidebarContext";
-const links = [
+import { useAuth } from "@/contexts/AuthContext";
+
+const surgeryLinks = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/pacientes", label: "Pacientes", icon: Users },
   { to: "/cirurgias", label: "Cirurgias", icon: Scissors },
   { to: "/checklists", label: "Cadastro de Cirurgias", icon: ClipboardList },
 ];
 
+const hrLinks = [
+  { to: "/", label: "Painel RH", icon: LayoutDashboard },
+  { to: "/funcionarios", label: "Funcionários", icon: UserCircle },
+  { to: "/unidades", label: "UBS / Unidades", icon: Building },
+  { to: "/setores", label: "Setores", icon: Briefcase },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
+  const { selectedModule } = useAuth();
+  
+  const links = selectedModule === "hr" ? hrLinks : surgeryLinks;
+
   return (
     <aside
       className={cn(
@@ -62,4 +75,3 @@ export function AppSidebar() {
     </aside>
   );
 }
-
