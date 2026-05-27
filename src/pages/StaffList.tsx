@@ -52,7 +52,7 @@ export default function StaffList() {
     setLoading(true);
     const [staffRes, deptRes, posRes] = await Promise.all([
       supabase.from("staff").select("*, departments(name), positions(title, work_hours)").order("name"),
-      supabase.from("departments").select("*").order("name"),
+      supabase.from("departments").select("*, units(name)").order("name"),
       supabase.from("positions").select("*").order("title"),
     ]);
     
