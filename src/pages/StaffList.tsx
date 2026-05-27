@@ -83,7 +83,7 @@ export default function StaffList() {
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const registration = newStaff.registration_code || `REG-${Date.now()}`;
+    const registration = newStaff.registration_code || null;
     
     const payload = {
       registration_code: registration,
@@ -277,7 +277,7 @@ export default function StaffList() {
                     id="reg" 
                     value={newStaff.registration_code} 
                     onChange={e => setNewStaff({...newStaff, registration_code: e.target.value})} 
-                    placeholder="Automático se vazio"
+                    placeholder="Deixe vazio para preencher depois"
                   />
                 </div>
               </div>
