@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { Plus, Search, Building, Trash2, Pencil, Briefcase, Clock, Calendar } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import { PrintSchedule } from "@/components/PrintSchedule";
 import {
@@ -38,7 +39,7 @@ export default function UnitList() {
     address: "",
     cnes: "",
     operating_hours: "",
-    operating_days: "Segunda a Sexta",
+    operating_days: "Segunda, Terça, Quarta, Quinta, Sexta",
   });
 
   const fetchUnits = async () => {
@@ -89,7 +90,7 @@ export default function UnitList() {
         toast.success("Unidade atualizada com sucesso!");
         setIsDialogOpen(false);
         setEditingUnit(null);
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
         fetchUnits();
       }
     } else {
@@ -103,7 +104,7 @@ export default function UnitList() {
         toast.error(error.message || "Erro ao cadastrar unidade");
       } else {
         toast.success("Unidade cadastrada com sucesso! Agora você pode adicionar setores.");
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
         setEditingUnit(createdUnit);
         setUnitSectors([]);
         fetchUnits();
@@ -118,7 +119,7 @@ export default function UnitList() {
       address: unit.address || "",
       cnes: unit.cnes || "",
       operating_hours: unit.operating_hours || "",
-      operating_days: unit.operating_days || "Segunda a Sexta",
+      operating_days: unit.operating_days || "Segunda, Terça, Quarta, Quinta, Sexta",
     });
     fetchUnitSectors(unit.id);
     setIsDialogOpen(true);
@@ -188,7 +189,7 @@ export default function UnitList() {
 
         <Button className="gap-2" onClick={() => {
           setEditingUnit(null);
-          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
           setUnitSectors([]);
           setIsDialogOpen(true);
         }}>
@@ -251,7 +252,7 @@ export default function UnitList() {
                   </TableCell>
                   <TableCell className="text-sm">
                     <div className="flex flex-col">
-                      <span>{u.operating_days || "Segunda a Sexta"}</span>
+                      <span>{u.operating_days || "Segunda, Terça, Quarta, Quinta, Sexta"}</span>
                       <span className="text-[10px] text-muted-foreground">{u.operating_hours || "-"}</span>
                     </div>
                   </TableCell>
@@ -330,22 +331,26 @@ export default function UnitList() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="operating_days">Dias de Funcionamento</Label>
-                  <Select 
-                    value={newUnit.operating_days} 
-                    onValueChange={value => setNewUnit({...newUnit, operating_days: value})}
+                  <Label>Dias de Funcionamento</Label>
+                  <ToggleGroup 
+                    type="multiple" 
+                    variant="outline" 
+                    className="justify-start flex-wrap gap-2"
+                    value={newUnit.operating_days ? newUnit.operating_days.split(", ") : []}
+                    onValueChange={(values) => {
+                      const daysOrder = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+                      const sortedValues = daysOrder.filter(d => values.includes(d));
+                      setNewUnit({...newUnit, operating_days: sortedValues.join(", ")});
+                    }}
                   >
-                    <SelectTrigger id="operating_days">
-                      <SelectValue placeholder="Selecione os dias" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Segunda a Sexta">Segunda a Sexta</SelectItem>
-                      <SelectItem value="Segunda a Sábado">Segunda a Sábado</SelectItem>
-                      <SelectItem value="Segunda a Domingo">Segunda a Domingo (24h)</SelectItem>
-                      <SelectItem value="Todos os Dias">Todos os Dias</SelectItem>
-                      <SelectItem value="Segunda a Quinta">Segunda a Quinta</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <ToggleGroupItem value="Segunda" aria-label="Segunda" className="px-3">Seg</ToggleGroupItem>
+                    <ToggleGroupItem value="Terça" aria-label="Terça" className="px-3">Ter</ToggleGroupItem>
+                    <ToggleGroupItem value="Quarta" aria-label="Quarta" className="px-3">Qua</ToggleGroupItem>
+                    <ToggleGroupItem value="Quinta" aria-label="Quinta" className="px-3">Qui</ToggleGroupItem>
+                    <ToggleGroupItem value="Sexta" aria-label="Sexta" className="px-3">Sex</ToggleGroupItem>
+                    <ToggleGroupItem value="Sábado" aria-label="Sábado" className="px-3">Sáb</ToggleGroupItem>
+                    <ToggleGroupItem value="Domingo" aria-label="Domingo" className="px-3">Dom</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
