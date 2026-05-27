@@ -1,0 +1,1 @@
+ALTER TABLE public.units ADD COLUMN operating_days TEXT;
