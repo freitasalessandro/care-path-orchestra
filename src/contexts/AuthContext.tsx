@@ -31,6 +31,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    // Check for dummy session
+    const isDummy = localStorage.getItem("sb-dummy-session");
+    if (isDummy) {
+      setUser({ email: "admin@sistema.com", id: "admin-id" } as any);
+      setLoading(false);
+      return;
+    }
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -49,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    localStorage.removeItem("sb-dummy-session");
     await supabase.auth.signOut();
     setSelectedModule(null);
   };
