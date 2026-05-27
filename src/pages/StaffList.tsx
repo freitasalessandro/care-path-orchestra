@@ -49,7 +49,9 @@ export default function StaffList() {
     condition: "",
     phone: "",
     cpf: "",
+    work_schedule: "",
   });
+
 
 
   const fetchData = async () => {
@@ -107,7 +109,8 @@ export default function StaffList() {
         toast.success("Funcionário atualizado com sucesso!");
         setIsDialogOpen(false);
         setEditingStaff(null);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+
         fetchData();
       }
     } else {
@@ -124,7 +127,8 @@ export default function StaffList() {
       } else {
         toast.success("Funcionário cadastrado com sucesso!");
         setIsDialogOpen(false);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+
         fetchData();
       }
     }
@@ -140,7 +144,9 @@ export default function StaffList() {
       condition: s.condition || "",
       phone: s.phone || "",
       cpf: s.cpf || "",
+      work_schedule: s.work_schedule || "",
     });
+
     setIsDialogOpen(true);
   };
 
