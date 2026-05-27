@@ -5,8 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Scissors, Briefcase } from "lucide-react";
+import { Plus, Search, Scissors, Briefcase, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 export default function PositionList() {
   const [positions, setPositions] = useState<any[]>([]);
@@ -56,8 +68,23 @@ export default function PositionList() {
     p.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDeletePosition = async (id: string) => {
+    const { error } = await supabase.from("positions").delete().eq("id", id);
+    if (error) {
+      if (error.code === "23503") {
+        toast.error("Não é possível excluir uma função que possui funcionários vinculados.");
+      } else {
+        toast.error("Erro ao excluir função.");
+      }
+    } else {
+      toast.success("Função excluída com sucesso!");
+      fetchPositions();
+    }
+  };
+
   return (
     <div className="space-y-6">
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
@@ -149,9 +176,34 @@ export default function PositionList() {
                     </div>
                   </TableCell>
                   <TableCell>{p.work_hours}h / mês</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex items-center justify-end gap-2">
                     <Button variant="ghost" size="sm">Editar</Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir Função</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir esta função? Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeletePosition(p.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
+
                 </TableRow>
               ))
             )}
