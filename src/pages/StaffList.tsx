@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { PrintTimesheet } from "@/components/PrintTimesheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { FileText, Calendar as CalendarIcon } from "lucide-react";
+
 
 
 export default function StaffList() {
