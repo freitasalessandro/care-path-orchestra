@@ -18,9 +18,14 @@ export default function IosePatientList() {
   const [newPatient, setNewPatient] = useState({
     full_name: "",
     cpf: "",
+    rg: "",
     phone: "",
     sus_card: "",
     birth_date: "",
+    address: "",
+    city: "",
+    health_insurance: "",
+    observations: "",
   });
 
   const { data: patients, isLoading } = useQuery({
@@ -46,7 +51,18 @@ export default function IosePatientList() {
       queryClient.invalidateQueries({ queryKey: ["iose-patients"] });
       toast.success("Paciente cadastrado com sucesso!");
       setIsAddDialogOpen(false);
-      setNewPatient({ full_name: "", cpf: "", phone: "", sus_card: "", birth_date: "" });
+      setNewPatient({ 
+        full_name: "", 
+        cpf: "", 
+        rg: "", 
+        phone: "", 
+        sus_card: "", 
+        birth_date: "", 
+        address: "", 
+        city: "", 
+        health_insurance: "", 
+        observations: "" 
+      });
     },
     onError: (error: any) => {
       toast.error("Erro ao cadastrar paciente: " + error.message);
@@ -67,26 +83,34 @@ export default function IosePatientList() {
               Novo Paciente
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>Cadastrar Novo Paciente</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input
-                  id="name"
-                  value={newPatient.full_name}
-                  onChange={(e) => setNewPatient({ ...newPatient, full_name: e.target.value })}
-                />
-              </div>
               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input
+                    id="name"
+                    value={newPatient.full_name}
+                    onChange={(e) => setNewPatient({ ...newPatient, full_name: e.target.value })}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
                   <Input
                     id="cpf"
                     value={newPatient.cpf}
                     onChange={(e) => setNewPatient({ ...newPatient, cpf: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rg">RG</Label>
+                  <Input
+                    id="rg"
+                    value={newPatient.rg}
+                    onChange={(e) => setNewPatient({ ...newPatient, rg: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -98,8 +122,6 @@ export default function IosePatientList() {
                     onChange={(e) => setNewPatient({ ...newPatient, birth_date: e.target.value })}
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
                   <Input
@@ -116,8 +138,40 @@ export default function IosePatientList() {
                     onChange={(e) => setNewPatient({ ...newPatient, sus_card: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="health_insurance">Convênio</Label>
+                  <Input
+                    id="health_insurance"
+                    value={newPatient.health_insurance}
+                    onChange={(e) => setNewPatient({ ...newPatient, health_insurance: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input
+                    id="address"
+                    value={newPatient.address}
+                    onChange={(e) => setNewPatient({ ...newPatient, address: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    value={newPatient.city}
+                    onChange={(e) => setNewPatient({ ...newPatient, city: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="observations">Observações</Label>
+                  <Input
+                    id="observations"
+                    value={newPatient.observations}
+                    onChange={(e) => setNewPatient({ ...newPatient, observations: e.target.value })}
+                  />
+                </div>
               </div>
-              <Button className="w-full" onClick={() => createPatient.mutate(newPatient)}>
+              <Button className="w-full mt-4" onClick={() => createPatient.mutate(newPatient)}>
                 Salvar Cadastro
               </Button>
             </div>
