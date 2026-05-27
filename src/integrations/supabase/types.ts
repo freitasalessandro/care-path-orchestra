@@ -151,6 +151,30 @@ export type Database = {
         }
         Relationships: []
       }
+      positions: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          work_hours: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+          work_hours?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          work_hours?: number
+        }
+        Relationships: []
+      }
       print_settings: {
         Row: {
           created_at: string
@@ -201,6 +225,7 @@ export type Database = {
           name: string
           phone: string | null
           position: string | null
+          position_id: string | null
           registration_code: string
           status: string | null
           updated_at: string
@@ -215,6 +240,7 @@ export type Database = {
           name: string
           phone?: string | null
           position?: string | null
+          position_id?: string | null
           registration_code: string
           status?: string | null
           updated_at?: string
@@ -229,6 +255,7 @@ export type Database = {
           name?: string
           phone?: string | null
           position?: string | null
+          position_id?: string | null
           registration_code?: string
           status?: string | null
           updated_at?: string
@@ -239,6 +266,13 @@ export type Database = {
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
             referencedColumns: ["id"]
           },
         ]

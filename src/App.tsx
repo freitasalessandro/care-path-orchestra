@@ -28,6 +28,7 @@ const HRDashboard = lazy(() => import("@/pages/HRDashboard"));
 const StaffList = lazy(() => import("@/pages/StaffList"));
 const UnitList = lazy(() => import("@/pages/UnitList"));
 const DepartmentList = lazy(() => import("@/pages/DepartmentList"));
+const PositionList = lazy(() => import("@/pages/PositionList"));
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ function AppLayout() {
                   <Route path="/funcionarios" element={<StaffList />} />
                   <Route path="/unidades" element={<UnitList />} />
                   <Route path="/setores" element={<DepartmentList />} />
+                  <Route path="/funcoes" element={<PositionList />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
