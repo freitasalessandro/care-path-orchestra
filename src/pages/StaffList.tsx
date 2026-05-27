@@ -9,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { PrintTimesheet } from "@/components/PrintTimesheet";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +24,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { FileText, Calendar as CalendarIcon } from "lucide-react";
+
 
 
 export default function StaffList() {
@@ -30,6 +36,10 @@ export default function StaffList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<any>(null);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedStaffForPrint, setSelectedStaffForPrint] = useState<any>(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+
   
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
@@ -357,9 +367,16 @@ export default function StaffList() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => {
+                      setSelectedStaffForPrint(s);
+                      setIsPrintDialogOpen(true);
+                    }} title="Gerar Folha de Ponto">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => handleEditClick(s)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
@@ -393,6 +410,43 @@ export default function StaffList() {
           </TableBody>
         </Table>
       </div>
+      
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Gerar Folha de Ponto</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label>Funcionário</Label>
+              <Input value={selectedStaffForPrint?.name || ""} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="month-select">Selecione o Mês Inicial</Label>
+              <Input 
+                id="month-select"
+                type="month" 
+                value={format(selectedMonth, "yyyy-MM")}
+                onChange={(e) => {
+                  const [year, month] = e.target.value.split("-");
+                  setSelectedMonth(new Date(parseInt(year), parseInt(month) - 1, 1));
+                }}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                A folha será gerada do dia 10 de {format(selectedMonth, "MMMM", { locale: ptBR })} 
+                até o dia 10 do mês seguinte.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Cancelar</Button>
+            {selectedStaffForPrint && (
+              <PrintTimesheet staff={selectedStaffForPrint} month={selectedMonth} />
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
