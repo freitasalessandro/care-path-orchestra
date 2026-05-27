@@ -66,22 +66,13 @@ export function PrintTimesheet({ staff, month }: Props) {
             object-fit: contain;
           }
           .employee-info {
-            margin: 0 0 10px 0;
-            font-size: 11px;
-            line-height: 1.4;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px 15px;
-            padding: 0 2px;
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            line-height: 1.5;
+            font-weight: bold;
           }
           .employee-info div {
-            border-bottom: 0.5px solid #000;
-            padding-bottom: 1px;
-          }
-          .employee-info div b {
-            font-weight: bold;
-            margin-right: 4px;
-            text-transform: uppercase;
+            padding: 0;
           }
           .title {
             text-align: center;
@@ -175,12 +166,11 @@ export function PrintTimesheet({ staff, month }: Props) {
         <img src="/timbre-neopolis.png" alt="Timbre" className="timbre" />
 
         <div className="employee-info">
-          <div><b>SETOR:</b> {staff.departments?.name || "_______________________"}</div>
-          <div><b>SERVIDOR:</b> {staff.name || ""}</div>
-          <div><b>FUNÇÃO:</b> {staff.positions?.title || ""}</div>
-          <div><b>CONDIÇÃO:</b> {staff.condition || ""}</div>
-          <div><b>C. HORÁRIA:</b> {staff.positions?.work_hours ? `${staff.positions.work_hours}HRS` : "______"}</div>
-          <div><b>ANO:</b> {format(month, "yyyy")}</div>
+          <div>SETOR: {staff.departments?.name || "_______________________"}</div>
+          <div>SERVIDOR: {staff.name || ""}</div>
+          <div>FUNÇÃO: {staff.positions?.title || ""}</div>
+          <div>CONDIÇÃO: {staff.condition || ""}</div>
+          <div>C. HORÁRIA: {staff.positions?.work_hours ? `${staff.positions.work_hours}HRS` : "______"} ANO: {format(month, "yyyy")}</div>
         </div>
 
         <div className="title">REGISTRO DIÁRIO DE FREQUÊNCIA DO SERVIDOR</div>
