@@ -148,7 +148,7 @@ export function PrintTimesheet({ staff, month }: Props) {
           <div className="header-info">
             <p>ESTADO DE SERGIPE</p>
             <p>PREFEITURA MUNICIPAL</p>
-            <p>SECRETARIA MUNICIPAL DE SAÚDE</p>
+            <p>FUNDO MUNICIPAL DE SAÚDE</p>
             <h2>FOLHA DE FREQUÊNCIA INDIVIDUAL</h2>
           </div>
           <div className="period-box">
