@@ -1,0 +1,162 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Plus, Search, Scissors, Briefcase } from "lucide-react";
+import { toast } from "sonner";
+
+export default function PositionList() {
+  const [positions, setPositions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const [newPosition, setNewPosition] = useState({
+    title: "",
+    work_hours: 40,
+  });
+
+  const fetchPositions = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("positions")
+      .select("*")
+      .order("title");
+    
+    if (error) {
+      toast.error("Erro ao carregar funções");
+    } else {
+      setPositions(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPositions();
+  }, []);
+
+  const handleCreatePosition = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.from("positions").insert([newPosition]);
+    
+    if (error) {
+      toast.error(error.message || "Erro ao cadastrar função");
+    } else {
+      toast.success("Função cadastrada com sucesso!");
+      setIsDialogOpen(false);
+      setNewPosition({ title: "", work_hours: 40 });
+      fetchPositions();
+    }
+  };
+
+  const filteredPositions = positions.filter(p => 
+    p.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
+          <p className="text-gray-600">Gestão de funções e carga horária semanal.</p>
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              Nova Função
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Função</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreatePosition} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Título da Função</Label>
+                <Input 
+                  id="title" 
+                  value={newPosition.title} 
+                  onChange={e => setNewPosition({...newPosition, title: e.target.value})} 
+                  placeholder="Ex: Enfermeiro, Médico, etc"
+                  required 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hours">Carga Horária Semanal (Horas)</Label>
+                <Input 
+                  id="hours" 
+                  type="number"
+                  value={newPosition.work_hours} 
+                  onChange={e => setNewPosition({...newPosition, work_hours: parseInt(e.target.value) || 0})} 
+                  required 
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit">Salvar Função</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-border shadow-sm">
+        <Search className="w-4 h-4 text-muted-foreground ml-2" />
+        <Input
+          placeholder="Buscar função pelo título..."
+          className="border-none shadow-none focus-visible:ring-0"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Título</TableHead>
+              <TableHead>Carga Horária</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                  Carregando...
+                </TableCell>
+              </TableRow>
+            ) : filteredPositions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                  Nenhuma função encontrada.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredPositions.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Briefcase className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="font-medium">{p.title}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{p.work_hours}h / semana</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm">Editar</Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
