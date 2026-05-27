@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,32 +7,43 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
 interface Props {
-  departmentId: string;
-  departmentName: string;
+  unitId: string;
+  unitName: string;
 }
 
-export function PrintSchedule({ departmentId, departmentName }: Props) {
+export function PrintSchedule({ unitId, unitName }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handlePrint = async () => {
     setLoading(true);
     try {
-      // Fetch staff in this department
-      const { data: staffData, error: staffError } = await supabase
-        .from("staff")
+      // Fetch unit details
+      const { data: unitData, error: unitError } = await supabase
+        .from("units")
+        .select("*")
+        .eq("id", unitId)
+        .single();
+
+      if (unitError) throw unitError;
+
+      // Fetch all departments (sectors) for this unit
+      const { data: departments, error: deptError } = await supabase
+        .from("departments")
         .select(`
           id,
           name,
-          work_schedule,
-          positions (title),
-          staff_assignments (
-            units (name, operating_hours, address)
+          work_hours,
+          staff (
+            id,
+            name,
+            work_schedule,
+            positions (title)
           )
         `)
-        .eq("department_id", departmentId)
+        .eq("unit_id", unitId)
         .order("name");
 
-      if (staffError) throw staffError;
+      if (deptError) throw deptError;
 
       // Fetch secretariat settings
       const { data: settings, error: settingsError } = await supabase
@@ -42,53 +53,58 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
 
       if (settingsError) throw settingsError;
 
-      if (!staffData || staffData.length === 0) {
-        toast.error("Nenhum funcionário encontrado neste setor.");
-        setLoading(false);
-        return;
-      }
-
       const now = new Date();
       const monthYear = format(now, "MMMM 'de' yyyy", { locale: ptBR });
+
+      let sectorsHtml = "";
       
-      // Get the first unit's data for the header
-      const unitData = (staffData[0] as any)?.staff_assignments?.[0]?.units || { 
-        name: "Não informada", 
-        operating_hours: "Não informado", 
-        address: "Não informado" 
-      };
+      if (!departments || departments.length === 0) {
+        sectorsHtml = "<p style='text-align: center; padding: 20px;'>Nenhum setor ou funcionário cadastrado nesta unidade.</p>";
+      } else {
+        departments.forEach((dept: any) => {
+          if (dept.staff && dept.staff.length > 0) {
+            sectorsHtml += `
+              <div class="sector-section">
+                <h2 class="sector-title">${dept.name.toUpperCase()} ${dept.work_hours ? `(${dept.work_hours}H)` : ""}</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 40%">PROFISSIONAL</th>
+                      <th style="width: 30%">CARGO/FUNÇÃO</th>
+                      <th style="width: 30%">HORÁRIO/TURNO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${dept.staff.map((s: any) => `
+                      <tr>
+                        <td>${s.name}</td>
+                        <td>${s.positions?.title || "---"}</td>
+                        <td>${s.work_schedule || "DE ACORDO COM A UNIDADE"}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        });
+      }
 
       const content = `
         <div class="print-container">
           <img src="/timbre-neopolis.png" alt="Timbre" class="timbre" />
           
           <div class="header-info">
-            <h1 class="report-title">ESCALA DE PROFISSIONAIS - ${departmentName.toUpperCase()}</h1>
+            <h1 class="report-title">ESCALA MENSAL DE PROFISSIONAIS</h1>
             <div class="unit-details">
-              <div><strong>UNIDADE:</strong> ${unitData.name}</div>
-              <div><strong>FUNCIONAMENTO:</strong> ${unitData.operating_hours}</div>
+              <div><strong>UNIDADE:</strong> ${unitData.name.toUpperCase()}</div>
+              <div><strong>CNES:</strong> ${unitData.cnes || "---"}</div>
+              <div><strong>FUNCIONAMENTO:</strong> ${unitData.operating_hours || "---"}</div>
               <div><strong>MÊS/ANO:</strong> ${monthYear.toUpperCase()}</div>
             </div>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 40%">PROFISSIONAL</th>
-                <th style="width: 30%">CARGO/FUNÇÃO</th>
-                <th style="width: 30%">HORÁRIO/TURNO</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${staffData.map((s: any) => `
-                <tr>
-                  <td>${s.name}</td>
-                  <td>${s.positions?.title || "---"}</td>
-                  <td>${s.work_schedule || "DE ACORDO COM A UNIDADE"}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          ${sectorsHtml}
 
           <div class="footer-info">
             <div class="secretariat-data">
@@ -97,7 +113,7 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
               ${settings?.address ? `<div>${settings.address}</div>` : ""}
             </div>
             <div class="signatures">
-              <div class="sig-line">Assinatura do Responsável pelo Setor</div>
+              <div class="sig-line">Direção da Unidade</div>
               <div class="sig-line">Carimbo e Visto da Secretaria</div>
             </div>
           </div>
@@ -114,86 +130,98 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
       win.document.write(`
         <html>
         <head>
-          <title>Escala - ${departmentName}</title>
+          <title>Escala - ${unitName}</title>
           <style>
             @page { 
               size: A4; 
-              margin: 1.5cm 2cm 1.5cm 2cm; 
+              margin: 1.5cm 1.5cm 1.5cm 1.5cm; 
             }
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
               font-family: 'Times New Roman', Times, serif;
               color: #000;
-              font-size: 12px;
-              line-height: 1.4;
+              font-size: 11px;
+              line-height: 1.3;
             }
             .print-container { width: 100%; display: flex; flex-direction: column; }
             .timbre {
               width: 100%;
               display: block;
-              margin: 0 auto 10px auto;
-              max-height: 140px;
+              margin: 0 auto 5px auto;
+              max-height: 120px;
               object-fit: contain;
             }
             .header-info {
-              margin-bottom: 20px;
+              margin-bottom: 15px;
               border-bottom: 2px solid #000;
-              padding-bottom: 10px;
+              padding-bottom: 8px;
             }
             .report-title {
               text-align: center;
-              font-size: 16px;
+              font-size: 14px;
               font-weight: bold;
-              margin-bottom: 15px;
+              margin-bottom: 10px;
             }
             .unit-details {
               display: grid;
               grid-template-columns: 1fr 1fr;
-              gap: 5px;
-              font-size: 11px;
+              gap: 4px;
             }
-            .unit-details div { font-weight: bold; }
+            .unit-details div { font-weight: bold; font-size: 10px; }
+            
+            .sector-section {
+              margin-bottom: 15px;
+              page-break-inside: avoid;
+            }
+            .sector-title {
+              font-size: 11px;
+              font-weight: bold;
+              background: #f4f4f4;
+              padding: 4px 8px;
+              border: 1px solid #000;
+              border-bottom: none;
+            }
             table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 30px;
             }
             th, td {
               border: 1px solid #000;
-              padding: 8px 6px;
+              padding: 5px 6px;
               text-align: left;
             }
             th {
-              background-color: #f0f0f0;
+              background-color: #eee;
               font-weight: bold;
               text-align: center;
-              font-size: 11px;
+              font-size: 10px;
             }
-            td { font-size: 11px; }
+            td { font-size: 10px; }
+            
             .footer-info {
-              margin-top: auto;
+              margin-top: 20px;
               display: flex;
               flex-direction: column;
-              gap: 40px;
+              gap: 30px;
             }
             .secretariat-data {
               text-align: center;
-              font-size: 10px;
+              font-size: 9px;
               font-weight: bold;
               border-top: 1px solid #eee;
-              padding-top: 10px;
+              padding-top: 8px;
             }
             .signatures {
               display: flex;
               justify-content: space-around;
-              margin-top: 20px;
+              margin-top: 15px;
             }
             .sig-line {
               border-top: 1px solid #000;
-              width: 200px;
+              width: 180px;
               text-align: center;
-              padding-top: 5px;
-              font-size: 10px;
+              padding-top: 4px;
+              font-size: 9px;
               font-weight: bold;
             }
           </style>
@@ -224,7 +252,7 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
       className="gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarDays className="w-4 h-4" />}
-      Gerar Escala
+      Gerar Escala Geral
     </Button>
   );
 }

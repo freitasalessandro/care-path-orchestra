@@ -243,10 +243,7 @@ export default function UnitList() {
                   </TableCell>
                   <TableCell className="text-sm font-mono">{u.cnes || "-"}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      {u.departments?.[0]?.count || 0} Setores
-                    </div>
+                    <PrintSchedule unitId={u.id} unitName={u.name} />
                   </TableCell>
                   <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
@@ -428,7 +425,7 @@ export default function UnitList() {
                                 </div>
                               </TableCell>
                               <TableCell className="py-2 text-right space-x-1">
-                                <PrintSchedule departmentId={sector.id} departmentName={sector.name} />
+                                
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
                                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600">
