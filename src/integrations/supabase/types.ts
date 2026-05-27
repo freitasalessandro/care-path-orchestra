@@ -383,27 +383,33 @@ export type Database = {
         Row: {
           active: boolean | null
           address: string | null
+          cnes: string | null
           created_at: string
           id: string
           name: string
+          operating_hours: string | null
           phone: string | null
           updated_at: string
         }
         Insert: {
           active?: boolean | null
           address?: string | null
+          cnes?: string | null
           created_at?: string
           id?: string
           name: string
+          operating_hours?: string | null
           phone?: string | null
           updated_at?: string
         }
         Update: {
           active?: boolean | null
           address?: string | null
+          cnes?: string | null
           created_at?: string
           id?: string
           name?: string
+          operating_hours?: string | null
           phone?: string | null
           updated_at?: string
         }
