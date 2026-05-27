@@ -118,7 +118,7 @@ export function PrintTimesheet({ staff, month }: Props) {
             text-transform: uppercase;
           }
           .day-cell { text-align: center; font-weight: bold; width: 35px; }
-          .sig-cell { text-align: center; font-weight: bold; font-size: 9px; }
+          .sig-cell { text-align: center; font-weight: bold; font-size: 8px; color: #444; text-transform: uppercase; }
           .ent-cell, .sai-cell { width: 55px; }
           .observacoes {
             display: flex;
