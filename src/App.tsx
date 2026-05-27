@@ -30,6 +30,7 @@ const UnitList = lazy(() => import("@/pages/UnitList"));
 const DepartmentList = lazy(() => import("@/pages/DepartmentList"));
 const PositionList = lazy(() => import("@/pages/PositionList"));
 
+const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -73,6 +74,7 @@ function AppLayout() {
                   <Route path="/unidades" element={<UnitList />} />
                   <Route path="/setores" element={<DepartmentList />} />
                   <Route path="/funcoes" element={<PositionList />} />
+                  <Route path="/configuracoes" element={<SecretariatSettings />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
