@@ -86,11 +86,14 @@ export default function StaffList() {
     const registration = newStaff.registration_code || `REG-${Date.now()}`;
     
     const payload = {
-      ...newStaff,
       registration_code: registration,
-      department_id: newStaff.department_id || null,
+      name: newStaff.name,
       position_id: newStaff.position_id || null,
+      department_id: newStaff.department_id || null,
       condition: newStaff.condition || null,
+      phone: newStaff.phone,
+      cpf: newStaff.cpf || null,
+      work_schedule: newStaff.work_schedule || null,
     };
 
     if (editingStaff) {
