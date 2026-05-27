@@ -6,12 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, UserCircle } from "lucide-react";
+import { Plus, Search, UserCircle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function StaffList() {
   const [staff, setStaff] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -19,7 +21,7 @@ export default function StaffList() {
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
     name: "",
-    position: "",
+    position_id: "",
     department_id: "",
     condition: "",
     phone: "",
@@ -28,9 +30,10 @@ export default function StaffList() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [staffRes, deptRes] = await Promise.all([
-      supabase.from("staff").select("*, departments(name)").order("name"),
+    const [staffRes, deptRes, posRes] = await Promise.all([
+      supabase.from("staff").select("*, departments(name), positions(title, work_hours)").order("name"),
       supabase.from("departments").select("*").order("name"),
+      supabase.from("positions").select("*").order("title"),
     ]);
     
     if (staffRes.error) {
@@ -44,6 +47,12 @@ export default function StaffList() {
     } else {
       setDepartments(deptRes.data || []);
     }
+
+    if (posRes.error) {
+      toast.error("Erro ao carregar funções");
+    } else {
+      setPositions(posRes.data || []);
+    }
     setLoading(false);
   };
 
@@ -54,14 +63,13 @@ export default function StaffList() {
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Se não houver matrícula, gera uma temporária
     const registration = newStaff.registration_code || `REG-${Date.now()}`;
     
     const { error } = await supabase.from("staff").insert([{
       ...newStaff,
       registration_code: registration,
-      // Se department_id for vazio, envia null
       department_id: newStaff.department_id || null,
+      position_id: newStaff.position_id || null,
       condition: newStaff.condition || null,
     }]);
     
@@ -70,7 +78,7 @@ export default function StaffList() {
     } else {
       toast.success("Funcionário cadastrado com sucesso!");
       setIsDialogOpen(false);
-      setNewStaff({ registration_code: "", name: "", position: "", department_id: "", condition: "", phone: "", cpf: "" });
+      setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
       fetchData();
     }
   };
@@ -95,7 +103,7 @@ export default function StaffList() {
               Novo Funcionário
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
               <DialogTitle>Cadastrar Funcionário</DialogTitle>
             </DialogHeader>
@@ -131,17 +139,35 @@ export default function StaffList() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pos">Cargo / Função</Label>
-                <Input 
-                  id="pos" 
-                  value={newStaff.position} 
-                  onChange={e => setNewStaff({...newStaff, position: e.target.value})} 
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="pos">Função / Cargo</Label>
+                  <Link to="/funcoes" className="text-[10px] text-primary hover:underline flex items-center gap-1">
+                    <Plus className="w-2.5 h-2.5" /> Cadastrar nova função
+                  </Link>
+                </div>
+                <Select 
+                  value={newStaff.position_id} 
+                  onValueChange={v => setNewStaff({...newStaff, position_id: v})}
                   required
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a função" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positions.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.title} ({p.work_hours}h)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dept">Setor</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="dept">Setor</Label>
+                  <Link to="/setores" className="text-[10px] text-primary hover:underline flex items-center gap-1">
+                    <Plus className="w-2.5 h-2.5" /> Cadastrar novo setor
+                  </Link>
+                </div>
                 <Select 
                   value={newStaff.department_id} 
                   onValueChange={v => setNewStaff({...newStaff, department_id: v})}
@@ -208,7 +234,7 @@ export default function StaffList() {
             <TableRow>
               <TableHead>Funcionário</TableHead>
               <TableHead>Setor</TableHead>
-              <TableHead>Cargo</TableHead>
+              <TableHead>Cargo / CH</TableHead>
               <TableHead>Condição</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -242,7 +268,14 @@ export default function StaffList() {
                     </div>
                   </TableCell>
                   <TableCell>{s.departments?.name || "-"}</TableCell>
-                  <TableCell>{s.position || "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span>{s.positions?.title || "-"}</span>
+                      {s.positions?.work_hours && (
+                        <span className="text-[10px] text-muted-foreground">{s.positions.work_hours}h semanais</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {s.condition ? (
                       <span className="text-xs font-semibold">{s.condition}</span>
