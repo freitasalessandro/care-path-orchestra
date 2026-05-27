@@ -34,6 +34,7 @@ const PositionList = lazy(() => import("@/pages/PositionList"));
 const IoseDashboard = lazy(() => import("@/pages/IoseDashboard"));
 const IosePatientList = lazy(() => import("@/pages/IosePatientList"));
 const IoseSurgeryList = lazy(() => import("@/pages/IoseSurgeryList"));
+const IoseReports = lazy(() => import("@/pages/IoseReports"));
 
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
 const queryClient = new QueryClient();
