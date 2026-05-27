@@ -27,12 +27,10 @@ export default function UnitList() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
   
-  // Sector Management State
-  const [selectedUnitForSectors, setSelectedUnitForSectors] = useState<any>(null);
-  const [isSectorsDialogOpen, setIsSectorsDialogOpen] = useState(false);
+  // Sector Management State (internal to the unit dialog)
   const [unitSectors, setUnitSectors] = useState<any[]>([]);
-  const [isNewSectorDialogOpen, setIsNewSectorDialogOpen] = useState(false);
   const [newSector, setNewSector] = useState({ name: "", description: "" });
+  const [isAddingSector, setIsAddingSector] = useState(false);
   
   const [newUnit, setNewUnit] = useState({
     name: "",
@@ -60,6 +58,20 @@ export default function UnitList() {
     fetchUnits();
   }, []);
 
+  const fetchUnitSectors = async (unitId: string) => {
+    const { data, error } = await supabase
+      .from("departments")
+      .select("*")
+      .eq("unit_id", unitId)
+      .order("name");
+    
+    if (error) {
+      toast.error("Erro ao carregar setores da unidade");
+    } else {
+      setUnitSectors(data || []);
+    }
+  };
+
   const handleCreateUnit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -79,14 +91,18 @@ export default function UnitList() {
         fetchUnits();
       }
     } else {
-      const { error } = await supabase.from("units").insert([newUnit]);
+      const { data: createdUnit, error } = await supabase
+        .from("units")
+        .insert([newUnit])
+        .select()
+        .single();
       
       if (error) {
         toast.error(error.message || "Erro ao cadastrar unidade");
       } else {
-        toast.success("Unidade cadastrada com sucesso!");
-        setIsDialogOpen(false);
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+        toast.success("Unidade cadastrada com sucesso! Agora você pode adicionar setores.");
+        setEditingUnit(createdUnit);
+        setUnitSectors([]);
         fetchUnits();
       }
     }
@@ -100,6 +116,7 @@ export default function UnitList() {
       cnes: unit.cnes || "",
       operating_hours: unit.operating_hours || "",
     });
+    fetchUnitSectors(unit.id);
     setIsDialogOpen(true);
   };
 
@@ -113,42 +130,23 @@ export default function UnitList() {
     }
   };
 
-  // Sector Management Functions
-  const handleOpenSectors = async (unit: any) => {
-    setSelectedUnitForSectors(unit);
-    setIsSectorsDialogOpen(true);
-    fetchUnitSectors(unit.id);
-  };
-
-  const fetchUnitSectors = async (unitId: string) => {
-    const { data, error } = await supabase
-      .from("departments")
-      .select("*")
-      .eq("unit_id", unitId)
-      .order("name");
-    
-    if (error) {
-      toast.error("Erro ao carregar setores da unidade");
-    } else {
-      setUnitSectors(data || []);
-    }
-  };
-
   const handleCreateSector = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingUnit) return;
+
     const { error } = await supabase.from("departments").insert([{
       ...newSector,
-      unit_id: selectedUnitForSectors.id
+      unit_id: editingUnit.id
     }]);
 
     if (error) {
       toast.error(error.message || "Erro ao cadastrar setor");
     } else {
       toast.success("Setor cadastrado com sucesso!");
-      setIsNewSectorDialogOpen(false);
+      setIsAddingSector(false);
       setNewSector({ name: "", description: "" });
-      fetchUnitSectors(selectedUnitForSectors.id);
-      fetchUnits(); // Update sector count in main list
+      fetchUnitSectors(editingUnit.id);
+      fetchUnits(); 
     }
   };
 
@@ -162,7 +160,7 @@ export default function UnitList() {
       }
     } else {
       toast.success("Setor excluído com sucesso!");
-      fetchUnitSectors(selectedUnitForSectors.id);
+      fetchUnitSectors(editingUnit.id);
       fetchUnits();
     }
   };
@@ -177,87 +175,18 @@ export default function UnitList() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">UBS / Unidades</h1>
-          <p className="text-gray-600">Gestão de unidades de saúde, postos e seus setores internos.</p>
+          <p className="text-gray-600">Gestão de unidades de saúde e seus setores internos.</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) {
-            setEditingUnit(null);
-            setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
-          }
+        <Button className="gap-2" onClick={() => {
+          setEditingUnit(null);
+          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+          setUnitSectors([]);
+          setIsDialogOpen(true);
         }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Nova Unidade
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>{editingUnit ? "Editar Unidade" : "Cadastrar Unidade"}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateUnit} className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome da Unidade (UBS)</Label>
-                <Input 
-                  id="name" 
-                  value={newUnit.name} 
-                  onChange={e => setNewUnit({...newUnit, name: e.target.value})} 
-                  required 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cnes">CNES</Label>
-                <Input 
-                  id="cnes" 
-                  value={newUnit.cnes} 
-                  onChange={e => setNewUnit({...newUnit, cnes: e.target.value})} 
-                  placeholder="Código CNES"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Input 
-                  id="address" 
-                  value={newUnit.address} 
-                  onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="open_time">Horário de Abertura</Label>
-                  <Input 
-                    id="open_time" 
-                    type="time"
-                    value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[0] : ""} 
-                    onChange={e => {
-                      const parts = newUnit.operating_hours.split(" às ");
-                      const close = parts.length > 1 ? parts[1] : "17:00";
-                      setNewUnit({...newUnit, operating_hours: `${e.target.value} às ${close}`});
-                    }} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="close_time">Horário de Fechamento</Label>
-                  <Input 
-                    id="close_time" 
-                    type="time"
-                    value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[1] : ""} 
-                    onChange={e => {
-                      const parts = newUnit.operating_hours.split(" às ");
-                      const open = parts.length > 0 ? parts[0] : "07:00";
-                      setNewUnit({...newUnit, operating_hours: `${open} às ${e.target.value}`});
-                    }} 
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Salvar Unidade</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <Plus className="w-4 h-4" />
+          Nova Unidade
+        </Button>
       </div>
 
       <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-border shadow-sm">
@@ -310,15 +239,10 @@ export default function UnitList() {
                   </TableCell>
                   <TableCell className="text-sm font-mono">{u.cnes || "-"}</TableCell>
                   <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                      onClick={() => handleOpenSectors(u)}
-                    >
-                      <Briefcase className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Briefcase className="w-3.5 h-3.5" />
                       {u.departments?.[0]?.count || 0} Setores
-                    </Button>
+                    </div>
                   </TableCell>
                   <TableCell className="text-sm">{u.operating_hours || "-"}</TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
@@ -357,108 +281,163 @@ export default function UnitList() {
         </Table>
       </div>
 
-      {/* Sectors Management Dialog */}
-      <Dialog open={isSectorsDialogOpen} onOpenChange={setIsSectorsDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      {/* Unit Form Dialog (includes Sector Management) */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex items-center justify-between pr-8">
-              <div>
-                <DialogTitle>Setores da Unidade</DialogTitle>
-                <p className="text-sm text-muted-foreground">{selectedUnitForSectors?.name}</p>
-              </div>
-              <Button size="sm" className="gap-2" onClick={() => setIsNewSectorDialogOpen(true)}>
-                <Plus className="w-4 h-4" /> Novo Setor
-              </Button>
-            </div>
+            <DialogTitle>{editingUnit ? `Editar Unidade: ${editingUnit.name}` : "Cadastrar Nova Unidade"}</DialogTitle>
           </DialogHeader>
 
-          <div className="py-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome do Setor</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {unitSectors.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
-                      Nenhum setor cadastrado nesta unidade.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  unitSectors.map((sector) => (
-                    <TableRow key={sector.id}>
-                      <TableCell className="font-medium">{sector.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{sector.description || "-"}</TableCell>
-                      <TableCell className="text-right space-x-2 flex items-center justify-end">
-                        <PrintSchedule departmentId={sector.id} departmentName={sector.name} />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir Setor</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Deseja excluir o setor "{sector.name}"?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteSector(sector.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
+            {/* Unit Info Section */}
+            <div className="space-y-4 border-r pr-4">
+              <h3 className="font-semibold text-sm uppercase text-muted-foreground">Dados da Unidade</h3>
+              <form onSubmit={handleCreateUnit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome da Unidade (UBS)</Label>
+                  <Input 
+                    id="name" 
+                    value={newUnit.name} 
+                    onChange={e => setNewUnit({...newUnit, name: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cnes">CNES</Label>
+                  <Input 
+                    id="cnes" 
+                    value={newUnit.cnes} 
+                    onChange={e => setNewUnit({...newUnit, cnes: e.target.value})} 
+                    placeholder="Código CNES"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input 
+                    id="address" 
+                    value={newUnit.address} 
+                    onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="open_time">Horário de Abertura</Label>
+                    <Input 
+                      id="open_time" 
+                      type="time"
+                      value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[0] : ""} 
+                      onChange={e => {
+                        const parts = newUnit.operating_hours.split(" às ");
+                        const close = parts.length > 1 ? parts[1] : "17:00";
+                        setNewUnit({...newUnit, operating_hours: `${e.target.value} às ${close}`});
+                      }} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="close_time">Horário de Fechamento</Label>
+                    <Input 
+                      id="close_time" 
+                      type="time"
+                      value={newUnit.operating_hours.includes(" às ") ? newUnit.operating_hours.split(" às ")[1] : ""} 
+                      onChange={e => {
+                        const parts = newUnit.operating_hours.split(" às ");
+                        const open = parts.length > 0 ? parts[0] : "07:00";
+                        setNewUnit({...newUnit, operating_hours: `${open} às ${e.target.value}`});
+                      }} 
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full">
+                  {editingUnit ? "Atualizar Unidade" : "Salvar Unidade"}
+                </Button>
+              </form>
+            </div>
+
+            {/* Sectors Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm uppercase text-muted-foreground">Setores Internos</h3>
+                {editingUnit && !isAddingSector && (
+                  <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => setIsAddingSector(true)}>
+                    <Plus className="w-3 h-3 mr-1" /> Adicionar Setor
+                  </Button>
                 )}
-              </TableBody>
-            </Table>
-          </div>
-        </DialogContent>
-      </Dialog>
+              </div>
 
-      {/* New Sector Dialog */}
-      <Dialog open={isNewSectorDialogOpen} onOpenChange={setIsNewSectorDialogOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Cadastrar Novo Setor</DialogTitle>
-            <p className="text-sm text-muted-foreground">Vinculado a: {selectedUnitForSectors?.name}</p>
-          </DialogHeader>
-          <form onSubmit={handleCreateSector} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="sector-name">Nome do Setor</Label>
-              <Input 
-                id="sector-name" 
-                value={newSector.name} 
-                onChange={e => setNewSector({...newSector, name: e.target.value})} 
-                required 
-              />
+              {!editingUnit ? (
+                <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-lg bg-gray-50 text-center p-4">
+                  <Briefcase className="w-8 h-8 text-gray-300 mb-2" />
+                  <p className="text-xs text-muted-foreground">Salve a unidade primeiro para poder adicionar setores a ela.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {isAddingSector && (
+                    <div className="p-3 border rounded-lg bg-primary/5 space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="s-name" className="text-[11px]">Nome do Setor</Label>
+                        <Input 
+                          id="s-name" 
+                          size={1} 
+                          className="h-8 text-sm"
+                          value={newSector.name}
+                          onChange={e => setNewSector({...newSector, name: e.target.value})}
+                          placeholder="Ex: Recepção, Farmácia..."
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" className="h-8 flex-1" onClick={handleCreateSector}>Salvar</Button>
+                        <Button size="sm" variant="ghost" className="h-8" onClick={() => setIsAddingSector(false)}>Cancelar</Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="max-h-[300px] overflow-y-auto rounded-md border">
+                    <Table>
+                      <TableBody>
+                        {unitSectors.length === 0 ? (
+                          <TableRow>
+                            <TableCell className="text-center py-6 text-[11px] text-muted-foreground">
+                              Nenhum setor cadastrado.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          unitSectors.map((sector) => (
+                            <TableRow key={sector.id}>
+                              <TableCell className="py-2">
+                                <span className="text-sm font-medium">{sector.name}</span>
+                              </TableCell>
+                              <TableCell className="py-2 text-right space-x-1">
+                                <PrintSchedule departmentId={sector.id} departmentName={sector.name} />
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600">
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle className="text-base">Excluir Setor</AlertDialogTitle>
+                                      <AlertDialogDescription className="text-sm">
+                                        Deseja excluir "{sector.name}"?
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Não</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteSector(sector.id)} className="bg-red-600">Sim</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sector-desc">Descrição (Opcional)</Label>
-              <Input 
-                id="sector-desc" 
-                value={newSector.description} 
-                onChange={e => setNewSector({...newSector, description: e.target.value})} 
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsNewSectorDialogOpen(false)}>Cancelar</Button>
-              <Button type="submit">Cadastrar Setor</Button>
-            </DialogFooter>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
