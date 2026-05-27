@@ -191,15 +191,6 @@ export default function UnitList() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="hours">Horário de Funcionamento (Manual)</Label>
-                <Input 
-                  id="hours" 
-                  value={newUnit.operating_hours} 
-                  onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})}
-                  placeholder="Ex: 07:00 às 17:00 ou 24 Horas"
-                />
-              </div>
               <DialogFooter>
                 <Button type="submit">Salvar Unidade</Button>
               </DialogFooter>
