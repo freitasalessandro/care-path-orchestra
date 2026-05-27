@@ -193,28 +193,12 @@ export default function UnitList() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hours">Horário de Funcionamento (Manual)</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    id="hours" 
-                    value={newUnit.operating_hours} 
-                    onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})}
-                    placeholder="Ex: 07:00 às 17:00 ou 24 Horas"
-                  />
-                  <Select 
-                    onValueChange={value => setNewUnit({...newUnit, operating_hours: value})}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Sugestões" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="07:00 às 17:00">07:00 às 17:00</SelectItem>
-                      <SelectItem value="07:00 às 19:00">07:00 às 19:00</SelectItem>
-                      <SelectItem value="07:00 às 22:00">07:00 às 22:00</SelectItem>
-                      <SelectItem value="08:00 às 17:00">08:00 às 17:00</SelectItem>
-                      <SelectItem value="24 Horas">24 Horas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Input 
+                  id="hours" 
+                  value={newUnit.operating_hours} 
+                  onChange={e => setNewUnit({...newUnit, operating_hours: e.target.value})}
+                  placeholder="Ex: 07:00 às 17:00 ou 24 Horas"
+                />
               </div>
               <DialogFooter>
                 <Button type="submit">Salvar Unidade</Button>
