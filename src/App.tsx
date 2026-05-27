@@ -27,7 +27,7 @@ const ChecklistTemplates = lazy(() => import("@/pages/ChecklistTemplates"));
 const HRDashboard = lazy(() => import("@/pages/HRDashboard"));
 const StaffList = lazy(() => import("@/pages/StaffList"));
 const UnitList = lazy(() => import("@/pages/UnitList"));
-const DepartmentList = lazy(() => import("@/pages/DepartmentList"));
+
 const PositionList = lazy(() => import("@/pages/PositionList"));
 
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
