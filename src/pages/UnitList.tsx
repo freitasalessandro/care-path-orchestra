@@ -39,7 +39,7 @@ export default function UnitList() {
     address: "",
     cnes: "",
     operating_hours: "",
-    operating_days: "Segunda a Sexta",
+    operating_days: "Segunda, Terça, Quarta, Quinta, Sexta",
   });
 
   const fetchUnits = async () => {
@@ -90,7 +90,7 @@ export default function UnitList() {
         toast.success("Unidade atualizada com sucesso!");
         setIsDialogOpen(false);
         setEditingUnit(null);
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
         fetchUnits();
       }
     } else {
@@ -104,7 +104,7 @@ export default function UnitList() {
         toast.error(error.message || "Erro ao cadastrar unidade");
       } else {
         toast.success("Unidade cadastrada com sucesso! Agora você pode adicionar setores.");
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
         setEditingUnit(createdUnit);
         setUnitSectors([]);
         fetchUnits();
@@ -119,7 +119,7 @@ export default function UnitList() {
       address: unit.address || "",
       cnes: unit.cnes || "",
       operating_hours: unit.operating_hours || "",
-      operating_days: unit.operating_days || "Segunda a Sexta",
+      operating_days: unit.operating_days || "Segunda, Terça, Quarta, Quinta, Sexta",
     });
     fetchUnitSectors(unit.id);
     setIsDialogOpen(true);
@@ -189,7 +189,7 @@ export default function UnitList() {
 
         <Button className="gap-2" onClick={() => {
           setEditingUnit(null);
-          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
+          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda, Terça, Quarta, Quinta, Sexta" });
           setUnitSectors([]);
           setIsDialogOpen(true);
         }}>
@@ -252,7 +252,7 @@ export default function UnitList() {
                   </TableCell>
                   <TableCell className="text-sm">
                     <div className="flex flex-col">
-                      <span>{u.operating_days || "Segunda a Sexta"}</span>
+                      <span>{u.operating_days || "Segunda, Terça, Quarta, Quinta, Sexta"}</span>
                       <span className="text-[10px] text-muted-foreground">{u.operating_hours || "-"}</span>
                     </div>
                   </TableCell>
