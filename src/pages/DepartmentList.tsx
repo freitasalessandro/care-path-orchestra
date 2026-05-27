@@ -65,12 +65,27 @@ export default function DepartmentList() {
     }
   };
 
+  const handleDeleteDepartment = async (id: string) => {
+    const { error } = await supabase.from("departments").delete().eq("id", id);
+    if (error) {
+      if (error.code === "23503") {
+        toast.error("Não é possível excluir um setor que possui funcionários vinculados.");
+      } else {
+        toast.error("Erro ao excluir setor.");
+      }
+    } else {
+      toast.success("Setor excluído com sucesso!");
+      fetchDepartments();
+    }
+  };
+
   const filteredDepartments = departments.filter(d => 
     d.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Setores</h1>
