@@ -42,75 +42,117 @@ export function PrintTimesheet({ staff, month }: Props) {
       <head>
         <title>Folha de Frequência - ${staff.name}</title>
         <style>
-          @page { size: A4; margin: 1cm; }
+          @page { 
+            size: A4; 
+            margin: 1.5cm 1cm 1cm 1cm; 
+          }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             font-size: 11px;
-            padding: 10px;
+            width: 100%;
+          }
+          .print-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
           }
           .timbre {
             width: 100%;
             display: block;
-            margin: 0 auto 10px auto;
-            max-height: 220px;
+            margin: 0 auto 15px auto;
+            max-height: 180px;
             object-fit: contain;
           }
           .employee-info {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 11px;
+            line-height: 1.6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px 20px;
+          }
+          .employee-info div {
+            border-bottom: 0.5px solid #eee;
+            padding-bottom: 2px;
+          }
+          .employee-info div b {
             font-weight: bold;
-            font-size: 12px;
-            line-height: 1.5;
+            margin-right: 4px;
           }
           .title {
             text-align: center;
             font-weight: bold;
-            font-size: 13px;
-            margin: 8px 0 0 0;
+            font-size: 12px;
+            margin: 10px 0;
+            text-transform: uppercase;
+            text-decoration: underline;
           }
           table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
           }
           th, td {
             border: 1px solid #000;
-            padding: 3px 5px;
-            font-size: 11px;
+            padding: 4px 2px;
+            font-size: 10px;
+            height: 22px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
           th {
             font-weight: bold;
             text-align: center;
+            background-color: #f2f2f2;
           }
           .month-row td {
-            background-color: #bfbfbf;
+            background-color: #e6e6e6;
             text-align: center;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             padding: 4px;
+            height: 24px;
+            text-transform: uppercase;
           }
-          .day-cell { text-align: center; font-weight: bold; width: 40px; }
-          .sig-cell { text-align: center; font-weight: bold; }
-          .ent-cell, .sai-cell { width: 60px; }
+          .day-cell { text-align: center; font-weight: bold; width: 35px; }
+          .sig-cell { text-align: center; font-weight: bold; font-size: 9px; }
+          .ent-cell, .sai-cell { width: 55px; }
           .observacoes {
             display: flex;
-            margin-top: 10px;
+            margin-top: 12px;
+            min-height: 60px;
           }
           .observacoes > div {
             border: 1px solid #000;
-            padding: 6px;
-            font-size: 10px;
+            padding: 8px;
+            font-size: 9px;
+            line-height: 1.3;
           }
-          .obs-left { flex: 2; }
-          .obs-right { flex: 1; border-left: none; }
+          .obs-left { flex: 1.8; margin-right: -1px; }
+          .obs-right { flex: 1; }
           .carimbo {
-            margin-top: 8px;
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
+          }
+          .carimbo-line {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            width: 300px;
+            text-align: center;
           }
         </style>
       </head>
-      <body>${content.innerHTML}</body>
+      <body>
+        <div class="print-container">
+          ${content.innerHTML}
+        </div>
+      </body>
       </html>
     `);
     win.document.close();
