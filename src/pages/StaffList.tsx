@@ -6,9 +6,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, UserCircle, ExternalLink } from "lucide-react";
+import { Plus, Search, UserCircle, ExternalLink, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 export default function StaffList() {
   const [staff, setStaff] = useState<any[]>([]);
@@ -17,6 +29,7 @@ export default function StaffList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
   
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
@@ -27,6 +40,7 @@ export default function StaffList() {
     phone: "",
     cpf: "",
   });
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -65,23 +79,71 @@ export default function StaffList() {
     
     const registration = newStaff.registration_code || `REG-${Date.now()}`;
     
-    const { error } = await supabase.from("staff").insert([{
-      ...newStaff,
-      registration_code: registration,
-      department_id: newStaff.department_id || null,
-      position_id: newStaff.position_id || null,
-      condition: newStaff.condition || null,
-    }]);
-    
-    if (error) {
-      toast.error(error.message || "Erro ao cadastrar funcionário");
+    if (editingStaff) {
+      const { error } = await supabase
+        .from("staff")
+        .update({
+          ...newStaff,
+          registration_code: registration,
+          department_id: newStaff.department_id || null,
+          position_id: newStaff.position_id || null,
+          condition: newStaff.condition || null,
+        })
+        .eq("id", editingStaff.id);
+
+      if (error) {
+        toast.error(error.message || "Erro ao atualizar funcionário");
+      } else {
+        toast.success("Funcionário atualizado com sucesso!");
+        setIsDialogOpen(false);
+        setEditingStaff(null);
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        fetchData();
+      }
     } else {
-      toast.success("Funcionário cadastrado com sucesso!");
-      setIsDialogOpen(false);
-      setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+      const { error } = await supabase.from("staff").insert([{
+        ...newStaff,
+        registration_code: registration,
+        department_id: newStaff.department_id || null,
+        position_id: newStaff.position_id || null,
+        condition: newStaff.condition || null,
+      }]);
+      
+      if (error) {
+        toast.error(error.message || "Erro ao cadastrar funcionário");
+      } else {
+        toast.success("Funcionário cadastrado com sucesso!");
+        setIsDialogOpen(false);
+        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+        fetchData();
+      }
+    }
+  };
+
+  const handleEditClick = (s: any) => {
+    setEditingStaff(s);
+    setNewStaff({
+      registration_code: s.registration_code,
+      name: s.name,
+      position_id: s.position_id || "",
+      department_id: s.department_id || "",
+      condition: s.condition || "",
+      phone: s.phone || "",
+      cpf: s.cpf || "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteStaff = async (id: string) => {
+    const { error } = await supabase.from("staff").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao excluir funcionário.");
+    } else {
+      toast.success("Funcionário excluído com sucesso!");
       fetchData();
     }
   };
+
 
   const filteredStaff = staff.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -96,17 +158,25 @@ export default function StaffList() {
           <p className="text-gray-600">Gestão de pessoal e cargos do sistema.</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingStaff(null);
+            setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
               Novo Funcionário
+
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
-              <DialogTitle>Cadastrar Funcionário</DialogTitle>
+              <DialogTitle>{editingStaff ? "Editar Funcionário" : "Cadastrar Funcionário"}</DialogTitle>
             </DialogHeader>
+
             <form onSubmit={handleCreateStaff} className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
@@ -286,9 +356,36 @@ export default function StaffList() {
                       {s.status}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <span className="text-xs text-muted-foreground italic">Somente leitura</span>
+                  <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => handleEditClick(s)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir Funcionário</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir este funcionário? Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteStaff(s.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
+
 
                 </TableRow>
               ))
