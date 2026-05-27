@@ -82,6 +82,104 @@ export type Database = {
           },
         ]
       }
+      iose_patients: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          city: string | null
+          cpf: string | null
+          created_at: string
+          full_name: string
+          health_insurance: string | null
+          id: string
+          observations: string | null
+          phone: string | null
+          rg: string | null
+          sus_card: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string
+          full_name: string
+          health_insurance?: string | null
+          id?: string
+          observations?: string | null
+          phone?: string | null
+          rg?: string | null
+          sus_card?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string
+          full_name?: string
+          health_insurance?: string | null
+          id?: string
+          observations?: string | null
+          phone?: string | null
+          rg?: string | null
+          sus_card?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      iose_surgery_list: {
+        Row: {
+          created_at: string
+          eye_side: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          priority: string | null
+          scheduled_date: string | null
+          scheduled_time: string | null
+          status: string
+          surgery_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          eye_side?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          priority?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string
+          surgery_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          eye_side?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          priority?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string
+          surgery_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iose_surgery_list_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "iose_patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_attachments: {
         Row: {
           file_size: number | null
