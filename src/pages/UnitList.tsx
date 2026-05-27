@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Building, Trash2, Pencil, Briefcase } from "lucide-react";
+import { Plus, Search, Building, Trash2, Pencil, Briefcase, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { PrintSchedule } from "@/components/PrintSchedule";
 import {
@@ -29,7 +29,7 @@ export default function UnitList() {
   
   // Sector Management State (internal to the unit dialog)
   const [unitSectors, setUnitSectors] = useState<any[]>([]);
-  const [newSector, setNewSector] = useState({ name: "", description: "" });
+  const [newSector, setNewSector] = useState({ name: "", description: "", work_hours: "" });
   const [isAddingSector, setIsAddingSector] = useState(false);
   
   const [newUnit, setNewUnit] = useState({
@@ -134,17 +134,21 @@ export default function UnitList() {
     e.preventDefault();
     if (!editingUnit) return;
 
-    const { error } = await supabase.from("departments").insert([{
-      ...newSector,
+    const payload = {
+      name: newSector.name,
+      description: newSector.description,
+      work_hours: newSector.work_hours ? parseInt(newSector.work_hours) : null,
       unit_id: editingUnit.id
-    }]);
+    };
+
+    const { error } = await supabase.from("departments").insert([payload]);
 
     if (error) {
       toast.error(error.message || "Erro ao cadastrar setor");
     } else {
       toast.success("Setor cadastrado com sucesso!");
       setIsAddingSector(false);
-      setNewSector({ name: "", description: "" });
+      setNewSector({ name: "", description: "", work_hours: "" });
       fetchUnitSectors(editingUnit.id);
       fetchUnits(); 
     }
@@ -283,7 +287,7 @@ export default function UnitList() {
 
       {/* Unit Form Dialog (includes Sector Management) */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingUnit ? `Editar Unidade: ${editingUnit.name}` : "Cadastrar Nova Unidade"}</DialogTitle>
           </DialogHeader>
@@ -377,21 +381,31 @@ export default function UnitList() {
                         <Label htmlFor="s-name" className="text-[11px]">Nome do Setor</Label>
                         <Input 
                           id="s-name" 
-                          size={1} 
                           className="h-8 text-sm"
                           value={newSector.name}
                           onChange={e => setNewSector({...newSector, name: e.target.value})}
                           placeholder="Ex: Recepção, Farmácia..."
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="s-hours" className="text-[11px]">Carga Horária (horas)</Label>
+                        <Input 
+                          id="s-hours" 
+                          type="number"
+                          className="h-8 text-sm"
+                          value={newSector.work_hours}
+                          onChange={e => setNewSector({...newSector, work_hours: e.target.value})}
+                          placeholder="Ex: 40"
+                        />
+                      </div>
                       <div className="flex gap-2">
-                        <Button size="sm" className="h-8 flex-1" onClick={handleCreateSector}>Salvar</Button>
+                        <Button size="sm" className="h-8 flex-1" onClick={handleCreateSector}>Salvar Setor</Button>
                         <Button size="sm" variant="ghost" className="h-8" onClick={() => setIsAddingSector(false)}>Cancelar</Button>
                       </div>
                     </div>
                   )}
 
-                  <div className="max-h-[300px] overflow-y-auto rounded-md border">
+                  <div className="max-h-[350px] overflow-y-auto rounded-md border">
                     <Table>
                       <TableBody>
                         {unitSectors.length === 0 ? (
@@ -404,7 +418,14 @@ export default function UnitList() {
                           unitSectors.map((sector) => (
                             <TableRow key={sector.id}>
                               <TableCell className="py-2">
-                                <span className="text-sm font-medium">{sector.name}</span>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">{sector.name}</span>
+                                  {sector.work_hours && (
+                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                      <Clock className="w-2.5 h-2.5" /> {sector.work_hours}h
+                                    </span>
+                                  )}
+                                </div>
                               </TableCell>
                               <TableCell className="py-2 text-right space-x-1">
                                 <PrintSchedule departmentId={sector.id} departmentName={sector.name} />
