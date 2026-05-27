@@ -41,6 +41,33 @@ export type Database = {
         }
         Relationships: []
       }
+      departments: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patient_attachments: {
         Row: {
           file_size: number | null
@@ -163,6 +190,94 @@ export type Database = {
         }
         Relationships: []
       }
+      staff: {
+        Row: {
+          cpf: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          position: string | null
+          registration_code: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          position?: string | null
+          registration_code: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          position?: string | null
+          registration_code?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_assignments: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          id: string
+          is_primary: boolean | null
+          staff_id: string | null
+          unit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          staff_id?: string | null
+          unit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_primary?: boolean | null
+          staff_id?: string | null
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_assignments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_assignments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_assignments_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       surgeries: {
         Row: {
           checklist: Json
@@ -215,6 +330,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      units: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
