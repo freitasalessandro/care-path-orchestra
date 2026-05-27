@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Building, Trash2, Pencil, Briefcase, Clock } from "lucide-react";
+import { Plus, Search, Building, Trash2, Pencil, Briefcase, Clock, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PrintSchedule } from "@/components/PrintSchedule";
 import {
@@ -330,12 +331,21 @@ export default function UnitList() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="operating_days">Dias de Funcionamento</Label>
-                  <Input 
-                    id="operating_days" 
+                  <Select 
                     value={newUnit.operating_days} 
-                    onChange={e => setNewUnit({...newUnit, operating_days: e.target.value})} 
-                    placeholder="Ex: Segunda a Sexta"
-                  />
+                    onValueChange={value => setNewUnit({...newUnit, operating_days: value})}
+                  >
+                    <SelectTrigger id="operating_days">
+                      <SelectValue placeholder="Selecione os dias" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Segunda a Sexta">Segunda a Sexta</SelectItem>
+                      <SelectItem value="Segunda a Sábado">Segunda a Sábado</SelectItem>
+                      <SelectItem value="Segunda a Domingo">Segunda a Domingo (24h)</SelectItem>
+                      <SelectItem value="Todos os Dias">Todos os Dias</SelectItem>
+                      <SelectItem value="Segunda a Quinta">Segunda a Quinta</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
