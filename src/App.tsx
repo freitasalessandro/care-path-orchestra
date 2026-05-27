@@ -1,13 +1,15 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { SidebarProvider, useSidebarContext } from "@/contexts/SidebarContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
+
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const PatientList = lazy(() => import("@/pages/PatientList"));
 const PatientDetail = lazy(() => import("@/pages/PatientDetail"));
@@ -15,15 +17,28 @@ const SurgeryList = lazy(() => import("@/pages/SurgeryList"));
 const SurgeryDetail = lazy(() => import("@/pages/SurgeryDetail"));
 const ChecklistTemplates = lazy(() => import("@/pages/ChecklistTemplates"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Login = lazy(() => import("@/pages/Login"));
+const ModuleSelection = lazy(() => import("@/pages/ModuleSelection"));
 
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
-  <div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div>
+  <div className="flex items-center justify-center h-screen text-muted-foreground bg-gray-50">
+    <div className="flex flex-col items-center gap-2">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <span>Carregando...</span>
+    </div>
+  </div>
 );
 
 function AppLayout() {
   const { collapsed } = useSidebarContext();
+  const { selectedModule } = useAuth();
+
+  if (!selectedModule) {
+    return <Navigate to="/modules" replace />;
+  }
+
   return (
     <div className="h-screen overflow-hidden">
       <AppTopbar />
@@ -47,19 +62,50 @@ function AppLayout() {
   );
 }
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <PageLoader />;
+  if (!user) return <Navigate to="/login" replace />;
+
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AppProvider>
-        <BrowserRouter>
-          <SidebarProvider>
-            <AppLayout />
-          </SidebarProvider>
-        </BrowserRouter>
-      </AppProvider>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AppProvider>
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/modules"
+                  element={
+                    <PrivateRoute>
+                      <ModuleSelection />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/*"
+                  element={
+                    <PrivateRoute>
+                      <SidebarProvider>
+                        <AppLayout />
+                      </SidebarProvider>
+                    </PrivateRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AppProvider>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
