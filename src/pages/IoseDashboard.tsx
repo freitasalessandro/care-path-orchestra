@@ -18,9 +18,14 @@ export default function IoseDashboard() {
         .from("iose_surgery_list")
         .select("*", { count: "exact", head: true });
 
+      const { count: listsCount } = await supabase
+        .from("iose_lists")
+        .select("*", { count: "exact", head: true });
+
       return {
         patients: patientsCount || 0,
         surgeries: surgeriesCount || 0,
+        lists: listsCount || 0,
       };
     },
   });
