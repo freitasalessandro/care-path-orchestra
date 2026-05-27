@@ -20,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import { PrintSchedule } from "@/components/PrintSchedule";
 
 export default function DepartmentList() {
   const [departments, setDepartments] = useState<any[]>([]);
@@ -180,7 +181,8 @@ export default function DepartmentList() {
                       Ativo
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-2">
+                    <PrintSchedule departmentId={d.id} departmentName={d.name} />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">

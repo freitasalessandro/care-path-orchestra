@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap } from "lucide-react";
+import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarContext } from "@/contexts/SidebarContext";
@@ -18,6 +18,7 @@ const hrLinks = [
   { to: "/funcoes", label: "Funções", icon: GraduationCap },
   { to: "/unidades", label: "UBS / Unidades", icon: Building },
   { to: "/setores", label: "Setores", icon: Briefcase },
+  { to: "/configuracoes", label: "Dados da Secretaria", icon: Settings },
 ];
 
 export function AppSidebar() {
