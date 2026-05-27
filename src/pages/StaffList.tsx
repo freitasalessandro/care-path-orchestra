@@ -158,11 +158,18 @@ export default function StaffList() {
           <p className="text-gray-600">Gestão de pessoal e cargos do sistema.</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingStaff(null);
+            setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "" });
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
               Novo Funcionário
+
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
