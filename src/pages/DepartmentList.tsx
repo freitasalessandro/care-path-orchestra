@@ -154,8 +154,9 @@ export default function DepartmentList() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">Editar</Button>
+                    <span className="text-xs text-muted-foreground italic">Somente leitura</span>
                   </TableCell>
+
                 </TableRow>
               ))
             )}
