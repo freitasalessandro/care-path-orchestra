@@ -37,6 +37,7 @@ export default function UnitList() {
     address: "",
     cnes: "",
     operating_hours: "",
+    operating_days: "Segunda a Sexta",
   });
 
   const fetchUnits = async () => {
@@ -87,7 +88,7 @@ export default function UnitList() {
         toast.success("Unidade atualizada com sucesso!");
         setIsDialogOpen(false);
         setEditingUnit(null);
-        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
         fetchUnits();
       }
     } else {
@@ -101,6 +102,7 @@ export default function UnitList() {
         toast.error(error.message || "Erro ao cadastrar unidade");
       } else {
         toast.success("Unidade cadastrada com sucesso! Agora você pode adicionar setores.");
+        setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
         setEditingUnit(createdUnit);
         setUnitSectors([]);
         fetchUnits();
@@ -115,6 +117,7 @@ export default function UnitList() {
       address: unit.address || "",
       cnes: unit.cnes || "",
       operating_hours: unit.operating_hours || "",
+      operating_days: unit.operating_days || "Segunda a Sexta",
     });
     fetchUnitSectors(unit.id);
     setIsDialogOpen(true);
@@ -184,7 +187,7 @@ export default function UnitList() {
 
         <Button className="gap-2" onClick={() => {
           setEditingUnit(null);
-          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "" });
+          setNewUnit({ name: "", address: "", cnes: "", operating_hours: "", operating_days: "Segunda a Sexta" });
           setUnitSectors([]);
           setIsDialogOpen(true);
         }}>
@@ -318,6 +321,15 @@ export default function UnitList() {
                     id="address" 
                     value={newUnit.address} 
                     onChange={e => setNewUnit({...newUnit, address: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="operating_days">Dias de Funcionamento</Label>
+                  <Input 
+                    id="operating_days" 
+                    value={newUnit.operating_days} 
+                    onChange={e => setNewUnit({...newUnit, operating_days: e.target.value})} 
+                    placeholder="Ex: Segunda a Sexta"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">

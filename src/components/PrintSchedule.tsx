@@ -99,7 +99,7 @@ export function PrintSchedule({ unitId, unitName }: Props) {
             <div class="unit-details">
               <div><strong>UNIDADE:</strong> ${unitData.name.toUpperCase()}</div>
               <div><strong>CNES:</strong> ${unitData.cnes || "---"}</div>
-              <div><strong>FUNCIONAMENTO:</strong> ${unitData.operating_hours || "---"}</div>
+              <div><strong>FUNCIONAMENTO:</strong> ${unitData.operating_days || "SEGUNDA A SEXTA"} (${unitData.operating_hours || "---"})</div>
               <div><strong>MÊS/ANO:</strong> ${monthYear.toUpperCase()}</div>
             </div>
           </div>
