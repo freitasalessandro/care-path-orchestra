@@ -177,7 +177,7 @@ export default function PositionList() {
                   </TableCell>
                   <TableCell>{p.work_hours}h / mês</TableCell>
                   <TableCell className="text-right flex items-center justify-end gap-2">
-                    <Button variant="ghost" size="sm">Editar</Button>
+                    
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
