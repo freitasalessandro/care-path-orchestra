@@ -30,6 +30,11 @@ const UnitList = lazy(() => import("@/pages/UnitList"));
 const HRReports = lazy(() => import("@/pages/HRReports"));
 const PositionList = lazy(() => import("@/pages/PositionList"));
 
+// Iose Module Pages
+const IoseDashboard = lazy(() => import("@/pages/IoseDashboard"));
+const IosePatientList = lazy(() => import("@/pages/IosePatientList"));
+const IoseSurgeryList = lazy(() => import("@/pages/IoseSurgeryList"));
+
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
 const queryClient = new QueryClient();
 
@@ -67,7 +72,7 @@ function AppLayout() {
                   <Route path="/cirurgias/:id" element={<SurgeryDetail />} />
                   <Route path="/checklists" element={<ChecklistTemplates />} />
                 </>
-              ) : (
+              ) : selectedModule === "hr" ? (
                 <>
                   <Route path="/" element={<HRDashboard />} />
                   <Route path="/funcionarios" element={<StaffList />} />
@@ -75,6 +80,14 @@ function AppLayout() {
                   <Route path="/relatorios" element={<HRReports />} />
                   <Route path="/funcoes" element={<PositionList />} />
                   <Route path="/configuracoes" element={<SecretariatSettings />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<IoseDashboard />} />
+                  <Route path="/pacientes" element={<IosePatientList />} />
+                  <Route path="/lista" element={<IoseSurgeryList />} />
+                  {/* Reuse or add specific iose reports later */}
+                  <Route path="/relatorios" element={<HRReports />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
