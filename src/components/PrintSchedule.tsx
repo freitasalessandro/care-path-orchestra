@@ -26,7 +26,9 @@ export function PrintSchedule({ departmentId, departmentName }: Props) {
           name,
           work_schedule,
           positions (title),
-          units (name, operating_hours, address)
+          staff_assignments (
+            units (name, operating_hours, address)
+          )
         `)
         .eq("department_id", departmentId)
         .order("name");
