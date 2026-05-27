@@ -150,6 +150,9 @@ export function PrintTimesheet({ staff, month }: Props) {
             <p>PREFEITURA MUNICIPAL</p>
             <p>FUNDO MUNICIPAL DE SAÚDE</p>
             <h2>FOLHA DE FREQUÊNCIA INDIVIDUAL</h2>
+            <p style={{ fontSize: '8px', fontWeight: 'normal', marginTop: '4px' }}>
+              Rua Exemplo, 123 - Centro | CNPJ: 00.000.000/0001-00
+            </p>
           </div>
           <div className="period-box">
             <h2>MÊS/ANO: {format(month, "MM/yyyy")}</h2>
