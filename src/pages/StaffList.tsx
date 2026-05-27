@@ -248,7 +248,7 @@ export default function StaffList() {
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id}>{d.name} ({d.units?.name || "Sem unidade"})</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
