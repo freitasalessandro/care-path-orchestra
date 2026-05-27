@@ -43,18 +43,29 @@ export function PrintTimesheet({ staff, month }: Props) {
           }
           .header { 
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 20px;
             margin-bottom: 20px;
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
           }
-          .header-info h1 { font-size: 16px; margin-bottom: 4px; }
-          .header-info p { font-size: 11px; }
+          .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+          }
+          .header-info {
+            flex: 1;
+            text-align: center;
+          }
+          .header-info h1 { font-size: 14px; margin-bottom: 2px; text-transform: uppercase; }
+          .header-info h2 { font-size: 16px; margin-bottom: 4px; font-weight: bold; }
+          .header-info p { font-size: 11px; font-weight: bold; margin-bottom: 2px; }
           .period-box {
             text-align: right;
+            min-width: 150px;
           }
-          .period-box h2 { font-size: 14px; margin-bottom: 4px; }
+          .period-box h2 { font-size: 12px; margin-bottom: 4px; }
           
           .employee-info {
             display: grid;
@@ -129,10 +140,19 @@ export function PrintTimesheet({ staff, month }: Props) {
 
       <div ref={printRef} className="hidden">
         <div className="header">
+          <img 
+            src="/placeholder.svg" 
+            alt="Logo" 
+            className="logo"
+          />
           <div className="header-info">
-            <h1>FOLHA DE FREQUÊNCIA INDIVIDUAL</h1>
             <p>ESTADO DE SERGIPE</p>
-            <p>SECRETARIA MUNICIPAL DE SAÚDE</p>
+            <p>PREFEITURA MUNICIPAL</p>
+            <p>FUNDO MUNICIPAL DE SAÚDE</p>
+            <h2>FOLHA DE FREQUÊNCIA INDIVIDUAL</h2>
+            <p style={{ fontSize: '8px', fontWeight: 'normal', marginTop: '4px' }}>
+              Rua Exemplo, 123 - Centro | CNPJ: 00.000.000/0001-00
+            </p>
           </div>
           <div className="period-box">
             <h2>MÊS/ANO: {format(month, "MM/yyyy")}</h2>
