@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Briefcase, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import { PrintSchedule } from "@/components/PrintSchedule";
 
 export default function DepartmentList() {
   const [departments, setDepartments] = useState<any[]>([]);
+  const [units, setUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -31,25 +33,32 @@ export default function DepartmentList() {
   const [newDepartment, setNewDepartment] = useState({
     name: "",
     description: "",
+    unit_id: "",
   });
 
-  const fetchDepartments = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("departments")
-      .select("*")
-      .order("name");
+    const [deptRes, unitRes] = await Promise.all([
+      supabase.from("departments").select("*, units(name)").order("name"),
+      supabase.from("units").select("*").order("name"),
+    ]);
     
-    if (error) {
+    if (deptRes.error) {
       toast.error("Erro ao carregar setores");
     } else {
-      setDepartments(data || []);
+      setDepartments(deptRes.data || []);
+    }
+
+    if (unitRes.error) {
+      toast.error("Erro ao carregar unidades");
+    } else {
+      setUnits(unitRes.data || []);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchDepartments();
+    fetchData();
   }, []);
 
   const handleCreateDepartment = async (e: React.FormEvent) => {
@@ -61,8 +70,8 @@ export default function DepartmentList() {
     } else {
       toast.success("Setor cadastrado com sucesso!");
       setIsDialogOpen(false);
-      setNewDepartment({ name: "", description: "" });
-      fetchDepartments();
+      setNewDepartment({ name: "", description: "", unit_id: "" });
+      fetchData();
     }
   };
 
@@ -76,7 +85,7 @@ export default function DepartmentList() {
       }
     } else {
       toast.success("Setor excluído com sucesso!");
-      fetchDepartments();
+      fetchData();
     }
   };
 
@@ -115,6 +124,23 @@ export default function DepartmentList() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="unit">Unidade (UBS)</Label>
+                <Select 
+                  value={newDepartment.unit_id} 
+                  onValueChange={v => setNewDepartment({...newDepartment, unit_id: v})}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a unidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {units.map(u => (
+                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="desc">Descrição</Label>
                 <Textarea 
                   id="desc" 
@@ -146,6 +172,7 @@ export default function DepartmentList() {
           <TableHeader>
             <TableRow>
               <TableHead>Setor</TableHead>
+              <TableHead>Unidade / UBS</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -175,6 +202,7 @@ export default function DepartmentList() {
                       <span className="font-medium">{d.name}</span>
                     </div>
                   </TableCell>
+                  <TableCell className="text-sm font-medium text-gray-700">{d.units?.name || "Sem unidade"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{d.description || "-"}</TableCell>
                   <TableCell>
                     <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
