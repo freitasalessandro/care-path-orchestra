@@ -234,7 +234,7 @@ export function PrintTimesheet({ staff, month }: Props) {
         </div>
 
         <div className="carimbo">
-          Carimbo e Assinatura do Responsável: ____________________________
+          <div className="carimbo-line">Carimbo e Assinatura do Responsável</div>
         </div>
       </div>
     </>
