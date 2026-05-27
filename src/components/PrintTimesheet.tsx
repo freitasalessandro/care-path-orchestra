@@ -44,7 +44,7 @@ export function PrintTimesheet({ staff, month }: Props) {
         <style>
           @page { 
             size: A4; 
-            margin: 1.5cm 1cm 1cm 1cm; 
+            margin: 0.5cm 1cm 1cm 1cm; 
           }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
@@ -61,33 +61,34 @@ export function PrintTimesheet({ staff, month }: Props) {
           .timbre {
             width: 100%;
             display: block;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 5px auto;
             max-height: 180px;
             object-fit: contain;
           }
           .employee-info {
-            margin-bottom: 12px;
+            margin: 0 0 10px 0;
             font-size: 11px;
-            line-height: 1.6;
+            line-height: 1.4;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 5px 20px;
+            gap: 4px 15px;
+            padding: 0 2px;
           }
           .employee-info div {
-            border-bottom: 0.5px solid #eee;
-            padding-bottom: 2px;
+            border-bottom: 0.5px solid #000;
+            padding-bottom: 1px;
           }
           .employee-info div b {
             font-weight: bold;
             margin-right: 4px;
+            text-transform: uppercase;
           }
           .title {
             text-align: center;
             font-weight: bold;
             font-size: 12px;
-            margin: 10px 0;
+            margin: 5px 0 8px 0;
             text-transform: uppercase;
-            text-decoration: underline;
           }
           table {
             width: 100%;
@@ -96,9 +97,9 @@ export function PrintTimesheet({ staff, month }: Props) {
           }
           th, td {
             border: 1px solid #000;
-            padding: 4px 2px;
+            padding: 3px 2px;
             font-size: 10px;
-            height: 22px;
+            height: 21px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -106,15 +107,15 @@ export function PrintTimesheet({ staff, month }: Props) {
           th {
             font-weight: bold;
             text-align: center;
-            background-color: #f2f2f2;
+            background-color: #eee;
           }
           .month-row td {
-            background-color: #e6e6e6;
+            background-color: #ddd;
             text-align: center;
             font-weight: bold;
             font-size: 11px;
-            padding: 4px;
-            height: 24px;
+            padding: 3px;
+            height: 22px;
             text-transform: uppercase;
           }
           .day-cell { text-align: center; font-weight: bold; width: 35px; }
@@ -122,19 +123,19 @@ export function PrintTimesheet({ staff, month }: Props) {
           .ent-cell, .sai-cell { width: 55px; }
           .observacoes {
             display: flex;
-            margin-top: 12px;
-            min-height: 60px;
+            margin-top: 10px;
+            min-height: 50px;
           }
           .observacoes > div {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 6px;
             font-size: 9px;
-            line-height: 1.3;
+            line-height: 1.2;
           }
           .obs-left { flex: 1.8; margin-right: -1px; }
           .obs-right { flex: 1; }
           .carimbo {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             justify-content: flex-end;
             font-weight: bold;
@@ -143,7 +144,7 @@ export function PrintTimesheet({ staff, month }: Props) {
           .carimbo-line {
             border-top: 1px solid #000;
             padding-top: 5px;
-            width: 300px;
+            width: 280px;
             text-align: center;
           }
         </style>
