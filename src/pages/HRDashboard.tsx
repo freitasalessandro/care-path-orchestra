@@ -1,13 +1,34 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Building, Briefcase, UserCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export default function HRDashboard() {
+  const [counts, setCounts] = useState({ staff: 0, units: 0, depts: 0 });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const [s, u, d] = await Promise.all([
+        supabase.from("staff").select("*", { count: 'exact', head: true }),
+        supabase.from("units").select("*", { count: 'exact', head: true }),
+        supabase.from("departments").select("*", { count: 'exact', head: true }),
+      ]);
+      setCounts({
+        staff: s.count || 0,
+        units: u.count || 0,
+        depts: d.count || 0,
+      });
+    };
+    fetchCounts();
+  }, []);
+
   const stats = [
-    { label: "Total Funcionários", value: "0", icon: Users, color: "text-blue-600", bg: "bg-blue-100" },
-    { label: "UBS / Unidades", value: "0", icon: Building, color: "text-green-600", bg: "bg-green-100" },
-    { label: "Setores", value: "0", icon: Briefcase, color: "text-purple-600", bg: "bg-purple-100" },
-    { label: "Ativos", value: "0", icon: UserCheck, color: "text-orange-600", bg: "bg-orange-100" },
+    { label: "Total Funcionários", value: counts.staff.toString(), icon: Users, color: "text-blue-600", bg: "bg-blue-100" },
+    { label: "UBS / Unidades", value: counts.units.toString(), icon: Building, color: "text-green-600", bg: "bg-green-100" },
+    { label: "Setores", value: counts.depts.toString(), icon: Briefcase, color: "text-purple-600", bg: "bg-purple-100" },
+    { label: "Ativos", value: counts.staff.toString(), icon: UserCheck, color: "text-orange-600", bg: "bg-orange-100" },
   ];
+
 
   return (
     <div className="space-y-6">
