@@ -27,7 +27,7 @@ const ChecklistTemplates = lazy(() => import("@/pages/ChecklistTemplates"));
 const HRDashboard = lazy(() => import("@/pages/HRDashboard"));
 const StaffList = lazy(() => import("@/pages/StaffList"));
 const UnitList = lazy(() => import("@/pages/UnitList"));
-
+const HRReports = lazy(() => import("@/pages/HRReports"));
 const PositionList = lazy(() => import("@/pages/PositionList"));
 
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
@@ -72,6 +72,7 @@ function AppLayout() {
                   <Route path="/" element={<HRDashboard />} />
                   <Route path="/funcionarios" element={<StaffList />} />
                   <Route path="/unidades" element={<UnitList />} />
+                  <Route path="/relatorios" element={<HRReports />} />
                   <Route path="/funcoes" element={<PositionList />} />
                   <Route path="/configuracoes" element={<SecretariatSettings />} />
                 </>
