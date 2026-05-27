@@ -21,12 +21,19 @@ const hrLinks = [
   { to: "/configuracoes", label: "Dados da Secretaria", icon: Settings },
 ];
 
+const ioseLinks = [
+  { to: "/", label: "Painel Iose", icon: LayoutDashboard },
+  { to: "/pacientes", label: "Pacientes", icon: Users },
+  { to: "/lista", label: "Lista de Cirurgia", icon: Scissors },
+  { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
   const { selectedModule } = useAuth();
   
-  const links = selectedModule === "hr" ? hrLinks : surgeryLinks;
+  const links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : surgeryLinks;
 
   return (
     <aside
