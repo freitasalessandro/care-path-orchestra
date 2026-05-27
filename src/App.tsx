@@ -25,6 +25,9 @@ const ChecklistTemplates = lazy(() => import("@/pages/ChecklistTemplates"));
 
 // HR Module Pages
 const HRDashboard = lazy(() => import("@/pages/HRDashboard"));
+const StaffList = lazy(() => import("@/pages/StaffList"));
+const UnitList = lazy(() => import("@/pages/UnitList"));
+const DepartmentList = lazy(() => import("@/pages/DepartmentList"));
 
 const queryClient = new QueryClient();
 
@@ -65,10 +68,9 @@ function AppLayout() {
               ) : (
                 <>
                   <Route path="/" element={<HRDashboard />} />
-                  {/* Future HR routes will go here */}
-                  <Route path="/funcionarios" element={<div className="p-8">Módulo de Funcionários (Em desenvolvimento)</div>} />
-                  <Route path="/unidades" element={<div className="p-8">Módulo de Unidades/UBS (Em desenvolvimento)</div>} />
-                  <Route path="/setores" element={<div className="p-8">Módulo de Setores (Em desenvolvimento)</div>} />
+                  <Route path="/funcionarios" element={<StaffList />} />
+                  <Route path="/unidades" element={<UnitList />} />
+                  <Route path="/setores" element={<DepartmentList />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
