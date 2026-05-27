@@ -1,12 +1,14 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, eachDayOfInterval, addMonths, setDate, getDay, getMonth } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   staff: any;
   month: Date;
 }
+
 
 const MONTH_NAMES = [
   "JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
@@ -15,6 +17,16 @@ const MONTH_NAMES = [
 
 export function PrintTimesheet({ staff, month }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
+  const [secretariat, setSecretariat] = useState<any>(null);
+
+  useEffect(() => {
+    supabase
+      .from("secretariat_settings")
+      .select("*")
+      .maybeSingle()
+      .then(({ data }) => setSecretariat(data));
+  }, []);
+
 
   const startDate = setDate(month, 10);
   const endDate = setDate(addMonths(month, 1), 10);
@@ -138,14 +150,26 @@ export function PrintTimesheet({ staff, month }: Props) {
             width: 250px;
             text-align: center;
           }
+          .secretariat-footer {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+          }
         </style>
       </head>
       <body>
         <div class="print-container">
           ${content.innerHTML}
+          ${secretariat?.cnpj ? `
+            <div class="secretariat-footer">
+              ${secretariat.name} - CNPJ: ${secretariat.cnpj}
+            </div>
+          ` : ""}
         </div>
       </body>
       </html>
+
     `);
     win.document.close();
     setTimeout(() => win.print(), 300);
