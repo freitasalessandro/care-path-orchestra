@@ -82,6 +82,36 @@ export type Database = {
           },
         ]
       }
+      iose_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          scheduled_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          scheduled_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          scheduled_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       iose_patients: {
         Row: {
           address: string | null
@@ -135,6 +165,7 @@ export type Database = {
           created_at: string
           eye_side: string | null
           id: string
+          list_id: string | null
           notes: string | null
           patient_id: string
           priority: string | null
@@ -148,6 +179,7 @@ export type Database = {
           created_at?: string
           eye_side?: string | null
           id?: string
+          list_id?: string | null
           notes?: string | null
           patient_id: string
           priority?: string | null
@@ -161,6 +193,7 @@ export type Database = {
           created_at?: string
           eye_side?: string | null
           id?: string
+          list_id?: string | null
           notes?: string | null
           patient_id?: string
           priority?: string | null
@@ -171,6 +204,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "iose_surgery_list_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "iose_lists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "iose_surgery_list_patient_id_fkey"
             columns: ["patient_id"]
