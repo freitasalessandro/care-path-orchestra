@@ -45,20 +45,13 @@ export default function SecretariatSettings() {
     setSaving(true);
     try {
       const { id, ...payload } = settings;
-      let error;
       
-      if (id) {
-        const { error: updateError } = await supabase
-          .from("secretariat_settings")
-          .update(payload)
-          .eq("id", id);
-        error = updateError;
-      } else {
-        const { error: insertError } = await supabase
-          .from("secretariat_settings")
-          .insert([payload]);
-        error = insertError;
-      }
+      // Se tiver ID, incluímos no payload para o upsert
+      const upsertData = id ? { ...payload, id } : payload;
+
+      const { error } = await supabase
+        .from("secretariat_settings")
+        .upsert(upsertData);
 
       if (error) throw error;
       toast.success("Configurações salvas com sucesso!");
