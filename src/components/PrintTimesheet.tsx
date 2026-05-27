@@ -1,23 +1,35 @@
 import { useRef } from "react";
-import { Printer, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format, eachDayOfInterval, addMonths, setDate, isWeekend, getDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format, eachDayOfInterval, addMonths, setDate, getDay, getMonth } from "date-fns";
 
 interface Props {
   staff: any;
   month: Date;
 }
 
+const MONTH_NAMES = [
+  "JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
+  "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
+];
+
 export function PrintTimesheet({ staff, month }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
 
   const startDate = setDate(month, 10);
   const endDate = setDate(addMonths(month, 1), 10);
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  const days = eachDayOfInterval({
-    start: startDate,
-    end: endDate,
+  // Group days by month
+  const rows: Array<{ type: "month"; name: string } | { type: "day"; date: Date }> = [];
+  let lastMonth = -1;
+  days.forEach((d) => {
+    const m = getMonth(d);
+    if (m !== lastMonth) {
+      rows.push({ type: "month", name: MONTH_NAMES[m] });
+      lastMonth = m;
+    }
+    rows.push({ type: "day", date: d });
   });
 
   const handlePrint = () => {
@@ -28,108 +40,86 @@ export function PrintTimesheet({ staff, month }: Props) {
     win.document.write(`
       <html>
       <head>
-        <title>Folha de Ponto - ${staff.name}</title>
+        <title>Folha de Frequência - ${staff.name}</title>
         <style>
-          @page {
-            size: A4;
-            margin: 1cm;
-          }
+          @page { size: A4; margin: 1cm; }
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+          body {
+            font-family: 'Times New Roman', Times, serif;
             color: #000;
-            font-size: 10px;
+            font-size: 11px;
+            padding: 10px;
           }
-          .header { 
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-          }
-          .logo {
-            width: 80px;
-            height: 80px;
+          .timbre {
+            width: 100%;
+            display: block;
+            margin: 0 auto 10px auto;
+            max-height: 220px;
             object-fit: contain;
           }
-          .header-info {
-            flex: 1;
-            text-align: center;
-          }
-          .header-info h1 { font-size: 14px; margin-bottom: 2px; text-transform: uppercase; }
-          .header-info h2 { font-size: 16px; margin-bottom: 4px; font-weight: bold; }
-          .header-info p { font-size: 11px; font-weight: bold; margin-bottom: 2px; }
-          .period-box {
-            text-align: right;
-            min-width: 150px;
-          }
-          .period-box h2 { font-size: 12px; margin-bottom: 4px; }
-          
           .employee-info {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 1.5;
+          }
+          .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 8px 0 0 0;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
             border: 1px solid #000;
+            padding: 3px 5px;
+            font-size: 11px;
           }
-          .info-group p { margin-bottom: 4px; }
-          .info-group strong { text-transform: uppercase; font-size: 9px; }
-
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px;
-          }
-          th, td { 
-            border: 1px solid #000; 
-            padding: 4px 6px; 
+          th {
+            font-weight: bold;
             text-align: center;
           }
-          th { 
-            background-color: #f2f2f2;
-            font-size: 9px;
-            text-transform: uppercase;
-          }
-          .day-weekend { background-color: #f9f9f9; }
-          
-          .signatures {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-          }
-          .sig-line {
-            border-top: 1px solid #000;
-            padding-top: 5px;
+          .month-row td {
+            background-color: #bfbfbf;
             text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px;
           }
-          
-          @media print {
-            .no-print { display: none; }
+          .day-cell { text-align: center; font-weight: bold; width: 40px; }
+          .sig-cell { text-align: center; font-weight: bold; }
+          .ent-cell, .sai-cell { width: 60px; }
+          .observacoes {
+            display: flex;
+            margin-top: 10px;
+          }
+          .observacoes > div {
+            border: 1px solid #000;
+            padding: 6px;
+            font-size: 10px;
+          }
+          .obs-left { flex: 2; }
+          .obs-right { flex: 1; border-left: none; }
+          .carimbo {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 12px;
           }
         </style>
       </head>
-      <body>
-        ${content.innerHTML}
-      </body>
+      <body>${content.innerHTML}</body>
       </html>
     `);
     win.document.close();
-    win.print();
+    setTimeout(() => win.print(), 300);
   };
 
-  const weekDayMap: { [key: number]: string } = {
-    0: "DOM",
-    1: "SEG",
-    2: "TER",
-    3: "QUA",
-    4: "QUI",
-    5: "SEX",
-    6: "SAB",
-  };
+  const isSat = (d: Date) => getDay(d) === 6;
+  const isSun = (d: Date) => getDay(d) === 0;
+  const weekendLabel = (d: Date) => (isSat(d) ? "SABADO" : isSun(d) ? "DOMINGO" : "");
 
   return (
     <>
@@ -139,68 +129,52 @@ export function PrintTimesheet({ staff, month }: Props) {
       </Button>
 
       <div ref={printRef} className="hidden">
-        <div className="header">
-          <img 
-            src="/placeholder.svg" 
-            alt="Logo" 
-            className="logo"
-          />
-          <div className="header-info">
-            <p>ESTADO DE SERGIPE</p>
-            <p>PREFEITURA MUNICIPAL</p>
-            <p>FUNDO MUNICIPAL DE SAÚDE</p>
-            <h2>FOLHA DE FREQUÊNCIA INDIVIDUAL</h2>
-            <p style={{ fontSize: '8px', fontWeight: 'normal', marginTop: '4px' }}>
-              Rua Exemplo, 123 - Centro | CNPJ: 00.000.000/0001-00
-            </p>
-          </div>
-          <div className="period-box">
-            <h2>MÊS/ANO: {format(month, "MM/yyyy")}</h2>
-            <p>Período: {format(startDate, "dd/MM/yyyy")} a {format(endDate, "dd/MM/yyyy")}</p>
+        <img src="/timbre-neopolis.png" alt="Timbre" className="timbre" />
+
+        <div className="employee-info">
+          <div>SETOR: {staff.departments?.name || "_______________________"}</div>
+          <div>SERVIDOR: {staff.name || ""}</div>
+          <div>FUNÇÃO: {staff.positions?.title || ""}</div>
+          <div>CONDIÇÃO: {staff.condition || ""}</div>
+          <div>
+            C. HORÁRIA: {staff.positions?.work_hours ? `${staff.positions.work_hours}HRS` : "______"}
+            {"  "}ANO: {format(month, "yyyy")}
           </div>
         </div>
 
-        <div className="employee-info">
-          <div className="info-group">
-            <p><strong>NOME:</strong> {staff.name}</p>
-            <p><strong>CARGO/FUNÇÃO:</strong> {staff.positions?.title || "-"}</p>
-            <p><strong>UNIDADE:</strong> {staff.departments?.name || "-"}</p>
-          </div>
-          <div className="info-group">
-            <p><strong>MATRÍCULA:</strong> {staff.registration_code}</p>
-            <p><strong>CARGA HORÁRIA:</strong> {staff.positions?.work_hours ? `${staff.positions.work_hours}h` : "-"}</p>
-            <p><strong>VÍNCULO:</strong> {staff.condition || "-"}</p>
-          </div>
-        </div>
+        <div className="title">REGISTRO DIÁRIO DE FREQUÊNCIA DO SERVIDOR</div>
 
         <table>
           <thead>
             <tr>
-              <th rowSpan={2}>DIA</th>
-              <th rowSpan={2}>DIA SEM.</th>
-              <th colSpan={2}>MATUTINO</th>
-              <th colSpan={2}>VESPERTINO</th>
-              <th rowSpan={2}>RUBRICA DO SERVIDOR</th>
-            </tr>
-            <tr>
-              <th>ENTRADA</th>
-              <th>SAÍDA</th>
-              <th>ENTRADA</th>
-              <th>SAÍDA</th>
+              <th className="day-cell">DIA</th>
+              <th className="ent-cell">ENT.</th>
+              <th>ASSINATURA</th>
+              <th className="sai-cell">SAÍDA</th>
+              <th className="ent-cell">ENT.</th>
+              <th>ASSINATURA</th>
+              <th className="sai-cell">SAÍDA</th>
             </tr>
           </thead>
           <tbody>
-            {days.map((day) => {
-              const isWknd = isWeekend(day);
-              const dayOfWeek = getDay(day);
+            {rows.map((row, idx) => {
+              if (row.type === "month") {
+                return (
+                  <tr key={`m-${idx}`} className="month-row">
+                    <td colSpan={7}>{row.name}</td>
+                  </tr>
+                );
+              }
+              const d = row.date;
+              const label = weekendLabel(d);
               return (
-                <tr key={day.toISOString()} className={isWknd ? "day-weekend" : ""}>
-                  <td>{format(day, "dd")}</td>
-                  <td>{weekDayMap[dayOfWeek]}</td>
-                  <td>{isWknd ? "---" : ""}</td>
-                  <td>{isWknd ? "---" : ""}</td>
-                  <td>{isWknd ? "---" : ""}</td>
-                  <td>{isWknd ? "---" : ""}</td>
+                <tr key={d.toISOString()}>
+                  <td className="day-cell">{format(d, "dd")}</td>
+                  <td></td>
+                  <td className="sig-cell">{label}</td>
+                  <td></td>
+                  <td></td>
+                  <td className="sig-cell">{label}</td>
                   <td></td>
                 </tr>
               );
@@ -208,19 +182,19 @@ export function PrintTimesheet({ staff, month }: Props) {
           </tbody>
         </table>
 
-        <div style={{ marginTop: "30px", fontSize: "10px" }}>
-          <p>OBSERVAÇÕES: ____________________________________________________________________________________________________________________</p>
+        <div className="observacoes">
+          <div className="obs-left">
+            <strong>OBSERVAÇÕES:</strong> TODAS AS OCORRÊNCIAS VERIFICADAS DENTRO DO MÊS,
+            COMO SEJAM DISTRIBUIÇÕES, PRORROGAÇÕES, AUSÊNCIAS (ABONOS, FOLGAS, LICENÇAS MÉDICAS,
+            VIAGENS, FALTAS INJUSTIFICADAS, ETC.) DEVERÃO OBRIGATORIAMENTE CONSTAR NO CAMPO AO LADO OU NO VERSO.
+          </div>
+          <div className="obs-right">
+            <strong>OBSERVAÇÕES:</strong>
+          </div>
         </div>
 
-        <div className="signatures">
-          <div className="sig-line">
-            <p>{staff.name}</p>
-            <p>Assinatura do Servidor</p>
-          </div>
-          <div className="sig-line">
-            <p>Carimbo e Assinatura</p>
-            <p>Chefia Imediata</p>
-          </div>
+        <div className="carimbo">
+          Carimbo e Assinatura do Responsável: ____________________________
         </div>
       </div>
     </>
