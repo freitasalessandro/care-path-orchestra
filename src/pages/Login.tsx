@@ -19,6 +19,15 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // Login padrão temporário: admin / admin
+      if (email === "admin" && password === "admin") {
+        toast.success("Login padrão realizado com sucesso!");
+        localStorage.setItem("sb-dummy-session", "true");
+        // Força recarregamento para o AuthContext detectar a nova sessão dummy
+        window.location.href = "/modules";
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -52,11 +61,11 @@ export default function Login() {
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Usuário ou Email</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="nome@exemplo.com"
+                type="text"
+                placeholder="admin"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
