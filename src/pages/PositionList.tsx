@@ -68,8 +68,23 @@ export default function PositionList() {
     p.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDeletePosition = async (id: string) => {
+    const { error } = await supabase.from("positions").delete().eq("id", id);
+    if (error) {
+      if (error.code === "23503") {
+        toast.error("Não é possível excluir uma função que possui funcionários vinculados.");
+      } else {
+        toast.error("Erro ao excluir função.");
+      }
+    } else {
+      toast.success("Função excluída com sucesso!");
+      fetchPositions();
+    }
+  };
+
   return (
     <div className="space-y-6">
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
