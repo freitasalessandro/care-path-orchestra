@@ -39,7 +39,7 @@ export default function SisapiDashboard() {
         .from("sisapi_documents")
         .select(`
           *,
-          author:author_id(full_name)
+          author:sisapi_profiles!author_id(full_name)
         `)
         .or(`author_id.eq.${user?.id},assigned_to.eq.${user?.id}`)
         .order("updated_at", { ascending: false })
