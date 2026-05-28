@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,12 @@ export default function SisapiAdminUsers() {
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  
+  useEffect(() => {
+    console.log("SisapiAdminUsers mounted");
+    return () => console.log("SisapiAdminUsers unmounted");
+  }, []);
+
   
   const [newUser, setNewUser] = useState({
     email: "",
