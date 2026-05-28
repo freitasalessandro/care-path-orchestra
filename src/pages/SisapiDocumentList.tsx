@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { exportToPdf } from "@/utils/sisapiPdfExport";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -127,18 +128,17 @@ export default function SisapiDocumentList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Documentos</h1>
-          <p className="text-muted-foreground">Gerencie e visualize os documentos administrativos.</p>
-        </div>
+      <SisapiPageHeader 
+        title="Documentos"
+        description="Gerencie e visualize os documentos administrativos."
+      >
         <Button asChild className="bg-slate-800 hover:bg-slate-700">
           <Link to="/documentos/novo">
             <Plus className="w-4 h-4 mr-2" />
             Novo Documento
           </Link>
         </Button>
-      </div>
+      </SisapiPageHeader>
 
       <div className="flex gap-4">
         <div className="relative flex-1">

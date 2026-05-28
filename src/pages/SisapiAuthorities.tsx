@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useSisapiAuthorities, SisapiAuthority } from "@/hooks/useSisapiAuthorities";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 
 export default function SisapiAuthorities() {
   const [search, setSearch] = useState("");
@@ -125,16 +126,15 @@ export default function SisapiAuthorities() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Gestão de Autoridades e Delegados</h1>
-          <p className="text-muted-foreground">Configure representantes para assinar documentos em nome de autoridades.</p>
-        </div>
+      <SisapiPageHeader 
+        title="Gestão de Autoridades e Delegados"
+        description="Configure representantes para assinar documentos em nome de autoridades."
+      >
         <Button onClick={handleOpenCreate} className="bg-slate-800 hover:bg-slate-700">
           <Plus className="w-4 h-4 mr-2" />
           Nova Autoridade
         </Button>
-      </div>
+      </SisapiPageHeader>
 
       <div className="flex gap-4">
         <div className="relative flex-1">

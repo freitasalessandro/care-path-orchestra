@@ -20,6 +20,7 @@ serve(async (req) => {
     const { email, password, full_name, role_id, department_id, sector_id, is_admin, allowed_modules } = await req.json()
 
     // 1. Create the user in Auth
+    let userId;
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
@@ -27,9 +28,21 @@ serve(async (req) => {
       user_metadata: { full_name }
     })
 
-    if (authError) throw authError
-
-    const userId = authData.user.id
+    if (authError) {
+      // If user already exists, let's try to find their ID to sync the profile
+      if (authError.message.includes('already been registered') || authError.message.includes('email_exists')) {
+        const { data: usersData, error: listError } = await supabaseClient.auth.admin.listUsers()
+        if (listError) throw listError
+        
+        const existingUser = usersData.users.find(u => u.email === email)
+        if (!existingUser) throw authError // Should not happen if it says already registered
+        userId = existingUser.id
+      } else {
+        throw authError
+      }
+    } else {
+      userId = authData.user.id
+    }
 
     // 2. Create/Update the profile in sisapi_profiles
     const { error: profileError } = await supabaseClient
@@ -37,13 +50,11 @@ serve(async (req) => {
       .upsert({
         id: userId,
         full_name,
-        role_id,
-        department_id,
-        sector_id,
+        role_id: role_id || null,
+        department_id: department_id || null,
+        sector_id: sector_id || null,
         is_admin: !!is_admin,
         allowed_modules: allowed_modules || ['sisapi'],
-
-
         status: 'active'
       })
 

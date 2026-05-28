@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 
 export default function SisapiDashboard() {
   const { user } = useAuth();
@@ -77,10 +78,7 @@ export default function SisapiDashboard() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Painel de Gestão</h1>
-        <p className="text-muted-foreground">Sistema de Apoio à Gestão - SISAPI</p>
-      </div>
+      <SisapiPageHeader title="Painel de Gestão" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => (

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, FileText, Send, PenTool, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -169,10 +170,10 @@ export default function SisapiPendingActions() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Meus Pendentes</h1>
-        <p className="text-muted-foreground">Documentos que aguardam sua assinatura ou tramitação.</p>
-      </div>
+      <SisapiPageHeader 
+        title="Meus Pendentes"
+        description="Documentos que aguardam sua assinatura ou tramitação."
+      />
 
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         <Table>

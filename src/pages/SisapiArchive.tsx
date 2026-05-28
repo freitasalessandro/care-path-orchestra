@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/AuthContext";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 import {
   Dialog,
   DialogContent,
@@ -145,12 +146,10 @@ export default function SisapiArchive() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Acervo Digital</h1>
-          <p className="text-muted-foreground">Repositório de arquivos e documentos digitalizados por setor.</p>
-        </div>
-        
+      <SisapiPageHeader 
+        title="Acervo Digital"
+        description="Repositório de arquivos e documentos digitalizados por setor."
+      >
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-slate-800 hover:bg-slate-700">
@@ -214,7 +213,7 @@ export default function SisapiArchive() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
+      </SisapiPageHeader>
 
       <div className="flex gap-4">
         <div className="relative flex-1">

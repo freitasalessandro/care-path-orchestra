@@ -13,6 +13,7 @@ import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
 import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 import { Navigate } from "react-router-dom";
 import {
   AlertDialog,
@@ -232,17 +233,7 @@ export default function SisapiAdminUsers() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          {settings?.institution_logo_url && (
-            <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
-          )}
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
-            <p className="text-muted-foreground text-lg">{settings?.institution_name || "Sistema de Apoio à Gestão - SISAPI"}</p>
-          </div>
-        </div>
-        
+      <SisapiPageHeader title="Gestão de Usuários">
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 shadow-lg">
@@ -287,7 +278,7 @@ export default function SisapiAdminUsers() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+      </SisapiPageHeader>
 
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="bg-slate-100 p-1 mb-6">
