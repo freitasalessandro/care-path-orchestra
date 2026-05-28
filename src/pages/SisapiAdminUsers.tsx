@@ -308,8 +308,10 @@ export default function SisapiAdminUsers() {
   const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
   
   if (!isSpecialAdmin) {
-    return <Navigate to="/" replace />;
+    console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
+    return <Navigate to="/modules" replace />;
   }
+
 
 
   return (
