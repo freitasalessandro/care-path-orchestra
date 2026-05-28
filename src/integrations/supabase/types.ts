@@ -616,6 +616,7 @@ export type Database = {
           is_signed: boolean | null
           items: Json | null
           metadata: Json | null
+          signed_by_user_id: string | null
           status: string | null
           template_id: string | null
           title: string
@@ -634,6 +635,7 @@ export type Database = {
           is_signed?: boolean | null
           items?: Json | null
           metadata?: Json | null
+          signed_by_user_id?: string | null
           status?: string | null
           template_id?: string | null
           title: string
@@ -652,6 +654,7 @@ export type Database = {
           is_signed?: boolean | null
           items?: Json | null
           metadata?: Json | null
+          signed_by_user_id?: string | null
           status?: string | null
           template_id?: string | null
           title?: string
@@ -668,6 +671,13 @@ export type Database = {
           {
             foreignKeyName: "sisapi_documents_author_id_fkey"
             columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sisapi_documents_signed_by_user_id_fkey"
+            columns: ["signed_by_user_id"]
             isOneToOne: false
             referencedRelation: "sisapi_profiles"
             referencedColumns: ["id"]
