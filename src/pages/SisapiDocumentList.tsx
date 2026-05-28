@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Search, Filter } from "lucide-react";
+import { FileText, Plus, Search, Filter, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SisapiDocumentList() {
   const [search, setSearch] = useState("");
@@ -113,7 +121,26 @@ export default function SisapiDocumentList() {
                   <TableCell>
                     {format(new Date(doc.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-1">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4 mr-1" />
+                          Ver
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[90vh]">
+                        <DialogHeader>
+                          <DialogTitle>{doc.title}</DialogTitle>
+                        </DialogHeader>
+                        <ScrollArea className="h-[60vh] mt-4 p-4 border rounded-md bg-slate-50">
+                          <div 
+                            className="prose prose-slate max-w-none break-words whitespace-normal"
+                            dangerouslySetInnerHTML={{ __html: doc.content }} 
+                          />
+                        </ScrollArea>
+                      </DialogContent>
+                    </Dialog>
                     <Button variant="ghost" size="sm" asChild>
                       <Link to={`/documentos/editar/${doc.id}`}>Editar</Link>
                     </Button>
