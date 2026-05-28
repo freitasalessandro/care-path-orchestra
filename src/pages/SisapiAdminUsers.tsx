@@ -337,8 +337,8 @@ export default function SisapiAdminUsers() {
                 Configurações Gerais
               </Button>
             </DialogTrigger>
-
             <DialogContent className="sm:max-w-[500px]">
+
               <DialogHeader>
                 <DialogTitle>Configurações Gerais do Sistema</DialogTitle>
                 <DialogDescription>
