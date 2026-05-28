@@ -78,7 +78,12 @@ export default function SisapiAdminUsers() {
       // Obter perfis da tabela sisapi_profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
-        .select(`*, role:role_id(id, name)`)
+        .select(`*`)
+
+
+        .select(`*`)
+
+
         .order("full_name", { ascending: true });
         
       if (profilesError) throw profilesError;
@@ -88,9 +93,14 @@ export default function SisapiAdminUsers() {
       // ou teríamos o email duplicado na tabela de perfis para performance.
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
         const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
-        if (rpcError) console.error("Error fetching email for", profile.id, rpcError);
-        return { ...profile, email: userData || null };
+        if (rpcError) {
+          console.error("Error fetching email for", profile.id, rpcError);
+          // Tentativa alternativa caso o RPC falhe ou não encontre (o Alessandro é o usuário logado as vezes)
+          return { ...profile, email: profile.id === user?.id ? user.email : "Email não recuperado" };
+        }
+        return { ...profile, email: userData || (profile.id === user?.id ? user.email : null) };
       }));
+
 
 
       return profilesWithEmails;
@@ -177,9 +187,14 @@ export default function SisapiAdminUsers() {
   });
 
   if (!isSpecialAdmin && !loadingProfile && user?.email) {
-    console.warn("Acesso negado: Redirecionando usuário não-admin");
+    console.warn("Acesso negado: Redirecionando usuário não-admin", { 
+      email: user.email, 
+      isSpecial: isSpecialAdmin, 
+      profile: currentUserProfile 
+    });
     return <Navigate to="/modules" replace />;
   }
+
 
 
 
@@ -297,6 +312,7 @@ export default function SisapiAdminUsers() {
                           </SelectContent>
                         </Select>
                       </TableCell>
+
                       <TableCell>
                         <Badge 
                           className={`cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
