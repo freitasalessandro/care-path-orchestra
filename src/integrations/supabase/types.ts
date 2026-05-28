@@ -657,40 +657,60 @@ export type Database = {
       sisapi_profiles: {
         Row: {
           created_at: string
+          department_id: string | null
           full_name: string | null
           id: string
           is_admin: boolean | null
           role_id: string | null
+          sector_id: string | null
           signature_url: string | null
           status: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          department_id?: string | null
           full_name?: string | null
           id: string
           is_admin?: boolean | null
           role_id?: string | null
+          sector_id?: string | null
           signature_url?: string | null
           status?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          department_id?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
           role_id?: string | null
+          sector_id?: string | null
           signature_url?: string | null
           status?: string | null
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "sisapi_profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_departments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "sisapi_profiles_role_id_fkey"
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "sisapi_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sisapi_profiles_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_sectors"
             referencedColumns: ["id"]
           },
         ]
