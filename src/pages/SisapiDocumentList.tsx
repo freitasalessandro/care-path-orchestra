@@ -23,6 +23,46 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SisapiDocumentList() {
   const [search, setSearch] = useState("");
+  const { user } = useAuth();
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const handleExportPdf = async (doc: any) => {
+    setExporting(doc.id);
+    try {
+      // Fetch profile info for signatures
+      const { data: authorProfile } = await supabase
+        .from("sisapi_profiles")
+        .select("*, role:role_id(name)")
+        .eq("id", doc.author_id)
+        .single();
+        
+      const { data: attachments } = await supabase
+        .from("sisapi_archive_files")
+        .select("*")
+        .eq("document_id", doc.id);
+
+      await exportToPdf({
+        title: doc.title,
+        document_type: doc.document_type,
+        department: doc.department,
+        content: doc.content,
+        items: doc.items as any[],
+        budget_info: doc.budget_info,
+        creditor_info: doc.creditor_info,
+        author_name: authorProfile?.full_name,
+        author_role: authorProfile?.role?.name,
+        author_signature: authorProfile?.signature_url,
+        is_finalized: doc.status === 'completed',
+        attachments: attachments || []
+      });
+      toast.success("PDF gerado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setExporting(null);
+    }
+  };
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["sisapi-documents", search],
