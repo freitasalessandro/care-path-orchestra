@@ -191,13 +191,14 @@ export default function ExamResults() {
             <p className="text-muted-foreground">{settings?.institution_name || "Controle de recebimento e entrega de exames"}</p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
           {(profile?.is_admin || profile?.email === "admin@gmail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
               <UserCog className="w-4 h-4" />
               Gestão de Usuários
             </Button>
           )}
-        </div>
 
         <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
           <DialogTrigger asChild>
