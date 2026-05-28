@@ -1,7 +1,7 @@
 import logoNeopolis from "@/assets/logo-neopolis.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, LogOut, User } from "lucide-react";
+import { LayoutGrid, LogOut, User, Bell } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +26,22 @@ export function AppTopbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full border border-primary" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-80" align="end">
+            <DropdownMenuLabel>Notificações</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-[300px] overflow-y-auto p-2">
+              <p className="text-xs text-center py-4 text-muted-foreground">Nenhuma notificação nova</p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
