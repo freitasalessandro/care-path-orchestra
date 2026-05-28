@@ -242,11 +242,8 @@ export default function SisapiDocumentEditor() {
         .eq("id", user?.id)
         .single();
         
-      const { data: assignedProfile } = assignedTo ? await supabase
-        .from("sisapi_profiles")
-        .select("*, role:role_id(name)")
-        .eq("id", assignedTo)
-        .single() : { data: null };
+      // For editor preview, we don't have delegation logic yet 
+      // as it's typically used by the author to preview.
 
       await exportToPdf({
         title,
@@ -259,7 +256,7 @@ export default function SisapiDocumentEditor() {
         author_name: authorProfile?.full_name,
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
-        is_finalized: false, // Should be based on status
+        is_finalized: false,
         attachments: attachments
       });
       toast.success("PDF gerado com sucesso");

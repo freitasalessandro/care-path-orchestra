@@ -34,16 +34,32 @@ export default function SisapiPendingActions() {
   const [nextUser, setNextUser] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { data: pendingDocs, isLoading, refetch } = useQuery({
-    queryKey: ["sisapi-pending-docs", user?.id],
+  const { data: authorities } = useQuery({
+    queryKey: ["sisapi-my-delegations", user?.id],
     queryFn: async () => {
+      const { data } = await supabase
+        .from("sisapi_authorities")
+        .select("autoridade_user_id")
+        .eq("representante_user_id", user?.id)
+        .eq("ativo", true);
+      return data?.map(a => a.autoridade_user_id) || [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: pendingDocs, isLoading, refetch } = useQuery({
+    queryKey: ["sisapi-pending-docs", user?.id, authorities],
+    queryFn: async () => {
+      const assignedIds = [user?.id, ...(authorities || [])].filter(Boolean);
+      
       const { data, error } = await supabase
         .from("sisapi_documents")
         .select(`
           *,
-          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name, signature_url)
+          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name, signature_url),
+          assigned_to_profile:sisapi_profiles!sisapi_documents_assigned_to_fkey(full_name)
         `)
-        .eq("assigned_to", user?.id)
+        .in("assigned_to", assignedIds)
         .eq("status", "pending_approval")
         .order("created_at", { ascending: false });
 
@@ -63,7 +79,11 @@ export default function SisapiPendingActions() {
 
   const handleSign = async (doc: any) => {
     // Check if user has signature
-    const { data: profile } = await supabase.from("sisapi_profiles").select("signature_url").eq("id", user?.id).single();
+    const { data: profile } = await supabase
+      .from("sisapi_profiles")
+      .select("signature_url, full_name")
+      .eq("id", user?.id)
+      .single();
     
     if (!profile?.signature_url) {
       toast.error("Você precisa configurar sua assinatura no painel administrativo primeiro.");
@@ -74,7 +94,10 @@ export default function SisapiPendingActions() {
     try {
       const { error } = await supabase
         .from("sisapi_documents")
-        .update({ is_signed: true })
+        .update({ 
+          is_signed: true,
+          signed_by_user_id: user?.id
+        })
         .eq("id", doc.id);
 
       if (error) throw error;
@@ -157,6 +180,7 @@ export default function SisapiPendingActions() {
             <TableRow>
               <TableHead>Documento</TableHead>
               <TableHead>Autor/Origem</TableHead>
+              <TableHead>Destinatário</TableHead>
               <TableHead>Data</TableHead>
               <TableHead>Status Assinatura</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -186,6 +210,12 @@ export default function SisapiPendingActions() {
                     </div>
                   </TableCell>
                   <TableCell>{doc.author?.full_name || "Desconhecido"}</TableCell>
+                  <TableCell>
+                    {doc.assigned_to_profile?.full_name}
+                    {doc.assigned_to !== user?.id && (
+                      <Badge variant="outline" className="ml-2 text-[10px] uppercase">Delegado</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: ptBR })}
                   </TableCell>

@@ -20,6 +20,11 @@ interface ExportData {
   assigned_role?: string;
   is_finalized?: boolean;
   attachments?: any[];
+  signer_name?: string;
+  signer_signature?: string;
+  authority_name?: string;
+  authority_role?: string;
+  is_delegated?: boolean;
 }
 
 export const exportToPdf = async (data: ExportData) => {
@@ -174,17 +179,32 @@ export const exportToPdf = async (data: ExportData) => {
   doc.setLineWidth(0.1);
   doc.line( pageWidth / 2 - 40, currentY + 15, pageWidth / 2 + 40, currentY + 15);
   
-  if (data.author_signature) {
+  const signatureToUse = data.is_delegated ? data.signer_signature : data.author_signature;
+  
+  if (signatureToUse) {
     try {
-      doc.addImage(data.author_signature, 'PNG', pageWidth / 2 - 20, currentY - 10, 40, 20);
+      doc.addImage(signatureToUse, 'PNG', pageWidth / 2 - 20, currentY - 10, 40, 20);
     } catch (e) {}
   }
   
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
-  doc.text(data.author_name || "Responsável", pageWidth / 2, currentY + 20, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.text(data.author_role || "Cargo não informado", pageWidth / 2, currentY + 25, { align: "center" });
+  
+  if (data.is_delegated) {
+    // Show Authority Name/Role and then the delegated note
+    doc.text(data.authority_name || "Autoridade", pageWidth / 2, currentY + 20, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text(data.authority_role || "Cargo não informado", pageWidth / 2, currentY + 25, { align: "center" });
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "italic");
+    doc.text(`(Assinado por ${data.signer_name})`, pageWidth / 2, currentY + 30, { align: "center" });
+    currentY += 5; // Extra space for the delegated line
+  } else {
+    doc.text(data.author_name || "Responsável", pageWidth / 2, currentY + 20, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text(data.author_role || "Cargo não informado", pageWidth / 2, currentY + 25, { align: "center" });
+  }
+
   doc.setFontSize(7);
   doc.text(`Documento gerado eletronicamente em ${format(new Date(), "dd/MM/yyyy HH:mm:ss")}`, pageWidth / 2, currentY + 30, { align: "center" });
 
