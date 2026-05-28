@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,12 @@ export default function SisapiAdminUsers() {
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  
+  useEffect(() => {
+    console.log("SisapiAdminUsers mounted");
+    return () => console.log("SisapiAdminUsers unmounted");
+  }, []);
+
   
   const [newUser, setNewUser] = useState({
     email: "",
@@ -137,12 +145,20 @@ export default function SisapiAdminUsers() {
   const isSpecialAdmin = user?.email === "admin@gmail.com" || currentUserProfile?.is_admin;
 
   if (loadingProfile && user?.email !== "admin@gmail.com") {
-    return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
+    return (
+      <div className="flex flex-col h-screen items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-primary w-12 h-12" />
+        <p className="text-slate-500 animate-pulse">Verificando credenciais de acesso...</p>
+      </div>
+    );
   }
   
   if (!isSpecialAdmin && !loadingProfile) {
+    console.warn("Acesso negado: Redirecionando usuário não-admin");
     return <Navigate to="/modules" replace />;
   }
+
+
 
   return (
     <div className="container mx-auto py-8 space-y-8">
