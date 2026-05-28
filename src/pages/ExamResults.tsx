@@ -199,6 +199,7 @@ export default function ExamResults() {
               Gestão de Usuários
             </Button>
           )}
+        </div>
 
         <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
           <DialogTrigger asChild>
