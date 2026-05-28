@@ -35,8 +35,16 @@ const IoseDashboard = lazy(() => import("@/pages/IoseDashboard"));
 const IosePatientList = lazy(() => import("@/pages/IosePatientList"));
 const IoseSurgeryList = lazy(() => import("@/pages/IoseSurgeryList"));
 const IoseReports = lazy(() => import("@/pages/IoseReports"));
-
 const SecretariatSettings = lazy(() => import("@/pages/SecretariatSettings"));
+
+// SISAPI Module Pages
+const SisapiDashboard = lazy(() => import("@/pages/SisapiDashboard"));
+const SisapiDocumentList = lazy(() => import("@/pages/SisapiDocumentList"));
+const SisapiDocumentEditor = lazy(() => import("@/pages/SisapiDocumentEditor"));
+const SisapiPendingActions = lazy(() => import("@/pages/SisapiPendingActions"));
+const SisapiArchive = lazy(() => import("@/pages/SisapiArchive"));
+const SisapiAdminUsers = lazy(() => import("@/pages/SisapiAdminUsers"));
+const SisapiAdminSetup = lazy(() => import("@/pages/SisapiAdminSetup"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -88,6 +96,17 @@ function AppLayout() {
                   <Route path="/pacientes" element={<IosePatientList />} />
                   <Route path="/lista" element={<IoseSurgeryList />} />
                   <Route path="/relatorios" element={<IoseReports />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<SisapiDashboard />} />
+                  <Route path="/documentos" element={<SisapiDocumentList />} />
+                  <Route path="/documentos/novo" element={<SisapiDocumentEditor />} />
+                  <Route path="/documentos/editar/:id" element={<SisapiDocumentEditor />} />
+                  <Route path="/pendentes" element={<SisapiPendingActions />} />
+                  <Route path="/acervo" element={<SisapiArchive />} />
+                  <Route path="/usuarios" element={<SisapiAdminUsers />} />
+                  <Route path="/configuracoes" element={<SisapiAdminSetup />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Users, LogOut, Scissors } from "lucide-react";
+import { ClipboardList, Users, LogOut, Scissors, FileText } from "lucide-react";
 
 const modules = [
   {
@@ -27,6 +27,14 @@ const modules = [
     description: "Cadastro de pacientes oftalmológicos e montagem de listas de cirurgia.",
     icon: Scissors,
     color: "bg-emerald-500",
+    active: true,
+  },
+  {
+    id: "sisapi",
+    title: "SISAPI - Gestão Documental",
+    description: "Sistema de apoio à gestão com controle de documentos, fluxos e acervo digital.",
+    icon: FileText,
+    color: "bg-slate-800",
     active: true,
   },
 ];
