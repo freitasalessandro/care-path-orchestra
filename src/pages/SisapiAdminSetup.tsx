@@ -7,11 +7,29 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Briefcase, ShieldCheck, Plus, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export default function SisapiAdminSetup() {
   const [roleName, setRoleName] = useState("");
   const [authorityName, setAuthorityName] = useState("");
   const [authorityPosition, setAuthorityPosition] = useState("");
+  const { user } = useAuth();
+
+  const { data: profile, isLoading: loadingProfile } = useQuery({
+    queryKey: ["sisapi-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("sisapi_profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   const { data: roles, refetch: refetchRoles } = useQuery({
     queryKey: ["sisapi-roles"],
@@ -55,6 +73,11 @@ export default function SisapiAdminSetup() {
       refetchAuthorities();
     }
   };
+
+  if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
+  if (!profile?.is_admin) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="space-y-8">
