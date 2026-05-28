@@ -5,7 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight, Save, ArrowLeft, Upload, FileIcon, X } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight, Save, ArrowLeft, Upload, FileIcon, X, FileDown, Eye } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { ItemsModule, BudgetModule, CreditorModule } from "@/components/sisapi/DocumentModules";
 import { Separator } from "@/components/ui/separator";
+import { exportToPdf } from "@/utils/sisapiPdfExport";
 
 export default function SisapiDocumentEditor() {
   const { id } = useParams();
@@ -231,6 +232,45 @@ export default function SisapiDocumentEditor() {
     navigate("/documentos");
   };
 
+  const handleExportPdf = async () => {
+    setLoading(true);
+    try {
+      // Fetch profile info for signatures
+      const { data: authorProfile } = await supabase
+        .from("sisapi_profiles")
+        .select("*, role:role_id(name)")
+        .eq("id", user?.id)
+        .single();
+        
+      const { data: assignedProfile } = assignedTo ? await supabase
+        .from("sisapi_profiles")
+        .select("*, role:role_id(name)")
+        .eq("id", assignedTo)
+        .single() : { data: null };
+
+      await exportToPdf({
+        title,
+        document_type: docType,
+        department,
+        content: editor?.getHTML() || "",
+        items,
+        budget_info: budgetInfo,
+        creditor_info: creditorInfo,
+        author_name: authorProfile?.full_name,
+        author_role: authorProfile?.role?.name,
+        author_signature: authorProfile?.signature_url,
+        is_finalized: false, // Should be based on status
+        attachments: attachments
+      });
+      toast.success("PDF gerado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!editor) return null;
 
   return (
@@ -245,10 +285,16 @@ export default function SisapiDocumentEditor() {
             {id ? "Editar Documento" : "Novo Documento"}
           </h2>
         </div>
-        <Button onClick={handleSave} disabled={loading} className="bg-slate-800 hover:bg-slate-700">
-          <Save className="w-4 h-4 mr-2" />
-          {id ? "Atualizar e Enviar" : "Criar e Enviar"}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportPdf} disabled={loading}>
+            <FileDown className="w-4 h-4 mr-2" />
+            Exportar PDF
+          </Button>
+          <Button onClick={handleSave} disabled={loading} className="bg-slate-800 hover:bg-slate-700">
+            <Save className="w-4 h-4 mr-2" />
+            {id ? "Atualizar e Enviar" : "Criar e Enviar"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -37,6 +37,7 @@ const sisapiLinks = [
   { to: "/acervo", label: "Acervo Digital", icon: Library, id: "archive" },
   { to: "/usuarios", label: "Gestão de Usuários", icon: Users, id: "users", adminOnly: true },
   { to: "/funcoes", label: "Funções e Cargos", icon: Key, id: "roles", adminOnly: true },
+  { to: "/identidade", label: "Identidade Visual", icon: Building, id: "branding", adminOnly: true },
   { to: "/configuracoes", label: "Configurações", icon: ShieldCheck, id: "settings", adminOnly: true },
 ];
 
