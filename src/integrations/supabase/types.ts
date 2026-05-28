@@ -780,6 +780,39 @@ export type Database = {
           },
         ]
       }
+      sisapi_settings: {
+        Row: {
+          address: string | null
+          city_state: string | null
+          cnpj: string | null
+          id: string
+          institution_logo_url: string | null
+          institution_name: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          city_state?: string | null
+          cnpj?: string | null
+          id?: string
+          institution_logo_url?: string | null
+          institution_name: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          city_state?: string | null
+          cnpj?: string | null
+          id?: string
+          institution_logo_url?: string | null
+          institution_name?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           condition: string | null
