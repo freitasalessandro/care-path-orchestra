@@ -1,9 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap, Settings, FileBarChart, FileText, Clock, Library, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap, Settings, FileBarChart, FileText, Clock, Library, ShieldCheck, Key } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarContext } from "@/contexts/SidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const surgeryLinks = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
@@ -29,20 +31,55 @@ const ioseLinks = [
 ];
 
 const sisapiLinks = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/documentos", label: "Documentos", icon: FileText },
-  { to: "/pendentes", label: "Meus Pendentes", icon: Clock },
-  { to: "/acervo", label: "Acervo Digital", icon: Library },
-  { to: "/usuarios", label: "Gestão Administrativa", icon: Users },
-  { to: "/configuracoes", label: "Configurações", icon: ShieldCheck },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, id: "dashboard" },
+  { to: "/documentos", label: "Documentos", icon: FileText, id: "documents" },
+  { to: "/pendentes", label: "Meus Pendentes", icon: Clock, id: "pending" },
+  { to: "/acervo", label: "Acervo Digital", icon: Library, id: "archive" },
+  { to: "/usuarios", label: "Gestão de Usuários", icon: Users, id: "users", adminOnly: true },
+  { to: "/funcoes", label: "Funções e Cargos", icon: Key, id: "roles", adminOnly: true },
+  { to: "/configuracoes", label: "Configurações", icon: ShieldCheck, id: "settings", adminOnly: true },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
-  const { selectedModule } = useAuth();
+  const { selectedModule, user } = useAuth();
+
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("sisapi_profiles")
+        .select(`*, role:role_id(*)`)
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user?.id && selectedModule === "sisapi",
+  });
   
-  const links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : surgeryLinks;
+  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : surgeryLinks;
+
+  // Filter links for SISAPI based on permissions and admin status
+  if (selectedModule === "sisapi" && profile) {
+    links = sisapiLinks.filter(link => {
+      // Admins see everything
+      if (profile.is_admin) return true;
+      
+      // If it's admin only and user is not admin, hide it
+      if (link.adminOnly) return false;
+
+      // Check if user's role has permission for this link
+      if (profile.role && Array.isArray(profile.role.permissions)) {
+        return profile.role.permissions.includes(link.id);
+      }
+
+      // Default to visible if no specific permission required (unless it was adminOnly)
+      return true;
+    });
+  }
 
   return (
     <aside

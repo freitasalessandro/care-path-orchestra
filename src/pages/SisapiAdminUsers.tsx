@@ -1,20 +1,37 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, Shield, User, Upload, Settings } from "lucide-react";
+import { UserCheck, Shield, User, Upload, Settings, UserCog } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RoleManagement } from "@/components/sisapi/RoleManagement";
 import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
 import { SectorManagement } from "@/components/sisapi/SectorManagement";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
+    queryKey: ["current-profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   const { data: profiles, isLoading, refetch } = useQuery({
     queryKey: ["sisapi-admin-users"],
@@ -23,13 +40,39 @@ export default function SisapiAdminUsers() {
         .from("sisapi_profiles")
         .select(`
           *,
-          role:role_id(name)
+          role:role_id(id, name)
         `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
+  });
+
+  const { data: roles } = useQuery({
+    queryKey: ["sisapi-roles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("sisapi_roles").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, roleId }: { userId: string; roleId: string | null }) => {
+      const { error } = await supabase
+        .from("sisapi_profiles")
+        .update({ role_id: roleId })
+        .eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Cargo atualizado com sucesso");
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar cargo: " + error.message);
+    }
   });
 
   const handleApprove = async (id: string) => {
@@ -73,7 +116,7 @@ export default function SisapiAdminUsers() {
     try {
       const fileName = `signatures/${userId}-${Date.now()}.png`;
       const { error: uploadError } = await supabase.storage
-        .from('logos') // Using existing 'logos' bucket as it is public, or we could use sisapi_documents
+        .from('logos') 
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
@@ -98,17 +141,21 @@ export default function SisapiAdminUsers() {
     }
   };
 
+  if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
+  if (!currentUserProfile?.is_admin) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Gestão Administrativa</h1>
-        <p className="text-muted-foreground">Controle de usuários, cargos, departamentos e setores do sistema.</p>
+        <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
+        <p className="text-muted-foreground">Controle de acessos, cargos e assinaturas dos usuários do SISAPI.</p>
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
         <TabsList className="bg-white border">
           <TabsTrigger value="users" className="data-[state=active]:bg-slate-100">Usuários</TabsTrigger>
-          <TabsTrigger value="roles" className="data-[state=active]:bg-slate-100">Funções / Cargos</TabsTrigger>
           <TabsTrigger value="departments" className="data-[state=active]:bg-slate-100">Departamentos</TabsTrigger>
           <TabsTrigger value="sectors" className="data-[state=active]:bg-slate-100">Setores</TabsTrigger>
         </TabsList>
@@ -118,9 +165,9 @@ export default function SisapiAdminUsers() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
+                  <TableHead>Usuário</TableHead>
+                  <TableHead>Cargo / Função</TableHead>
                   <TableHead>Admin</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Assinatura (PNG)</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -139,26 +186,42 @@ export default function SisapiAdminUsers() {
                     <TableRow key={profile.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-slate-400" />
+                          <User className="w-8 h-8 p-1.5 rounded-full bg-slate-100 text-slate-400" />
                           <div>
-                            <div>{profile.full_name || "Sem nome"}</div>
-                            <div className="text-xs text-muted-foreground">{profile.role?.name}</div>
+                            <div className="font-semibold">{profile.full_name || "Sem nome"}</div>
+                            <div className="text-xs text-muted-foreground">{profile.id}</div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {profile.is_admin ? (
-                          <Badge className="bg-slate-800">Sim</Badge>
-                        ) : (
-                          <Badge variant="outline">Não</Badge>
-                        )}
+                        <Select 
+                          value={profile.role_id || "none"} 
+                          onValueChange={(val) => updateRoleMutation.mutate({ 
+                            userId: profile.id, 
+                            roleId: val === "none" ? null : val 
+                          })}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Sem cargo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Sem cargo</SelectItem>
+                            {roles?.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
-                        {profile.status === "approved" || profile.status === "active" ? (
-                          <Badge variant="outline" className="text-emerald-600 border-emerald-600">Ativo</Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-amber-600 border-amber-600">Pendente</Badge>
-                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className={profile.is_admin ? "text-slate-900 font-bold" : "text-slate-400"}
+                          onClick={() => toggleAdmin(profile.id, profile.is_admin)}
+                        >
+                          <Shield className={`w-4 h-4 mr-1 ${profile.is_admin ? "fill-slate-900" : ""}`} />
+                          {profile.is_admin ? "Administrador" : "Comum"}
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -189,14 +252,13 @@ export default function SisapiAdminUsers() {
                       </TableCell>
                       <TableCell className="text-right space-x-2">
                         {(profile.status !== "approved" && profile.status !== "active") && (
-                          <Button variant="ghost" size="sm" onClick={() => handleApprove(profile.id)}>
+                          <Button variant="outline" size="sm" onClick={() => handleApprove(profile.id)}>
                             <UserCheck className="w-4 h-4 mr-1" />
                             Aprovar
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
-                          <Shield className="w-4 h-4 mr-1" />
-                          {profile.is_admin ? "Remover Admin" : "Tornar Admin"}
+                        <Button variant="ghost" size="icon" title="Configurações Avançadas">
+                          <UserCog className="w-4 h-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -205,10 +267,6 @@ export default function SisapiAdminUsers() {
               </TableBody>
             </Table>
           </div>
-        </TabsContent>
-
-        <TabsContent value="roles" className="bg-white p-6 rounded-lg border shadow-sm">
-          <RoleManagement />
         </TabsContent>
 
         <TabsContent value="departments" className="bg-white p-6 rounded-lg border shadow-sm">
