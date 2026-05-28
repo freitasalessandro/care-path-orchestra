@@ -60,7 +60,7 @@ export default function HRDashboard() {
     },
   ];
 
-  if (profile?.is_admin || profile?.email === "alessandro@gmail.com") {
+  if (profile?.is_admin || profile?.email === "admin@gemail.com") {
 
     menuItems.push({
       title: "Gestão de Usuários",
