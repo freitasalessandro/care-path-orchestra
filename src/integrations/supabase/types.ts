@@ -402,6 +402,7 @@ export type Database = {
       sisapi_archive_files: {
         Row: {
           created_at: string
+          department: string | null
           document_id: string | null
           file_name: string
           file_type: string | null
@@ -413,6 +414,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          department?: string | null
           document_id?: string | null
           file_name: string
           file_type?: string | null
@@ -424,6 +426,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          department?: string | null
           document_id?: string | null
           file_name?: string
           file_type?: string | null
@@ -532,6 +535,7 @@ export type Database = {
           department: string | null
           document_type: string | null
           id: string
+          is_signed: boolean | null
           items: Json | null
           metadata: Json | null
           status: string | null
@@ -549,6 +553,7 @@ export type Database = {
           department?: string | null
           document_type?: string | null
           id?: string
+          is_signed?: boolean | null
           items?: Json | null
           metadata?: Json | null
           status?: string | null
@@ -566,6 +571,7 @@ export type Database = {
           department?: string | null
           document_type?: string | null
           id?: string
+          is_signed?: boolean | null
           items?: Json | null
           metadata?: Json | null
           status?: string | null
@@ -634,6 +640,7 @@ export type Database = {
           id: string
           is_admin: boolean | null
           role_id: string | null
+          signature_url: string | null
           status: string | null
           updated_at: string
         }
@@ -643,6 +650,7 @@ export type Database = {
           id: string
           is_admin?: boolean | null
           role_id?: string | null
+          signature_url?: string | null
           status?: string | null
           updated_at?: string
         }
@@ -652,6 +660,7 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           role_id?: string | null
+          signature_url?: string | null
           status?: string | null
           updated_at?: string
         }
