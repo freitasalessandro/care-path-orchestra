@@ -137,12 +137,13 @@ export default function SisapiAdminUsers() {
   const isSpecialAdmin = user?.email === "admin@gmail.com" || currentUserProfile?.is_admin;
 
   if (loadingProfile && user?.email !== "admin@gmail.com") {
-    return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>;
   }
   
   if (!isSpecialAdmin && !loadingProfile) {
     return <Navigate to="/modules" replace />;
   }
+
 
   return (
     <div className="container mx-auto py-8 space-y-8">
