@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +23,14 @@ export default function Login() {
     full_name: ""
   });
   const navigate = useNavigate();
+  const { data: systemSettings } = useQuery({
+    queryKey: ["sisapi-public-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("general_settings").maybeSingle();
+      return data?.general_settings as any;
+    }
+  });
+
 
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -126,64 +136,66 @@ export default function Login() {
               {loading ? "Entrando..." : "Entrar"}
             </Button>
             
-            <div className="w-full text-center">
-              <Dialog open={isSignUpOpen} onOpenChange={setIsSignUpOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="link" className="text-sm">
-                    Não tem uma conta? Cadastre-se
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <form onSubmit={handleSignUp}>
-                    <DialogHeader>
-                      <DialogTitle>Criar Conta</DialogTitle>
-                      <DialogDescription>
-                        Preencha os dados abaixo para se cadastrar no sistema.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="signup-name">Nome Completo</Label>
-                        <Input
-                          id="signup-name"
-                          placeholder="Seu nome"
-                          value={signUpData.full_name}
-                          onChange={(e) => setSignUpData({ ...signUpData, full_name: e.target.value })}
-                          required
-                        />
+            {systemSettings?.allowPublicRegistration && (
+              <div className="w-full text-center">
+                <Dialog open={isSignUpOpen} onOpenChange={setIsSignUpOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="link" className="text-sm">
+                      Não tem uma conta? Cadastre-se
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <form onSubmit={handleSignUp}>
+                      <DialogHeader>
+                        <DialogTitle>Criar Conta</DialogTitle>
+                        <DialogDescription>
+                          Preencha os dados abaixo para se cadastrar no sistema.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="signup-name">Nome Completo</Label>
+                          <Input
+                            id="signup-name"
+                            placeholder="Seu nome"
+                            value={signUpData.full_name}
+                            onChange={(e) => setSignUpData({ ...signUpData, full_name: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="signup-email">Email</Label>
+                          <Input
+                            id="signup-email"
+                            type="email"
+                            placeholder="email@exemplo.com"
+                            value={signUpData.email}
+                            onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="signup-password">Senha</Label>
+                          <Input
+                            id="signup-password"
+                            type="password"
+                            value={signUpData.password}
+                            onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+                            required
+                          />
+                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="signup-email">Email</Label>
-                        <Input
-                          id="signup-email"
-                          type="email"
-                          placeholder="email@exemplo.com"
-                          value={signUpData.email}
-                          onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="signup-password">Senha</Label>
-                        <Input
-                          id="signup-password"
-                          type="password"
-                          value={signUpData.password}
-                          onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit" disabled={loading}>
-                        {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                        Cadastrar
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+                      <DialogFooter>
+                        <Button type="submit" disabled={loading}>
+                          {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                          Cadastrar
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
 
 
           </CardFooter>
