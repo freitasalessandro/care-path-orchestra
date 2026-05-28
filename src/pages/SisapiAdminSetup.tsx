@@ -49,6 +49,44 @@ export default function SisapiAdminSetup() {
     },
   });
 
+  const { data: settings, isLoading: loadingSettings } = useQuery({
+    queryKey: ["sisapi-general-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_settings")
+        .select("general_settings, id")
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.general_settings) {
+        setGeneralSettings(data.general_settings as any);
+      }
+      return data;
+    },
+  });
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const { data: current } = await supabase.from("sisapi_settings").select("id").maybeSingle();
+      if (current) {
+        const { error: updateError } = await supabase
+          .from("sisapi_settings")
+          .update({ general_settings: generalSettings })
+          .eq("id", current.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase.from("sisapi_settings").insert({ general_settings: generalSettings });
+        if (insertError) throw insertError;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Configurações salvas com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["sisapi-general-settings"] });
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao salvar configurações: " + error.message);
+    }
+  });
+
   const handleAddRole = async () => {
     if (!roleName) return;
     const { error } = await supabase.from("sisapi_roles").insert([{ name: roleName }]);
@@ -59,6 +97,7 @@ export default function SisapiAdminSetup() {
       refetchRoles();
     }
   };
+
 
   if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
   if (!profile?.is_admin) {
