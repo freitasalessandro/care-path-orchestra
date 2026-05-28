@@ -80,6 +80,7 @@ export default function SisapiAdminUsers() {
         .from("sisapi_profiles")
         .select(`*`)
 
+
         .order("full_name", { ascending: true });
         
       if (profilesError) throw profilesError;
