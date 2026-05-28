@@ -51,7 +51,10 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
+
     e.preventDefault();
     setLoading(true);
 
