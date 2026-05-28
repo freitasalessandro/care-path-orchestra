@@ -411,7 +411,7 @@ export default function SisapiAdminUsers() {
                 Novo Usuário
               </Button>
             </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px]">
             <form onSubmit={handleCreateUser}>
               <DialogHeader>
                 <DialogTitle>Criar Novo Usuário</DialogTitle>
