@@ -260,11 +260,12 @@ export default function SisapiAdminUsers() {
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
                             <User className="w-5 h-5" />
                           </div>
-                        <div className="flex flex-col">
-                          <span className="text-slate-900 font-medium">{profile.full_name}</span>
-                          <span className="text-xs text-slate-500">{profile.email || "Email não disponível"}</span>
+                          <div className="flex flex-col">
+                            <span className="text-slate-900 font-medium">{profile.full_name}</span>
+                          </div>
                         </div>
                       </TableCell>
+
 
                       <TableCell>
                         <Select 
