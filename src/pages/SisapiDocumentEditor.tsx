@@ -232,6 +232,44 @@ export default function SisapiDocumentEditor() {
     navigate("/documentos");
   };
 
+  const handleExportPdf = async () => {
+    setLoading(true);
+    try {
+      // Fetch profile info for signatures
+      const { data: authorProfile } = await supabase
+        .from("sisapi_profiles")
+        .select("*, role:role_id(name)")
+        .eq("id", user?.id)
+        .single();
+        
+      const { data: assignedProfile } = assignedTo ? await supabase
+        .from("sisapi_profiles")
+        .select("*, role:role_id(name)")
+        .eq("id", assignedTo)
+        .single() : { data: null };
+
+      await exportToPdf({
+        title,
+        document_type: docType,
+        department,
+        content: editor?.getHTML() || "",
+        items,
+        budget_info: budgetInfo,
+        creditor_info: creditorInfo,
+        author_name: authorProfile?.full_name,
+        author_role: authorProfile?.role?.name,
+        author_signature: authorProfile?.signature_url,
+        is_finalized: false // Should be based on status
+      });
+      toast.success("PDF gerado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!editor) return null;
 
   return (
