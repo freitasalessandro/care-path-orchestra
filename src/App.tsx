@@ -45,6 +45,7 @@ const SisapiPendingActions = lazy(() => import("@/pages/SisapiPendingActions"));
 const SisapiArchive = lazy(() => import("@/pages/SisapiArchive"));
 const SisapiAdminUsers = lazy(() => import("@/pages/SisapiAdminUsers"));
 const SisapiAdminSetup = lazy(() => import("@/pages/SisapiAdminSetup"));
+const SisapiRoles = lazy(() => import("@/pages/SisapiRoles"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
