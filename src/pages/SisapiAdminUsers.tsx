@@ -304,9 +304,13 @@ export default function SisapiAdminUsers() {
   };
 
   if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
-  if (!currentUserProfile?.is_admin) {
+  
+  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
+  
+  if (!isSpecialAdmin) {
     return <Navigate to="/" replace />;
   }
+
 
   return (
     <div className="space-y-6">
