@@ -96,7 +96,11 @@ export default function SisapiAdminUsers() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Filter out any entries that might be broken or incomplete if needed, 
+      // but ensure we return the list
+      return data || [];
+
     },
   });
 
