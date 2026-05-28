@@ -211,6 +211,12 @@ export default function SisapiPendingActions() {
                   </TableCell>
                   <TableCell>{doc.author?.full_name || "Desconhecido"}</TableCell>
                   <TableCell>
+                    {doc.assigned_to_profile?.full_name}
+                    {doc.assigned_to !== user?.id && (
+                      <Badge variant="outline" className="ml-2 text-[10px] uppercase">Delegado</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: ptBR })}
                   </TableCell>
                   <TableCell>
