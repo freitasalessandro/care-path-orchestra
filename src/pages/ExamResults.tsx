@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Search, Plus, CheckCircle, Clock, Trash2, UserCheck } from "lucide-react";
+import { Search, Plus, CheckCircle, Clock, Trash2, UserCheck, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -31,6 +31,18 @@ type ExamFormValues = z.infer<typeof examSchema>;
 type DeliveryFormValues = z.infer<typeof deliverySchema>;
 
 export default function ExamResults() {
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
+      return data;
+    }
+  });
+
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
   const [isDeliveryDialogOpen, setIsDeliveryDialogOpen] = useState(false);
@@ -160,9 +172,17 @@ export default function ExamResults() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Resultados de Exames</h1>
-          <p className="text-muted-foreground">Controle de recebimento e entrega de exames na secretaria</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Resultados de Exames</h1>
+            <p className="text-muted-foreground">Controle de recebimento e entrega de exames na secretaria</p>
+          </div>
+          {profile?.is_admin && (
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
+              <UserCog className="w-4 h-4" />
+              Gestão de Usuários
+            </Button>
+          )}
         </div>
 
         <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
