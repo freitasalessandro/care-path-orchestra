@@ -17,7 +17,7 @@ export default function SisapiPendingActions() {
         .from("sisapi_documents")
         .select(`
           *,
-          author:author_id(full_name)
+          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name)
         `)
         .eq("assigned_to", user?.id)
         .eq("status", "pending_approval")

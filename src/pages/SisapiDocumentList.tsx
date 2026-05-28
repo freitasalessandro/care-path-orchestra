@@ -20,8 +20,8 @@ export default function SisapiDocumentList() {
         .from("sisapi_documents")
         .select(`
           *,
-          author:author_id(full_name),
-          template:template_id(title)
+          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name),
+          template:sisapi_document_templates(title)
         `)
         .order("created_at", { ascending: false });
 
