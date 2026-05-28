@@ -150,6 +150,15 @@ const App = () => (
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route
+                  path="/usuarios"
+                  element={
+                    <PrivateRoute>
+                      <SisapiAdminUsers />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
                   path="/modules"
                   element={
                     <PrivateRoute>
