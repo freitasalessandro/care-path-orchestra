@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check for dummy session
     const isDummy = localStorage.getItem("sb-dummy-session");
     if (isDummy) {
-      setUser({ email: "admin@sistema.com", id: "admin-id" } as any);
+      setUser({ email: "admin@gmail.com", id: "admin-id" } as any);
       setLoading(false);
       return;
     }
