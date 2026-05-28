@@ -404,36 +404,42 @@ export type Database = {
           created_at: string
           department: string | null
           document_id: string | null
+          document_type: string | null
           file_name: string
           file_type: string | null
           file_url: string
           id: string
           metadata: Json | null
           size_bytes: number | null
+          title: string | null
           uploaded_by: string | null
         }
         Insert: {
           created_at?: string
           department?: string | null
           document_id?: string | null
+          document_type?: string | null
           file_name: string
           file_type?: string | null
           file_url: string
           id?: string
           metadata?: Json | null
           size_bytes?: number | null
+          title?: string | null
           uploaded_by?: string | null
         }
         Update: {
           created_at?: string
           department?: string | null
           document_id?: string | null
+          document_type?: string | null
           file_name?: string
           file_type?: string | null
           file_url?: string
           id?: string
           metadata?: Json | null
           size_bytes?: number | null
+          title?: string | null
           uploaded_by?: string | null
         }
         Relationships: [
