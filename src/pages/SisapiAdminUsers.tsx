@@ -75,14 +75,29 @@ export default function SisapiAdminUsers() {
   const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Obter perfis da tabela sisapi_profiles
+      const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select(`*, role:role_id(id, name)`)
         .order("full_name", { ascending: true });
-      if (error) throw error;
-      return data || [];
+        
+      if (profilesError) throw profilesError;
+
+      // Buscar os emails dos usuários no Auth
+      // Nota: Em uma aplicação real com muitos usuários, faríamos um JOIN via RPC 
+      // ou teríamos o email duplicado na tabela de perfis para performance.
+      const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
+        const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
+        if (rpcError) console.error("Error fetching email for", profile.id, rpcError);
+        return { ...profile, email: userData || null };
+      }));
+
+
+      return profilesWithEmails;
+
     },
   });
+
 
   const { data: roles } = useQuery({
     queryKey: ["sisapi-roles-list"],
@@ -256,9 +271,15 @@ export default function SisapiAdminUsers() {
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
                             <User className="w-5 h-5" />
                           </div>
-                          <span className="text-slate-900">{profile.full_name}</span>
+                          <div className="flex flex-col">
+                            <span className="text-slate-900 font-medium">{profile.full_name}</span>
+                            <span className="text-xs text-slate-500">{profile.email || "Email não disponível"}</span>
+                          </div>
+
                         </div>
                       </TableCell>
+
+
                       <TableCell>
                         <Select 
                           value={profile.role_id || "none"} 
