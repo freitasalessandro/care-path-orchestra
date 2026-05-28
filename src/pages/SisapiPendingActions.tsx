@@ -180,6 +180,7 @@ export default function SisapiPendingActions() {
             <TableRow>
               <TableHead>Documento</TableHead>
               <TableHead>Autor/Origem</TableHead>
+              <TableHead>Destinatário</TableHead>
               <TableHead>Data</TableHead>
               <TableHead>Status Assinatura</TableHead>
               <TableHead className="text-right">Ações</TableHead>
