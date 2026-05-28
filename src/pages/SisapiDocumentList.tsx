@@ -77,6 +77,11 @@ export default function SisapiDocumentList() {
         author_name: authorProfile?.full_name,
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
+        signer_name: signerProfile?.full_name,
+        signer_signature: signerProfile?.signature_url,
+        authority_name: authorityProfile?.full_name,
+        authority_role: authorityProfile?.role?.name,
+        is_delegated: isDelegated,
         is_finalized: doc.status === 'completed',
         attachments: attachments || []
       });
