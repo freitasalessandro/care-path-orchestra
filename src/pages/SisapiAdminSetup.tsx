@@ -1,19 +1,29 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Briefcase, ShieldCheck, Plus, Trash } from "lucide-react";
+import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+
 
 export default function SisapiAdminSetup() {
   const [roleName, setRoleName] = useState("");
-  // Management of authorities moved to dedicated page
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [generalSettings, setGeneralSettings] = useState({
+    systemName: "SISAPI",
+    maintenanceMode: false,
+    allowPublicRegistration: false,
+    contactEmail: ""
+  });
+
 
   const { data: profile, isLoading: loadingProfile } = useQuery({
     queryKey: ["sisapi-profile", user?.id],
