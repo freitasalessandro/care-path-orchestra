@@ -490,32 +490,33 @@ export default function SisapiAdminUsers() {
                   </TableRow>
                 ) : (
                   profiles?.map((profile) => (
+                    <TableRow key={profile.id}>
+                      <TableCell>{profile.full_name}</TableCell>
+                      <TableCell>
+                        <Select value={profile.role_id || "none"} onValueChange={(val) => updateRoleMutation.mutate({ userId: profile.id, roleId: val === "none" ? null : val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Sem cargo</SelectItem>
+                            {roles?.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
+                          <Shield className={profile.is_admin ? "fill-slate-900" : ""} />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Input type="file" accept="image/png" onChange={(e) => handleSignatureUpload(profile.id, e)} className="hidden" id={`sig-${profile.id}`} />
+                        <Label htmlFor={`sig-${profile.id}`} className="cursor-pointer text-blue-600 underline">Upload</Label>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" onClick={() => handleOpenModulesDialog(profile)}><Edit2 /></Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
 
-                  <TableRow key={profile.id}>
-                    <TableCell>{profile.full_name}</TableCell>
-                    <TableCell>
-                      <Select value={profile.role_id || "none"} onValueChange={(val) => updateRoleMutation.mutate({ userId: profile.id, roleId: val === "none" ? null : val })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sem cargo</SelectItem>
-                          {roles?.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
-                        <Shield className={profile.is_admin ? "fill-slate-900" : ""} />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Input type="file" accept="image/png" onChange={(e) => handleSignatureUpload(profile.id, e)} className="hidden" id={`sig-${profile.id}`} />
-                      <Label htmlFor={`sig-${profile.id}`} className="cursor-pointer text-blue-600 underline">Upload</Label>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" onClick={() => handleOpenModulesDialog(profile)}><Edit2 /></Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
               </TableBody>
             </Table>
           </div>
