@@ -66,7 +66,7 @@ export default function SisapiDashboard() {
   return (
     <div className="space-y-8 pb-10">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 font-jakarta">Painel de Gestão</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Painel de Gestão</h1>
         <p className="text-muted-foreground">Sistema de Apoio à Gestão - SISAPI</p>
       </div>
 
