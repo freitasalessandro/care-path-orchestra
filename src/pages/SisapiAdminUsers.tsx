@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, Shield, User, Upload, Settings, UserCog } from "lucide-react";
+import { UserCheck, Shield, User, Upload, Settings, UserCog, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
@@ -13,11 +13,32 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    full_name: "",
+    role_id: "",
+    department_id: "",
+    is_admin: false
+  });
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
 
   const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["current-profile", user?.id],
