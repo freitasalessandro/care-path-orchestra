@@ -124,8 +124,10 @@ export default function SisapiAdminUsers() {
         role_id: "",
         department_id: "",
         sector_id: "",
-        is_admin: false
+        is_admin: false,
+        allowed_modules: ["sisapi"]
       });
+
       refetch();
     },
     onError: (error: any) => {
