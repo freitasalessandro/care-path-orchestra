@@ -79,7 +79,51 @@ export default function SisapiAdminUsers() {
     },
   });
 
-  const updateRoleMutation = useMutation({
+  const { data: departments } = useQuery({
+    queryKey: ["sisapi-departments"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("sisapi_departments").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: typeof newUser) => {
+      const { data, error } = await supabase.functions.invoke("create-sisapi-user", {
+        body: userData,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Usuário criado com sucesso!");
+      setIsCreateDialogOpen(false);
+      setNewUser({
+        email: "",
+        password: "",
+        full_name: "",
+        role_id: "",
+        department_id: "",
+        is_admin: false
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao criar usuário: " + error.message);
+    }
+  });
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUser.email || !newUser.password || !newUser.full_name) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    createUserMutation.mutate(newUser);
+  };
+
+
     mutationFn: async ({ userId, roleId }: { userId: string; roleId: string | null }) => {
       const { error } = await supabase
         .from("sisapi_profiles")
@@ -169,10 +213,127 @@ export default function SisapiAdminUsers() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
-        <p className="text-muted-foreground">Controle de acessos, cargos e assinaturas dos usuários do SISAPI.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
+          <p className="text-muted-foreground">Controle de acessos, cargos e assinaturas dos usuários do SISAPI.</p>
+        </div>
+        
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-slate-900">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Novo Usuário
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <form onSubmit={handleCreateUser}>
+              <DialogHeader>
+                <DialogTitle>Criar Novo Usuário</DialogTitle>
+                <DialogDescription>
+                  Adicione um novo colaborador ao sistema SISAPI.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">Nome</Label>
+                  <Input 
+                    id="name" 
+                    className="col-span-3" 
+                    value={newUser.full_name}
+                    onChange={(e) => setNewUser({...newUser, full_name: e.target.value})}
+                    placeholder="Nome completo"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email"
+                    className="col-span-3" 
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    placeholder="email@instituicao.gov.br"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="pass" className="text-right">Senha</Label>
+                  <Input 
+                    id="pass" 
+                    type="password"
+                    className="col-span-3" 
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Departamento</Label>
+                  <div className="col-span-3">
+                    <Select 
+                      value={newUser.department_id} 
+                      onValueChange={(val) => setNewUser({...newUser, department_id: val})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um departamento" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments?.map((dept: any) => (
+                          <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Cargo</Label>
+                  <div className="col-span-3">
+                    <Select 
+                      value={newUser.role_id} 
+                      onValueChange={(val) => setNewUser({...newUser, role_id: val})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um cargo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles?.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Admin</Label>
+                  <div className="col-span-3 flex items-center space-x-2">
+                    <Checkbox 
+                      id="is_admin" 
+                      checked={newUser.is_admin}
+                      onCheckedChange={(checked) => setNewUser({...newUser, is_admin: !!checked})}
+                    />
+                    <label htmlFor="is_admin" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Conceder acesso administrativo
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createUserMutation.isPending}>
+                  {createUserMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Criar Usuário
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
+
 
       <Tabs defaultValue="users" className="space-y-4">
         <TabsList className="bg-white border">
