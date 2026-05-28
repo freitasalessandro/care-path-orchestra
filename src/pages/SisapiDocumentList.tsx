@@ -36,6 +36,31 @@ export default function SisapiDocumentList() {
         .eq("id", doc.author_id)
         .single();
         
+      // Fetch signer info if different from author
+      let signerProfile = null;
+      if (doc.signed_by_user_id) {
+        const { data } = await supabase
+          .from("sisapi_profiles")
+          .select("*, role:role_id(name)")
+          .eq("id", doc.signed_by_user_id)
+          .single();
+        signerProfile = data;
+      }
+
+      // Check if it was signed by a representative (delegate)
+      // If assigned_to != signed_by_user_id, it's a delegation
+      const isDelegated = doc.signed_by_user_id && doc.assigned_to !== doc.signed_by_user_id;
+      
+      let authorityProfile = null;
+      if (isDelegated) {
+        const { data } = await supabase
+          .from("sisapi_profiles")
+          .select("*, role:role_id(name)")
+          .eq("id", doc.assigned_to)
+          .single();
+        authorityProfile = data;
+      }
+        
       const { data: attachments } = await supabase
         .from("sisapi_archive_files")
         .select("*")
