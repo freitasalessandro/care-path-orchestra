@@ -83,7 +83,16 @@ export default function SisapiAdminUsers() {
         
       if (profilesError) throw profilesError;
 
-      return profilesData || [];
+      // Buscar os emails dos usuários no Auth
+      // Nota: Em uma aplicação real com muitos usuários, faríamos um JOIN via RPC 
+      // ou teríamos o email duplicado na tabela de perfis para performance.
+      const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
+        const { data: userData } = await supabase.rpc('get_user_email', { user_uuid: profile.id });
+        return { ...profile, email: userData || null };
+      }));
+
+      return profilesWithEmails;
+
     },
   });
 
