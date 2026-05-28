@@ -284,10 +284,16 @@ export default function SisapiDocumentEditor() {
             {id ? "Editar Documento" : "Novo Documento"}
           </h2>
         </div>
-        <Button onClick={handleSave} disabled={loading} className="bg-slate-800 hover:bg-slate-700">
-          <Save className="w-4 h-4 mr-2" />
-          {id ? "Atualizar e Enviar" : "Criar e Enviar"}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportPdf} disabled={loading}>
+            <FileDown className="w-4 h-4 mr-2" />
+            Exportar PDF
+          </Button>
+          <Button onClick={handleSave} disabled={loading} className="bg-slate-800 hover:bg-slate-700">
+            <Save className="w-4 h-4 mr-2" />
+            {id ? "Atualizar e Enviar" : "Criar e Enviar"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
