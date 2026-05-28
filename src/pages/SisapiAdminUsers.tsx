@@ -311,14 +311,22 @@ export default function SisapiAdminUsers() {
     }
   };
 
-  if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
-  
   const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
+
+  if (loadingProfile && !isSpecialAdmin) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <span className="ml-2">Verificando permissões...</span>
+    </div>
+  );
   
-  if (!isSpecialAdmin) {
+  if (!isSpecialAdmin && !loadingProfile) {
     console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
     return <Navigate to="/modules" replace />;
   }
+
+
+
 
 
 
@@ -469,32 +477,48 @@ export default function SisapiAdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {profiles?.map((profile) => (
-                  <TableRow key={profile.id}>
-                    <TableCell>{profile.full_name}</TableCell>
-                    <TableCell>
-                      <Select value={profile.role_id || "none"} onValueChange={(val) => updateRoleMutation.mutate({ userId: profile.id, roleId: val === "none" ? null : val })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sem cargo</SelectItem>
-                          {roles?.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
-                        <Shield className={profile.is_admin ? "fill-slate-900" : ""} />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Input type="file" accept="image/png" onChange={(e) => handleSignatureUpload(profile.id, e)} className="hidden" id={`sig-${profile.id}`} />
-                      <Label htmlFor={`sig-${profile.id}`} className="cursor-pointer text-blue-600 underline">Upload</Label>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" onClick={() => handleOpenModulesDialog(profile)}><Edit2 /></Button>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
+                      Carregando usuários...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : profiles?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      Nenhum usuário encontrado.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  profiles?.map((profile) => (
+                    <TableRow key={profile.id}>
+                      <TableCell>{profile.full_name}</TableCell>
+                      <TableCell>
+                        <Select value={profile.role_id || "none"} onValueChange={(val) => updateRoleMutation.mutate({ userId: profile.id, roleId: val === "none" ? null : val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Sem cargo</SelectItem>
+                            {roles?.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
+                          <Shield className={profile.is_admin ? "fill-slate-900" : ""} />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Input type="file" accept="image/png" onChange={(e) => handleSignatureUpload(profile.id, e)} className="hidden" id={`sig-${profile.id}`} />
+                        <Label htmlFor={`sig-${profile.id}`} className="cursor-pointer text-blue-600 underline">Upload</Label>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" onClick={() => handleOpenModulesDialog(profile)}><Edit2 /></Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+
               </TableBody>
             </Table>
           </div>
