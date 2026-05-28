@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Clock, Users, CheckCircle2, ArrowRight, Library } from "lucide-react";
+import { FileText, Clock, Users, CheckCircle2, ArrowRight, Library, UserCog } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,7 +32,18 @@ export default function SisapiDashboard() {
     },
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
+      return data;
+    }
+  });
+
   const { data: recentDocs } = useQuery({
+
     queryKey: ["sisapi-recent-docs"],
     queryFn: async () => {
       const { data } = await supabase
@@ -164,7 +175,19 @@ export default function SisapiDashboard() {
                   <div className="text-xs text-muted-foreground">Consultar arquivos digitalizados</div>
                 </div>
               </Link>
+              {profile?.is_admin && (
+                <Link to="/usuarios" className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors">
+                  <div className="p-2 rounded bg-slate-100 text-slate-800">
+                    <UserCog className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">Gestão de Usuários</div>
+                    <div className="text-xs text-muted-foreground">Configurar permissões de acesso</div>
+                  </div>
+                </Link>
+              )}
             </div>
+
           </CardContent>
         </Card>
       </div>
