@@ -74,7 +74,11 @@ export default function SisapiAdminSetup() {
           .eq("id", current.id);
         if (updateError) throw updateError;
       } else {
-        const { error: insertError } = await supabase.from("sisapi_settings").insert({ general_settings: generalSettings });
+        const { error: insertError } = await supabase.from("sisapi_settings").insert({ 
+          general_settings: generalSettings,
+          institution_name: generalSettings.systemName 
+        });
+
         if (insertError) throw insertError;
       }
     },
