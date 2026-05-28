@@ -78,7 +78,8 @@ export default function SisapiAdminUsers() {
       // Obter perfis da tabela sisapi_profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
-        .select(`*, role:role_id(id, name)`)
+        .select(`*`)
+
         .order("full_name", { ascending: true });
         
       if (profilesError) throw profilesError;
