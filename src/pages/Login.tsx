@@ -38,14 +38,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Login padrão temporário: admin / admin
-      if (email === "admin" && password === "admin") {
-        toast.success("Login padrão realizado com sucesso!");
+      // Login padrão temporário: admin@gemail.com / admin
+      if (email === "admin@gemail.com" && password === "admin") {
+        toast.success("Login administrativo realizado com sucesso!");
         localStorage.setItem("sb-dummy-session", "true");
         // Força recarregamento para o AuthContext detectar a nova sessão dummy
         window.location.href = "/modules";
         return;
       }
+
 
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -113,7 +114,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="text"
-                placeholder="admin"
+                placeholder="admin@gemail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

@@ -176,7 +176,7 @@ export default function SisapiDashboard() {
                   <div className="text-xs text-muted-foreground">Consultar arquivos digitalizados</div>
                 </div>
               </Link>
-              {(profile?.is_admin || profile?.email === "alessandro@gmail.com") && (
+              {(profile?.is_admin || profile?.email === "admin@gemail.com") && (
                 <Link to="/usuarios" className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors">
                   <div className="p-2 rounded bg-slate-100 text-slate-800">
                     <UserCog className="w-5 h-5" />

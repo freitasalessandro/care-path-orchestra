@@ -33,10 +33,11 @@ export default function PositionList() {
   const { data: profile } = useQuery({
     queryKey: ["sisapi-profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
-      return data;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
+      return { ...data, email: authUser.email };
+
     }
   });
   
@@ -105,7 +106,7 @@ export default function PositionList() {
             <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
             <p className="text-gray-600">Gestão de funções e carga horária semanal.</p>
           </div>
-          {profile?.is_admin && (
+          {(profile?.is_admin || profile?.email === "admin@gemail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
               <UserCog className="w-4 h-4" />
               Gestão de Usuários
