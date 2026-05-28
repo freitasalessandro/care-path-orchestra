@@ -721,6 +721,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          permissions: Json | null
           updated_at: string
         }
         Insert: {
@@ -728,6 +729,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          permissions?: Json | null
           updated_at?: string
         }
         Update: {
@@ -735,6 +737,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          permissions?: Json | null
           updated_at?: string
         }
         Relationships: []
