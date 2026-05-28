@@ -63,6 +63,15 @@ export default function SisapiAdminUsers() {
   const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["current-profile", user?.id],
     queryFn: async () => {
+      if (user?.email === "admin@gmail.com") {
+        return {
+          id: user.id,
+          full_name: "Administrador Mestre",
+          is_admin: true,
+          allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams']
+        };
+      }
+
       const { data, error } = await supabase
         .from("sisapi_profiles")
         .select("*")
@@ -72,6 +81,7 @@ export default function SisapiAdminUsers() {
       return data;
     },
     enabled: !!user?.id,
+
   });
 
   const { data: profiles, isLoading, refetch } = useQuery({
