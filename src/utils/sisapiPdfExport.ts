@@ -198,5 +198,45 @@ export const exportToPdf = async (data: ExportData) => {
     doc.restoreGraphicsState();
   }
 
+  const mainPdfBytes = doc.output('arraybuffer');
+  
+  // 10. Merge Attachments if they are PDFs
+  if (data.attachments && data.attachments.length > 0) {
+    try {
+      const mergedPdf = await PDFDocument.create();
+      
+      // Add main document first
+      const mainPdf = await PDFDocument.load(mainPdfBytes);
+      const copiedPages = await mergedPdf.copyPages(mainPdf, mainPdf.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+      
+      // Add attachments
+      for (const att of data.attachments) {
+        if (att.file_type === 'application/pdf' || att.file_url.toLowerCase().endsWith('.pdf')) {
+          try {
+            const resp = await fetch(att.file_url);
+            const attBytes = await resp.arrayBuffer();
+            const attPdf = await PDFDocument.load(attBytes);
+            const attPages = await mergedPdf.copyPages(attPdf, attPdf.getPageIndices());
+            attPages.forEach((page) => mergedPdf.addPage(page));
+          } catch (e) {
+            console.error(`Error merging attachment ${att.file_name}:`, e);
+          }
+        }
+      }
+      
+      const finalPdfBytes = await mergedPdf.save();
+      const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${data.title || "documento"}_final.pdf`;
+      link.click();
+      return;
+    } catch (error) {
+      console.error("Error during PDF merging:", error);
+      // Fallback to saving just the main document
+    }
+  }
+
   doc.save(`${data.title || "documento"}.pdf`);
 };
