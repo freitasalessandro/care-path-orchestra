@@ -80,10 +80,11 @@ export default function Dashboard() {
   const { data: profile } = useQuery({
     queryKey: ["sisapi-profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
-      return data;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
+      return { ...data, email: authUser.email };
+
     }
   });
 
@@ -123,12 +124,13 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
             <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
           </div>
-          {profile?.is_admin && (
+          {(profile?.is_admin || profile?.email === "alessandro@gmail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
               <UserCog className="w-4 h-4" />
               Gestão de Usuários
             </Button>
           )}
+
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-muted-foreground" />

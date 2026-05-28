@@ -114,11 +114,13 @@ export default function ModuleSelection() {
   const filteredModules = modules.map(module => {
 
     // Admins always have access to all modules
-    const hasAccess = profile?.is_admin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id));
+    const isSpecialAdmin = profile?.is_admin || user?.email === "alessandro@gmail.com";
+    const hasAccess = isSpecialAdmin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id));
     return {
       ...module,
       active: !!hasAccess
     };
+
   });
 
 
@@ -140,12 +142,13 @@ export default function ModuleSelection() {
             <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
           </div>
           <div className="flex gap-2">
-            {profile?.is_admin && (
+            {(profile?.is_admin || user?.email === "alessandro@gmail.com") && (
               <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-900 border-slate-200 hover:bg-slate-50">
                 <Users className="w-4 h-4 mr-2" />
                 Gestão de Usuários
               </Button>
             )}
+
             <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
               <LogOut className="w-4 h-4 mr-2" />
               Sair

@@ -31,6 +31,14 @@ export default function SisapiAdminUsers() {
   const [isGeneralSettingsOpen, setIsGeneralSettingsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  const [moduleLabels] = useState<Record<string, string>>({
+    sisapi: "SISAPI - Gestão Documental",
+    surgeries: "Gestão de Cirurgias",
+    hr: "Recursos Humanos",
+    iose: "Lista Iose",
+    exams: "Resultados de Exames"
+  });
+
   const [generalSettings, setGeneralSettings] = useState({
     systemName: "SISAPI",
     maintenanceMode: false,
@@ -304,9 +312,15 @@ export default function SisapiAdminUsers() {
   };
 
   if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
-  if (!currentUserProfile?.is_admin) {
-    return <Navigate to="/" replace />;
+  
+  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
+  
+  if (!isSpecialAdmin) {
+    console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
+    return <Navigate to="/modules" replace />;
   }
+
+
 
   return (
     <div className="space-y-6">
@@ -494,17 +508,26 @@ export default function SisapiAdminUsers() {
           <DialogHeader><DialogTitle>Módulos</DialogTitle></DialogHeader>
           <div className="grid gap-2 py-4">
             {["sisapi", "surgeries", "hr", "iose", "exams"].map(mod => (
-              <div key={mod} className="flex items-center space-x-2">
+              <div key={mod} className="flex items-center space-x-3 p-2 rounded hover:bg-slate-50 transition-colors">
                 <Checkbox 
-                  id={mod} 
+                  id={`edit-mod-${mod}`} 
                   checked={editingModules.includes(mod)}
                   onCheckedChange={(checked) => checked ? setEditingModules([...editingModules, mod]) : setEditingModules(editingModules.filter(m => m !== mod))}
                 />
-                <label htmlFor={mod}>{mod}</label>
+                <label htmlFor={`edit-mod-${mod}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+                  {moduleLabels[mod] || mod}
+                </label>
               </div>
             ))}
           </div>
-          <DialogFooter><Button onClick={handleUpdateModules}>Salvar</Button></DialogFooter>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModulesDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateModules} disabled={updateModulesMutation.isPending}>
+              {updateModulesMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>

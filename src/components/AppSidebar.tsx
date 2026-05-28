@@ -72,7 +72,9 @@ export function AppSidebar() {
   if (selectedModule === "sisapi" && profile) {
     links = sisapiLinks.filter(link => {
       // Admins see everything
-      if (profile.is_admin) return true;
+      const isSpecialAdmin = profile.is_admin || user?.email === "alessandro@gmail.com";
+      if (isSpecialAdmin) return true;
+
       
       // If it's admin only and user is not admin, hide it
       if (link.adminOnly) return false;
