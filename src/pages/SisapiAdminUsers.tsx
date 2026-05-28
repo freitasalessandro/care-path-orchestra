@@ -29,6 +29,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [editingModules, setEditingModules] = useState<string[]>([]);
+
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
