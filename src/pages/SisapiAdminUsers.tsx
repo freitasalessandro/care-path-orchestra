@@ -508,17 +508,26 @@ export default function SisapiAdminUsers() {
           <DialogHeader><DialogTitle>Módulos</DialogTitle></DialogHeader>
           <div className="grid gap-2 py-4">
             {["sisapi", "surgeries", "hr", "iose", "exams"].map(mod => (
-              <div key={mod} className="flex items-center space-x-2">
+              <div key={mod} className="flex items-center space-x-3 p-2 rounded hover:bg-slate-50 transition-colors">
                 <Checkbox 
-                  id={mod} 
+                  id={`edit-mod-${mod}`} 
                   checked={editingModules.includes(mod)}
                   onCheckedChange={(checked) => checked ? setEditingModules([...editingModules, mod]) : setEditingModules(editingModules.filter(m => m !== mod))}
                 />
-                <label htmlFor={mod}>{mod}</label>
+                <label htmlFor={`edit-mod-${mod}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+                  {moduleLabels[mod] || mod}
+                </label>
               </div>
             ))}
           </div>
-          <DialogFooter><Button onClick={handleUpdateModules}>Salvar</Button></DialogFooter>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModulesDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateModules} disabled={updateModulesMutation.isPending}>
+              {updateModulesMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>
