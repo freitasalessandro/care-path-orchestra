@@ -89,9 +89,9 @@ export default function SisapiDocumentEditor() {
     setDepartment(data.department || "");
     setAssignedTo(data.assigned_to || "");
     setTemplateId(data.template_id || "");
-    setItems(data.items || []);
-    setBudgetInfo(data.budget_info || { action: "", expense_element: "", resource_source: "" });
-    setCreditorInfo(data.creditor_info || { name: "", document: "", address: "", bank_details: "" });
+    setItems((data.items as any[]) || []);
+    setBudgetInfo((data.budget_info as any) || { action: "", expense_element: "", resource_source: "" });
+    setCreditorInfo((data.creditor_info as any) || { name: "", document: "", address: "", bank_details: "" });
     setAttachments(data.attachments || []);
     editor?.commands.setContent(data.content);
     
