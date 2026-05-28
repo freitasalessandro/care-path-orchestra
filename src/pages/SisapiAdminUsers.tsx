@@ -311,7 +311,7 @@ export default function SisapiAdminUsers() {
     }
   };
 
-  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "admin@gemail.com";
+  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "admin@gmail.com";
 
   if (loadingProfile && !isSpecialAdmin) return (
     <div className="flex items-center justify-center min-h-screen">

@@ -73,7 +73,7 @@ export default function IoseDashboard() {
     },
   ];
 
-  if (profile?.is_admin || profile?.email === "admin@gemail.com") {
+  if (profile?.is_admin || profile?.email === "admin@gmail.com") {
     menuItems.push({
       title: "Gestão de Usuários",
       description: "Gerenciar permissões e acessos",
