@@ -110,6 +110,7 @@ function AppLayout() {
                   <Route path="/usuarios" element={<SisapiAdminUsers />} />
                   <Route path="/funcoes" element={<SisapiRoles />} />
                   <Route path="/configuracoes" element={<SisapiAdminSetup />} />
+                  <Route path="/identidade" element={<SisapiInstitutionSettings />} />
                 </>
               )}
               <Route path="*" element={<NotFound />} />
