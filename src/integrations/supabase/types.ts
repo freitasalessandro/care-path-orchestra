@@ -483,6 +483,27 @@ export type Database = {
         }
         Relationships: []
       }
+      sisapi_departments: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sisapi_document_templates: {
         Row: {
           category: string | null
@@ -697,6 +718,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sisapi_sectors: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sisapi_sectors_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff: {
         Row: {
