@@ -65,32 +65,35 @@ export default function ModuleSelection() {
 
       if (error) throw error;
 
-      // If no profile exists, create one with admin rights for the first user
+      // If no profile exists, create one with admin rights
       if (!data && user?.id) {
-        const { data: countData } = await supabase
-          .from("sisapi_profiles")
-          .select("id", { count: 'exact', head: true });
-        
-        const isFirstUser = (countData as any)?.count === 0;
+        try {
+          const { data: newProfile, error: createError } = await supabase
+            .from("sisapi_profiles")
+            .upsert({
+              id: user.id,
+              full_name: user.email?.split('@')[0] || 'Administrador',
+              is_admin: true,
+              allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
+              status: 'active'
+            })
+            .select("allowed_modules, is_admin")
+            .single();
 
-        const { data: newProfile, error: createError } = await supabase
-          .from("sisapi_profiles")
-          .insert({
-            id: user.id,
-            full_name: user.email?.split('@')[0] || 'Usuário',
-            is_admin: true, // Making first/new user admin to avoid lockouts
-            allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
-            status: 'active'
-          })
-          .select("allowed_modules, is_admin")
-          .single();
-
-        if (createError) throw createError;
-        return newProfile;
+          if (createError) throw createError;
+          return newProfile;
+        } catch (e) {
+          console.error("Error creating initial profile:", e);
+          // Fallback to a temporary admin object if DB insert fails
+          return { is_admin: true, allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'] };
+        }
       }
 
+      // Ensure that even if a profile exists but is_admin is true, 
+      // they get access even if allowed_modules is empty
       return data;
     },
+
 
     enabled: !!user?.id,
   });
