@@ -34,16 +34,32 @@ export default function SisapiPendingActions() {
   const [nextUser, setNextUser] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { data: pendingDocs, isLoading, refetch } = useQuery({
-    queryKey: ["sisapi-pending-docs", user?.id],
+  const { data: authorities } = useQuery({
+    queryKey: ["sisapi-my-delegations", user?.id],
     queryFn: async () => {
+      const { data } = await supabase
+        .from("sisapi_authorities")
+        .select("autoridade_user_id")
+        .eq("representante_user_id", user?.id)
+        .eq("ativo", true);
+      return data?.map(a => a.autoridade_user_id) || [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: pendingDocs, isLoading, refetch } = useQuery({
+    queryKey: ["sisapi-pending-docs", user?.id, authorities],
+    queryFn: async () => {
+      const assignedIds = [user?.id, ...(authorities || [])].filter(Boolean);
+      
       const { data, error } = await supabase
         .from("sisapi_documents")
         .select(`
           *,
-          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name, signature_url)
+          author:sisapi_profiles!sisapi_documents_author_id_fkey(full_name, signature_url),
+          assigned_to_profile:sisapi_profiles!sisapi_documents_assigned_to_fkey(full_name)
         `)
-        .eq("assigned_to", user?.id)
+        .in("assigned_to", assignedIds)
         .eq("status", "pending_approval")
         .order("created_at", { ascending: false });
 
