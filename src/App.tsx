@@ -107,6 +107,7 @@ function AppLayout() {
                   <Route path="/pendentes" element={<SisapiPendingActions />} />
                   <Route path="/acervo" element={<SisapiArchive />} />
                   <Route path="/usuarios" element={<SisapiAdminUsers />} />
+                  <Route path="/funcoes" element={<SisapiRoles />} />
                   <Route path="/configuracoes" element={<SisapiAdminSetup />} />
                 </>
               )}
