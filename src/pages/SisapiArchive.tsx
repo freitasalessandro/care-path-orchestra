@@ -32,7 +32,9 @@ export default function SisapiArchive() {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [department, setDepartment] = useState("");
+  const [sectorId, setSectorId] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   const { data: files, isLoading, refetch } = useQuery({
     queryKey: ["sisapi-archive", search],
@@ -51,6 +53,19 @@ export default function SisapiArchive() {
       return data;
     },
   });
+
+  const { data: sectors } = useQuery({
+    queryKey: ["sisapi-sectors-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_sectors")
+        .select("*, department:department_id(name)")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -150,20 +165,24 @@ export default function SisapiArchive() {
               </div>
               <div className="space-y-2">
                 <Label>Setor / Departamento</Label>
-                <Select value={department} onValueChange={setDepartment}>
+                <Select value={sectorId} onValueChange={(val) => {
+                  setSectorId(val);
+                  const sector = sectors?.find(s => s.id === val);
+                  if (sector) setDepartment(sector.department?.name + " - " + sector.name);
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o setor..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Financeiro">Financeiro</SelectItem>
-                    <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
-                    <SelectItem value="Jurídico">Jurídico</SelectItem>
-                    <SelectItem value="Administrativo">Administrativo</SelectItem>
-                    <SelectItem value="Compras">Compras</SelectItem>
-                    <SelectItem value="Saúde">Saúde</SelectItem>
+                    {sectors?.map((sector) => (
+                      <SelectItem key={sector.id} value={sector.id}>
+                        {sector.department?.name} - {sector.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
+
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
