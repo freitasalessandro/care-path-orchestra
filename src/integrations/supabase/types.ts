@@ -402,6 +402,7 @@ export type Database = {
       sisapi_archive_files: {
         Row: {
           created_at: string
+          document_id: string | null
           file_name: string
           file_type: string | null
           file_url: string
@@ -412,6 +413,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          document_id?: string | null
           file_name: string
           file_type?: string | null
           file_url: string
@@ -422,6 +424,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          document_id?: string | null
           file_name?: string
           file_type?: string | null
           file_url?: string
@@ -431,6 +434,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sisapi_archive_files_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_documents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sisapi_archive_files_uploaded_by_fkey"
             columns: ["uploaded_by"]
@@ -477,6 +487,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          modules_config: Json | null
           title: string
           updated_at: string
         }
@@ -486,6 +497,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          modules_config?: Json | null
           title: string
           updated_at?: string
         }
@@ -495,6 +507,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          modules_config?: Json | null
           title?: string
           updated_at?: string
         }
@@ -512,9 +525,14 @@ export type Database = {
         Row: {
           assigned_to: string | null
           author_id: string
+          budget_info: Json | null
           content: string
           created_at: string
+          creditor_info: Json | null
+          department: string | null
+          document_type: string | null
           id: string
+          items: Json | null
           metadata: Json | null
           status: string | null
           template_id: string | null
@@ -524,9 +542,14 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           author_id: string
+          budget_info?: Json | null
           content: string
           created_at?: string
+          creditor_info?: Json | null
+          department?: string | null
+          document_type?: string | null
           id?: string
+          items?: Json | null
           metadata?: Json | null
           status?: string | null
           template_id?: string | null
@@ -536,9 +559,14 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           author_id?: string
+          budget_info?: Json | null
           content?: string
           created_at?: string
+          creditor_info?: Json | null
+          department?: string | null
+          document_type?: string | null
           id?: string
+          items?: Json | null
           metadata?: Json | null
           status?: string | null
           template_id?: string | null
