@@ -189,7 +189,7 @@ export function RoleManagement() {
                     setEditingRole(role);
                     setName(role.name);
                     setDescription(role.description || "");
-                    setPermissions(Array.isArray(role.permissions) ? role.permissions : []);
+                    setPermissions(Array.isArray(role.permissions) ? (role.permissions as string[]) : []);
                     setIsOpen(true);
                   }}>
                     <Edit2 className="w-4 h-4" />
