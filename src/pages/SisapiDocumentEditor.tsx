@@ -54,9 +54,6 @@ export default function SisapiDocumentEditor() {
 
   useEffect(() => {
     fetchData();
-    if (id) {
-      loadDocument();
-    }
   }, [id]);
 
   const fetchData = async () => {
