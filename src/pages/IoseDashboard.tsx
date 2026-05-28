@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Users, Scissors, FileText, Calendar } from "lucide-react";
+import { Plus, Users, Scissors, FileText, Calendar, UserCog } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function IoseDashboard() {
@@ -30,7 +30,18 @@ export default function IoseDashboard() {
     },
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
+      return data;
+    }
+  });
+
   const menuItems = [
+
     {
       title: "Pacientes",
       description: "Cadastro completo de pacientes",
@@ -60,6 +71,17 @@ export default function IoseDashboard() {
       color: "bg-amber-500",
     },
   ];
+
+  if (profile?.is_admin) {
+    menuItems.push({
+      title: "Gestão de Usuários",
+      description: "Gerenciar permissões e acessos",
+      icon: UserCog,
+      link: "/usuarios",
+      color: "bg-slate-800",
+    });
+  }
+
 
   return (
     <div className="space-y-8">
