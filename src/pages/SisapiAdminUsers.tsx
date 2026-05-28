@@ -334,8 +334,8 @@ export default function SisapiAdminUsers() {
             <DialogTrigger asChild>
               <Button variant="outline">
                 <Settings className="w-4 h-4 mr-2" />
-
                 Configurações Gerais
+
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
