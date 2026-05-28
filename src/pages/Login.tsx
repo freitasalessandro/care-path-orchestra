@@ -6,13 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { LogIn } from "lucide-react";
+import { LogIn, UserPlus, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [signUpData, setSignUpData] = useState({
+    email: "",
+    password: "",
+    full_name: ""
+  });
   const navigate = useNavigate();
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +52,35 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: signUpData.email,
+        password: signUpData.password,
+        options: {
+          data: {
+            full_name: signUpData.full_name,
+          },
+        },
+      });
+
+      if (error) throw error;
+      
+      toast.success("Cadastro realizado! Verifique seu e-mail ou faça login.");
+      setIsSignUpOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao realizar cadastro");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -82,10 +120,72 @@ export default function Login() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-4">
             <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               {loading ? "Entrando..." : "Entrar"}
             </Button>
+            
+            <div className="w-full text-center">
+              <Dialog open={isSignUpOpen} onOpenChange={setIsSignUpOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="text-sm">
+                    Não tem uma conta? Cadastre-se
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <form onSubmit={handleSignUp}>
+                    <DialogHeader>
+                      <DialogTitle>Criar Conta</DialogTitle>
+                      <DialogDescription>
+                        Preencha os dados abaixo para se cadastrar no sistema.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="signup-name">Nome Completo</Label>
+                        <Input
+                          id="signup-name"
+                          placeholder="Seu nome"
+                          value={signUpData.full_name}
+                          onChange={(e) => setSignUpData({ ...signUpData, full_name: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="signup-email">Email</Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="email@exemplo.com"
+                          value={signUpData.email}
+                          onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="signup-password">Senha</Label>
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          value={signUpData.password}
+                          onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" disabled={loading}>
+                        {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                        Cadastrar
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+
           </CardFooter>
         </form>
       </Card>

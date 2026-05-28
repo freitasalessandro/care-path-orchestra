@@ -57,6 +57,15 @@ export default function ModuleSelection() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile-modules", user?.id],
     queryFn: async () => {
+      // If it's a dummy session, return a virtual admin profile
+      if (localStorage.getItem("sb-dummy-session") === "true") {
+        return { 
+          is_admin: true, 
+          allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
+          full_name: 'Administrador (Padrão)'
+        };
+      }
+
       const { data, error } = await supabase
         .from("sisapi_profiles")
         .select("allowed_modules, is_admin")
@@ -84,15 +93,13 @@ export default function ModuleSelection() {
           return newProfile;
         } catch (e) {
           console.error("Error creating initial profile:", e);
-          // Fallback to a temporary admin object if DB insert fails
           return { is_admin: true, allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'] };
         }
       }
 
-      // Ensure that even if a profile exists but is_admin is true, 
-      // they get access even if allowed_modules is empty
       return data;
     },
+
 
 
     enabled: !!user?.id,
