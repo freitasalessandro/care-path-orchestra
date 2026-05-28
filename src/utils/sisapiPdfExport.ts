@@ -218,7 +218,18 @@ export const exportToPdf = async (data: ExportData) => {
             const attBytes = await resp.arrayBuffer();
             const attPdf = await PDFDocument.load(attBytes);
             const attPages = await mergedPdf.copyPages(attPdf, attPdf.getPageIndices());
-            attPages.forEach((page) => mergedPdf.addPage(page));
+            
+            attPages.forEach((page) => {
+              // Add stamp to each attachment page
+              const { width, height } = page.getSize();
+              page.drawText(`Assinado digitalmente por: ${data.author_name || 'SISAPI'}`, {
+                x: 30,
+                y: 20,
+                size: 8,
+                opacity: 0.5,
+              });
+              mergedPdf.addPage(page);
+            });
           } catch (e) {
             console.error(`Error merging attachment ${att.file_name}:`, e);
           }
