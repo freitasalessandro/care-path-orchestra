@@ -30,8 +30,15 @@ export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
+  const [isGeneralSettingsOpen, setIsGeneralSettingsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  const [generalSettings, setGeneralSettings] = useState({
+    systemName: "SISAPI",
+    maintenanceMode: false,
+    allowPublicRegistration: false,
+    contactEmail: ""
+  });
 
   const [newUser, setNewUser] = useState({
     email: "",
@@ -109,6 +116,49 @@ export default function SisapiAdminUsers() {
       return data;
     },
     enabled: !!newUser.department_id
+  });
+
+  const { data: settings, isLoading: loadingSettings } = useQuery({
+    queryKey: ["sisapi-general-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_settings")
+        .select("general_settings, id")
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.general_settings) {
+        setGeneralSettings(data.general_settings as any);
+      }
+      return data;
+    },
+  });
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const { data: current } = await supabase.from("sisapi_settings").select("id").maybeSingle();
+      if (current) {
+        const { error: updateError } = await supabase
+          .from("sisapi_settings")
+          .update({ general_settings: generalSettings })
+          .eq("id", current.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase.from("sisapi_settings").insert({ 
+          general_settings: generalSettings,
+          institution_name: generalSettings.systemName 
+        });
+
+        if (insertError) throw insertError;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Configurações salvas com sucesso");
+      setIsGeneralSettingsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["sisapi-general-settings"] });
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao salvar configurações: " + error.message);
+    }
   });
 
   const createUserMutation = useMutation({
@@ -279,13 +329,87 @@ export default function SisapiAdminUsers() {
           <p className="text-muted-foreground">Controle de acessos, cargos e assinaturas dos usuários do SISAPI.</p>
         </div>
         
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-slate-900">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Novo Usuário
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Dialog open={isGeneralSettingsOpen} onOpenChange={setIsGeneralSettingsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Settings className="w-4 h-4 mr-2" />
+                Configurações Gerais
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Configurações Gerais do Sistema</DialogTitle>
+                <DialogDescription>
+                  Ajuste parâmetros globais do SISAPI.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="systemName" className="text-right text-xs">Nome do Sistema</Label>
+                  <Input 
+                    id="systemName" 
+                    className="col-span-3" 
+                    value={generalSettings.systemName}
+                    onChange={(e) => setGeneralSettings({...generalSettings, systemName: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="contactEmail" className="text-right text-xs">E-mail de Contato</Label>
+                  <Input 
+                    id="contactEmail" 
+                    className="col-span-3" 
+                    value={generalSettings.contactEmail}
+                    onChange={(e) => setGeneralSettings({...generalSettings, contactEmail: e.target.value})}
+                    placeholder="suporte@sistema.com"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right text-xs">Público</Label>
+                  <div className="col-span-3 flex items-center space-x-2">
+                    <Checkbox 
+                      id="allowPublicRegistration" 
+                      checked={generalSettings.allowPublicRegistration}
+                      onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowPublicRegistration: !!checked})}
+                    />
+                    <label htmlFor="allowPublicRegistration" className="text-xs font-medium">
+                      Permitir cadastro público na tela de login
+                    </label>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right text-xs">Manutenção</Label>
+                  <div className="col-span-3 flex items-center space-x-2">
+                    <Checkbox 
+                      id="maintenanceMode" 
+                      checked={generalSettings.maintenanceMode}
+                      onCheckedChange={(checked) => setGeneralSettings({...generalSettings, maintenanceMode: !!checked})}
+                    />
+                    <label htmlFor="maintenanceMode" className="text-xs font-medium">
+                      Ativar modo de manutenção
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsGeneralSettingsOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={() => saveSettingsMutation.mutate()} disabled={saveSettingsMutation.isPending}>
+                  {saveSettingsMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Salvar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-slate-900">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Novo Usuário
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <form onSubmit={handleCreateUser}>
               <DialogHeader>
