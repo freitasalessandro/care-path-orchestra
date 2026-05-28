@@ -37,13 +37,11 @@ serve(async (req) => {
       .upsert({
         id: userId,
         full_name,
-        role_id,
-        department_id,
-        sector_id,
+        role_id: role_id || null,
+        department_id: department_id || null,
+        sector_id: sector_id || null,
         is_admin: !!is_admin,
         allowed_modules: allowed_modules || ['sisapi'],
-
-
         status: 'active'
       })
 
