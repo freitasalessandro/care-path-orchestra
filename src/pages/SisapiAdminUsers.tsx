@@ -517,9 +517,18 @@ export default function SisapiAdminUsers() {
                             Aprovar
                           </Button>
                         )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Gerenciar Módulos"
+                          onClick={() => handleOpenModulesDialog(profile)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" title="Configurações Avançadas">
                           <UserCog className="w-4 h-4" />
                         </Button>
+
                       </TableCell>
                     </TableRow>
                   ))
