@@ -87,9 +87,11 @@ export default function SisapiAdminUsers() {
       // Nota: Em uma aplicação real com muitos usuários, faríamos um JOIN via RPC 
       // ou teríamos o email duplicado na tabela de perfis para performance.
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
-        const { data: userData } = await supabase.rpc('get_user_email', { user_uuid: profile.id });
+        const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
+        if (rpcError) console.error("Error fetching email for", profile.id, rpcError);
         return { ...profile, email: userData || null };
       }));
+
 
       return profilesWithEmails;
 
