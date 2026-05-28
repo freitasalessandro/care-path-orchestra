@@ -78,12 +78,8 @@ export default function SisapiAdminUsers() {
       // Obter perfis da tabela sisapi_profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
-        .select(`*`)
-
-
-        .select(`*`)
-
-
+        .select("*")
+        .order("status", { ascending: false }) // Prioriza ativos/pendentes
         .order("full_name", { ascending: true });
         
       if (profilesError) throw profilesError;
@@ -268,7 +264,7 @@ export default function SisapiAdminUsers() {
                 <TableRow>
                   <TableHead className="w-[300px]">Nome do Usuário</TableHead>
                   <TableHead>Cargo/Função</TableHead>
-                  <TableHead>Tipo de Acesso</TableHead>
+                  <TableHead>Status / Acesso</TableHead>
                   <TableHead>Módulos Ativos</TableHead>
                   <TableHead className="text-right">Gerenciar</TableHead>
                 </TableRow>
@@ -314,13 +310,26 @@ export default function SisapiAdminUsers() {
                       </TableCell>
 
                       <TableCell>
-                        <Badge 
-                          className={`cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-                          onClick={() => updateProfileMutation.mutate({ userId: profile.id, updates: { is_admin: !profile.is_admin } })}
-                        >
-                          {profile.is_admin ? <ShieldCheck className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
-                          {profile.is_admin ? "Administrador" : "Colaborador"}
-                        </Badge>
+                        <div className="flex flex-col gap-2">
+                          <Badge 
+                            className={`w-fit cursor-pointer gap-1.5 py-1 px-3 ${profile.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}`}
+                            onClick={() => updateProfileMutation.mutate({ 
+                              userId: profile.id, 
+                              updates: { status: profile.status === 'active' ? 'pending' : 'active' } 
+                            })}
+                          >
+                            {profile.status === 'active' ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
+                            {profile.status === 'active' ? "Ativo" : "Pendente"}
+                          </Badge>
+                          
+                          <Badge 
+                            variant="outline"
+                            className={`w-fit cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'border-amber-500 text-amber-700 bg-amber-50' : 'border-blue-500 text-blue-700 bg-blue-50'}`}
+                            onClick={() => updateProfileMutation.mutate({ userId: profile.id, updates: { is_admin: !profile.is_admin } })}
+                          >
+                            {profile.is_admin ? "Administrador" : "Colaborador"}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
