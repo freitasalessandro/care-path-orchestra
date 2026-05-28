@@ -41,7 +41,6 @@ export default function SisapiAdminUsers() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-
   const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["current-profile", user?.id],
     queryFn: async () => {
@@ -90,6 +89,21 @@ export default function SisapiAdminUsers() {
     },
   });
 
+  const { data: sectors } = useQuery({
+    queryKey: ["sisapi-sectors", newUser.department_id],
+    queryFn: async () => {
+      if (!newUser.department_id) return [];
+      const { data, error } = await supabase
+        .from("sisapi_sectors")
+        .select("*")
+        .eq("department_id", newUser.department_id)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!newUser.department_id
+  });
+
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof newUser) => {
       const { data, error } = await supabase.functions.invoke("create-sisapi-user", {
@@ -107,6 +121,7 @@ export default function SisapiAdminUsers() {
         full_name: "",
         role_id: "",
         department_id: "",
+        sector_id: "",
         is_admin: false
       });
       refetch();
@@ -141,7 +156,6 @@ export default function SisapiAdminUsers() {
       toast.error("Erro ao atualizar cargo: " + error.message);
     }
   });
-
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
@@ -278,7 +292,7 @@ export default function SisapiAdminUsers() {
                   <div className="col-span-3">
                     <Select 
                       value={newUser.department_id} 
-                      onValueChange={(val) => setNewUser({...newUser, department_id: val})}
+                      onValueChange={(val) => setNewUser({...newUser, department_id: val, sector_id: ""})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um departamento" />
@@ -286,6 +300,25 @@ export default function SisapiAdminUsers() {
                       <SelectContent>
                         {departments?.map((dept: any) => (
                           <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Setor</Label>
+                  <div className="col-span-3">
+                    <Select 
+                      value={newUser.sector_id} 
+                      onValueChange={(val) => setNewUser({...newUser, sector_id: val})}
+                      disabled={!newUser.department_id}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={newUser.department_id ? "Selecione um setor" : "Selecione um departamento primeiro"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sectors?.map((sector: any) => (
+                          <SelectItem key={sector.id} value={sector.id}>{sector.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -336,7 +369,6 @@ export default function SisapiAdminUsers() {
           </DialogContent>
         </Dialog>
       </div>
-
 
       <Tabs defaultValue="users" className="space-y-4">
         <TabsList className="bg-white border">
@@ -465,4 +497,3 @@ export default function SisapiAdminUsers() {
     </div>
   );
 }
-
