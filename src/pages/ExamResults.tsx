@@ -61,7 +61,9 @@ export default function ExamResults() {
       const { data, error } = await supabase
         .from("exam_results")
         .insert([{
-          ...values,
+          patient_name: values.patient_name,
+          patient_cpf: values.patient_cpf,
+          exam_type: values.exam_type,
           status: "available",
           received_at: new Date().toISOString(),
         }]);
