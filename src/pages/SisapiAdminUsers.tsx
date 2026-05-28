@@ -311,6 +311,8 @@ export default function SisapiAdminUsers() {
     }
   };
 
+  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
+
   if (loadingProfile) return (
     <div className="flex items-center justify-center min-h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -318,12 +320,11 @@ export default function SisapiAdminUsers() {
     </div>
   );
   
-  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
-  
-  if (!isSpecialAdmin) {
+  if (!isSpecialAdmin && !loadingProfile) {
     console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
     return <Navigate to="/modules" replace />;
   }
+
 
 
 
