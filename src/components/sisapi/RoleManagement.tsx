@@ -6,14 +6,27 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Edit2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, Edit2, Shield } from "lucide-react";
 import { toast } from "sonner";
+
+const AVAILABLE_PERMISSIONS = [
+  { id: "dashboard", label: "Dashboard", path: "/" },
+  { id: "documents", label: "Documentos", path: "/documentos" },
+  { id: "new_document", label: "Novo Documento", path: "/documentos/novo" },
+  { id: "pending", label: "Meus Pendentes", path: "/pendentes" },
+  { id: "archive", label: "Acervo Digital", path: "/acervo" },
+  { id: "users", label: "Gestão de Usuários", path: "/usuarios" },
+  { id: "roles", label: "Funções e Cargos", path: "/funcoes" },
+  { id: "settings", label: "Configurações", path: "/configuracoes" },
+];
 
 export function RoleManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   const { data: roles, isLoading, refetch } = useQuery({
     queryKey: ["sisapi-roles"],
@@ -29,7 +42,11 @@ export function RoleManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const roleData = { name, description };
+    const roleData = { 
+      name, 
+      description,
+      permissions: permissions
+    };
 
     if (editingRole) {
       const { error } = await supabase
@@ -65,6 +82,14 @@ export function RoleManagement() {
     }
   };
 
+  const togglePermission = (permId: string) => {
+    setPermissions(prev => 
+      prev.includes(permId) 
+        ? prev.filter(p => p !== permId) 
+        : [...prev, permId]
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -75,6 +100,7 @@ export function RoleManagement() {
             setEditingRole(null);
             setName("");
             setDescription("");
+            setPermissions([]);
           }
         }}>
           <DialogTrigger asChild>
@@ -82,7 +108,7 @@ export function RoleManagement() {
               <Plus className="w-4 h-4 mr-2" /> Nova Função
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>{editingRole ? "Editar Função" : "Nova Função"}</DialogTitle>
             </DialogHeader>
@@ -95,6 +121,28 @@ export function RoleManagement() {
                 <Label htmlFor="role-desc">Descrição</Label>
                 <Input id="role-desc" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
+              
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Permissões de Acesso</Label>
+                <div className="grid grid-cols-2 gap-3 border rounded-lg p-4 bg-slate-50">
+                  {AVAILABLE_PERMISSIONS.map((perm) => (
+                    <div key={perm.id} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`perm-${perm.id}`} 
+                        checked={permissions.includes(perm.id)}
+                        onCheckedChange={() => togglePermission(perm.id)}
+                      />
+                      <label 
+                        htmlFor={`perm-${perm.id}`} 
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {perm.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <Button type="submit" className="w-full">
                 {editingRole ? "Salvar Alterações" : "Criar Função"}
               </Button>
@@ -109,21 +157,39 @@ export function RoleManagement() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Descrição</TableHead>
+              <TableHead>Permissões</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={3} className="text-center py-4">Carregando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={4} className="text-center py-4">Carregando...</TableCell></TableRow>
             ) : roles?.map((role) => (
               <TableRow key={role.id}>
                 <TableCell className="font-medium">{role.name}</TableCell>
                 <TableCell>{role.description}</TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(role.permissions) && role.permissions.length > 0 ? (
+                      role.permissions.map((p: string) => {
+                        const permLabel = AVAILABLE_PERMISSIONS.find(ap => ap.id === p)?.label;
+                        return permLabel ? (
+                          <span key={p} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                            {permLabel}
+                          </span>
+                        ) : null;
+                      })
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">Nenhuma permissão</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button variant="ghost" size="icon" onClick={() => {
                     setEditingRole(role);
                     setName(role.name);
                     setDescription(role.description || "");
+                    setPermissions(Array.isArray(role.permissions) ? role.permissions : []);
                     setIsOpen(true);
                   }}>
                     <Edit2 className="w-4 h-4" />
