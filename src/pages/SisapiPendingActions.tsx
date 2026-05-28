@@ -79,7 +79,11 @@ export default function SisapiPendingActions() {
 
   const handleSign = async (doc: any) => {
     // Check if user has signature
-    const { data: profile } = await supabase.from("sisapi_profiles").select("signature_url").eq("id", user?.id).single();
+    const { data: profile } = await supabase
+      .from("sisapi_profiles")
+      .select("signature_url, full_name")
+      .eq("id", user?.id)
+      .single();
     
     if (!profile?.signature_url) {
       toast.error("Você precisa configurar sua assinatura no painel administrativo primeiro.");
@@ -90,7 +94,10 @@ export default function SisapiPendingActions() {
     try {
       const { error } = await supabase
         .from("sisapi_documents")
-        .update({ is_signed: true })
+        .update({ 
+          is_signed: true,
+          signed_by_user_id: user?.id
+        })
         .eq("id", doc.id);
 
       if (error) throw error;
