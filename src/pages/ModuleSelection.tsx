@@ -2,7 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Users, LogOut, Scissors, FileText } from "lucide-react";
+import { ClipboardList, Users, LogOut, Scissors, FileText, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
 
 const modules = [
   {
@@ -51,10 +54,38 @@ export default function ModuleSelection() {
   const { setSelectedModule, signOut, user } = useAuth();
   const navigate = useNavigate();
 
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile-modules", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_profiles")
+        .select("allowed_modules, is_admin")
+        .eq("id", user?.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   const handleModuleSelect = (moduleId: string) => {
     setSelectedModule(moduleId);
     navigate("/");
   };
+
+  const filteredModules = modules.map(module => ({
+    ...module,
+    active: profile?.is_admin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id))
+  }));
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -71,7 +102,7 @@ export default function ModuleSelection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module) => (
+          {filteredModules.map((module) => (
             <Card 
               key={module.id} 
               className={`overflow-hidden border-2 transition-all duration-200 ${

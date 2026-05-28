@@ -1,19 +1,29 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Briefcase, ShieldCheck, Plus, Trash } from "lucide-react";
+import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+
 
 export default function SisapiAdminSetup() {
   const [roleName, setRoleName] = useState("");
-  // Management of authorities moved to dedicated page
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [generalSettings, setGeneralSettings] = useState({
+    systemName: "SISAPI",
+    maintenanceMode: false,
+    allowPublicRegistration: false,
+    contactEmail: ""
+  });
+
 
   const { data: profile, isLoading: loadingProfile } = useQuery({
     queryKey: ["sisapi-profile", user?.id],
@@ -39,6 +49,48 @@ export default function SisapiAdminSetup() {
     },
   });
 
+  const { data: settings, isLoading: loadingSettings } = useQuery({
+    queryKey: ["sisapi-general-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sisapi_settings")
+        .select("general_settings, id")
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.general_settings) {
+        setGeneralSettings(data.general_settings as any);
+      }
+      return data;
+    },
+  });
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const { data: current } = await supabase.from("sisapi_settings").select("id").maybeSingle();
+      if (current) {
+        const { error: updateError } = await supabase
+          .from("sisapi_settings")
+          .update({ general_settings: generalSettings })
+          .eq("id", current.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase.from("sisapi_settings").insert({ 
+          general_settings: generalSettings,
+          institution_name: generalSettings.systemName 
+        });
+
+        if (insertError) throw insertError;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Configurações salvas com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["sisapi-general-settings"] });
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao salvar configurações: " + error.message);
+    }
+  });
+
   const handleAddRole = async () => {
     if (!roleName) return;
     const { error } = await supabase.from("sisapi_roles").insert([{ name: roleName }]);
@@ -49,6 +101,7 @@ export default function SisapiAdminSetup() {
       refetchRoles();
     }
   };
+
 
   if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
   if (!profile?.is_admin) {
