@@ -546,6 +546,53 @@ export default function SisapiAdminUsers() {
           <SectorManagement />
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isModulesDialogOpen} onOpenChange={setIsModulesDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Módulos</DialogTitle>
+            <DialogDescription>
+              Selecione quais módulos o usuário <strong>{selectedProfile?.full_name}</strong> pode acessar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {[
+              { id: "sisapi", label: "Gestão Documental" },
+              { id: "surgeries", label: "Cirurgias" },
+              { id: "hr", label: "RH" },
+              { id: "iose", label: "Iose" },
+              { id: "exams", label: "Exames" }
+            ].map((mod) => (
+              <div key={mod.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                <Checkbox 
+                  id={`edit-mod-${mod.id}`}
+                  checked={editingModules.includes(mod.id)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setEditingModules([...editingModules, mod.id]);
+                    } else {
+                      setEditingModules(editingModules.filter(m => m !== mod.id));
+                    }
+                  }}
+                />
+                <label htmlFor={`edit-mod-${mod.id}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+                  {mod.label}
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModulesDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdateModules} disabled={updateModulesMutation.isPending}>
+              {updateModulesMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
