@@ -72,7 +72,7 @@ export function AppSidebar() {
   if (selectedModule === "sisapi" && profile) {
     links = sisapiLinks.filter(link => {
       // Admins see everything
-      const isSpecialAdmin = profile.is_admin || user?.email === "alessandro@gmail.com";
+      const isSpecialAdmin = profile.is_admin || user?.email === "admin@gmail.com";
       if (isSpecialAdmin) return true;
 
       
