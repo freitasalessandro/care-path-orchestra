@@ -37,6 +37,14 @@ const modules = [
     color: "bg-slate-800",
     active: true,
   },
+  {
+    id: "exams",
+    title: "Resultados de Exames",
+    description: "Controle de chegada e entrega de resultados de exames para pacientes.",
+    icon: FileText,
+    color: "bg-rose-500",
+    active: true,
+  },
 ];
 
 export default function ModuleSelection() {

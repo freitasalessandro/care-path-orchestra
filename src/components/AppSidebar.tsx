@@ -41,6 +41,10 @@ const sisapiLinks = [
   { to: "/configuracoes", label: "Configurações", icon: ShieldCheck, id: "settings", adminOnly: true },
 ];
 
+const examLinks = [
+  { to: "/", label: "Controle de Exames", icon: FileText },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
@@ -61,7 +65,7 @@ export function AppSidebar() {
     enabled: !!user?.id && selectedModule === "sisapi",
   });
   
-  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : surgeryLinks;
+  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : selectedModule === "exams" ? examLinks : surgeryLinks;
 
   // Filter links for SISAPI based on permissions and admin status
   if (selectedModule === "sisapi" && profile) {

@@ -47,6 +47,7 @@ const SisapiAdminUsers = lazy(() => import("@/pages/SisapiAdminUsers"));
 const SisapiAdminSetup = lazy(() => import("@/pages/SisapiAdminSetup"));
 const SisapiRoles = lazy(() => import("@/pages/SisapiRoles"));
 const SisapiInstitutionSettings = lazy(() => import("@/pages/SisapiInstitutionSettings"));
+const ExamResults = lazy(() => import("@/pages/ExamResults"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -98,6 +99,10 @@ function AppLayout() {
                   <Route path="/pacientes" element={<IosePatientList />} />
                   <Route path="/lista" element={<IoseSurgeryList />} />
                   <Route path="/relatorios" element={<IoseReports />} />
+                </>
+              ) : selectedModule === "exams" ? (
+                <>
+                  <Route path="/" element={<ExamResults />} />
                 </>
               ) : (
                 <>

@@ -82,6 +82,42 @@ export type Database = {
           },
         ]
       }
+      exam_results: {
+        Row: {
+          collected_at: string | null
+          created_at: string
+          exam_type: string
+          id: string
+          patient_cpf: string
+          patient_name: string
+          received_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          collected_at?: string | null
+          created_at?: string
+          exam_type: string
+          id?: string
+          patient_cpf: string
+          patient_name: string
+          received_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          collected_at?: string | null
+          created_at?: string
+          exam_type?: string
+          id?: string
+          patient_cpf?: string
+          patient_name?: string
+          received_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       iose_lists: {
         Row: {
           created_at: string
