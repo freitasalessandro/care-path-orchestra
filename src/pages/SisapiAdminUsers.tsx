@@ -153,10 +153,20 @@ export default function SisapiAdminUsers() {
     );
   }
   
-  if (!isSpecialAdmin && !loadingProfile) {
+  // LOGS PARA DEBUG NO CONSOLE DO NAVEGADOR
+  console.log("Debug Acesso:", { 
+    userEmail: user?.email, 
+    isAdmin: currentUserProfile?.is_admin,
+    isSpecialAdmin,
+    loadingProfile
+  });
+
+  if (!isSpecialAdmin && !loadingProfile && user?.email) {
     console.warn("Acesso negado: Redirecionando usuário não-admin");
     return <Navigate to="/modules" replace />;
   }
+
+
 
 
 
