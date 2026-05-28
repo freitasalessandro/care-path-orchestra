@@ -75,14 +75,18 @@ export default function SisapiAdminUsers() {
   const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Obter perfis da tabela sisapi_profiles
+      const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select(`*, role:role_id(id, name)`)
         .order("full_name", { ascending: true });
-      if (error) throw error;
-      return data || [];
+        
+      if (profilesError) throw profilesError;
+
+      return profilesData || [];
     },
   });
+
 
   const { data: roles } = useQuery({
     queryKey: ["sisapi-roles-list"],
