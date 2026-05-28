@@ -3,11 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, Shield, User, Upload, Settings, UserCog, UserPlus, Loader2 } from "lucide-react";
+import { UserCheck, Shield, User, Upload, Settings, UserCog, UserPlus, Loader2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
 import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +29,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [editingModules, setEditingModules] = useState<string[]>([]);
+
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
@@ -160,6 +165,40 @@ export default function SisapiAdminUsers() {
       toast.error("Erro ao atualizar cargo: " + error.message);
     }
   });
+
+  const updateModulesMutation = useMutation({
+    mutationFn: async ({ userId, modules }: { userId: string; modules: string[] }) => {
+      const { error } = await supabase
+        .from("sisapi_profiles")
+        .update({ allowed_modules: modules })
+        .eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulos atualizados com sucesso");
+      setIsModulesDialogOpen(false);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar módulos: " + error.message);
+    }
+  });
+
+  const handleOpenModulesDialog = (profile: any) => {
+    setSelectedProfile(profile);
+    setEditingModules(profile.allowed_modules || ["sisapi"]);
+    setIsModulesDialogOpen(true);
+  };
+
+  const handleUpdateModules = () => {
+    if (selectedProfile) {
+      updateModulesMutation.mutate({
+        userId: selectedProfile.id,
+        modules: editingModules
+      });
+    }
+  };
+
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
@@ -478,9 +517,18 @@ export default function SisapiAdminUsers() {
                             Aprovar
                           </Button>
                         )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Gerenciar Módulos"
+                          onClick={() => handleOpenModulesDialog(profile)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" title="Configurações Avançadas">
                           <UserCog className="w-4 h-4" />
                         </Button>
+
                       </TableCell>
                     </TableRow>
                   ))
@@ -498,6 +546,53 @@ export default function SisapiAdminUsers() {
           <SectorManagement />
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isModulesDialogOpen} onOpenChange={setIsModulesDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Módulos</DialogTitle>
+            <DialogDescription>
+              Selecione quais módulos o usuário <strong>{selectedProfile?.full_name}</strong> pode acessar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {[
+              { id: "sisapi", label: "Gestão Documental" },
+              { id: "surgeries", label: "Cirurgias" },
+              { id: "hr", label: "RH" },
+              { id: "iose", label: "Iose" },
+              { id: "exams", label: "Exames" }
+            ].map((mod) => (
+              <div key={mod.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                <Checkbox 
+                  id={`edit-mod-${mod.id}`}
+                  checked={editingModules.includes(mod.id)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setEditingModules([...editingModules, mod.id]);
+                    } else {
+                      setEditingModules(editingModules.filter(m => m !== mod.id));
+                    }
+                  }}
+                />
+                <label htmlFor={`edit-mod-${mod.id}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+                  {mod.label}
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModulesDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdateModules} disabled={updateModulesMutation.isPending}>
+              {updateModulesMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

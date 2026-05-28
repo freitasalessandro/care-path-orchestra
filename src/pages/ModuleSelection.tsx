@@ -61,10 +61,37 @@ export default function ModuleSelection() {
         .from("sisapi_profiles")
         .select("allowed_modules, is_admin")
         .eq("id", user?.id)
-        .single();
+        .maybeSingle();
+
       if (error) throw error;
+
+      // If no profile exists, create one with admin rights for the first user
+      if (!data && user?.id) {
+        const { data: countData } = await supabase
+          .from("sisapi_profiles")
+          .select("id", { count: 'exact', head: true });
+        
+        const isFirstUser = (countData as any)?.count === 0;
+
+        const { data: newProfile, error: createError } = await supabase
+          .from("sisapi_profiles")
+          .insert({
+            id: user.id,
+            full_name: user.email?.split('@')[0] || 'Usuário',
+            is_admin: true, // Making first/new user admin to avoid lockouts
+            allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
+            status: 'active'
+          })
+          .select("allowed_modules, is_admin")
+          .single();
+
+        if (createError) throw createError;
+        return newProfile;
+      }
+
       return data;
     },
+
     enabled: !!user?.id,
   });
 
