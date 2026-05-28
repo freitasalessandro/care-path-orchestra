@@ -33,7 +33,7 @@ const sisapiLinks = [
   { to: "/documentos", label: "Documentos", icon: FileText },
   { to: "/pendentes", label: "Meus Pendentes", icon: Clock },
   { to: "/acervo", label: "Acervo Digital", icon: Library },
-  { to: "/usuarios", label: "Gestão de Usuários", icon: Users },
+  { to: "/usuarios", label: "Gestão Administrativa", icon: Users },
   { to: "/configuracoes", label: "Configurações", icon: ShieldCheck },
 ];
 

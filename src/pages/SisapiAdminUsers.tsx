@@ -3,10 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, Shield, User, Upload, X } from "lucide-react";
+import { UserCheck, Shield, User, Upload, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RoleManagement } from "@/components/sisapi/RoleManagement";
+import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
+import { SectorManagement } from "@/components/sisapi/SectorManagement";
+
 
 export default function SisapiAdminUsers() {
   const [uploading, setUploading] = useState<string | null>(null);
@@ -96,101 +101,125 @@ export default function SisapiAdminUsers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
-        <p className="text-muted-foreground">Controle de acessos e assinaturas digitais.</p>
+        <h1 className="text-3xl font-bold text-slate-900">Gestão Administrativa</h1>
+        <p className="text-muted-foreground">Controle de usuários, cargos, departamentos e setores do sistema.</p>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Admin</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Assinatura (PNG)</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">Carregando...</TableCell>
-              </TableRow>
-            ) : profiles?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">Nenhum usuário encontrado.</TableCell>
-              </TableRow>
-            ) : (
-              profiles?.map((profile) => (
-                <TableRow key={profile.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-slate-400" />
-                      <div>
-                        <div>{profile.full_name || "Sem nome"}</div>
-                        <div className="text-xs text-muted-foreground">{profile.role?.name}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {profile.is_admin ? (
-                      <Badge className="bg-slate-800">Sim</Badge>
-                    ) : (
-                      <Badge variant="outline">Não</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {profile.status === "approved" || profile.status === "active" ? (
-                      <Badge variant="outline" className="text-emerald-600 border-emerald-600">Ativo</Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-amber-600 border-amber-600">Pendente</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {profile.signature_url ? (
-                        <div className="relative group">
-                          <img src={profile.signature_url} alt="Assinatura" className="h-10 w-24 object-contain border rounded p-1 bg-slate-50" />
-                          <Label htmlFor={`sig-${profile.id}`} className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center cursor-pointer rounded">
-                            <Upload className="w-4 h-4 text-white" />
-                          </Label>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`sig-${profile.id}`} className="flex items-center gap-1 text-xs text-blue-600 cursor-pointer hover:underline">
-                            <Upload className="w-3 h-3" /> Anexar PNG
-                          </Label>
-                        </div>
-                      )}
-                      <input 
-                        id={`sig-${profile.id}`} 
-                        type="file" 
-                        accept="image/png" 
-                        className="hidden" 
-                        onChange={(e) => handleSignatureUpload(profile.id, e)}
-                        disabled={uploading === profile.id}
-                      />
-                      {uploading === profile.id && <span className="text-[10px] animate-pulse">Enviando...</span>}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    {(profile.status !== "approved" && profile.status !== "active") && (
-                      <Button variant="ghost" size="sm" onClick={() => handleApprove(profile.id)}>
-                        <UserCheck className="w-4 h-4 mr-1" />
-                        Aprovar
-                      </Button>
-                    )}
-                    <Button variant="ghost" size="sm" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
-                      <Shield className="w-4 h-4 mr-1" />
-                      {profile.is_admin ? "Remover Admin" : "Tornar Admin"}
-                    </Button>
-                  </TableCell>
+      <Tabs defaultValue="users" className="space-y-4">
+        <TabsList className="bg-white border">
+          <TabsTrigger value="users" className="data-[state=active]:bg-slate-100">Usuários</TabsTrigger>
+          <TabsTrigger value="roles" className="data-[state=active]:bg-slate-100">Funções / Cargos</TabsTrigger>
+          <TabsTrigger value="departments" className="data-[state=active]:bg-slate-100">Departamentos</TabsTrigger>
+          <TabsTrigger value="sectors" className="data-[state=active]:bg-slate-100">Setores</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="users" className="space-y-4">
+          <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Admin</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Assinatura (PNG)</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">Carregando...</TableCell>
+                  </TableRow>
+                ) : profiles?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">Nenhum usuário encontrado.</TableCell>
+                  </TableRow>
+                ) : (
+                  profiles?.map((profile) => (
+                    <TableRow key={profile.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-slate-400" />
+                          <div>
+                            <div>{profile.full_name || "Sem nome"}</div>
+                            <div className="text-xs text-muted-foreground">{profile.role?.name}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {profile.is_admin ? (
+                          <Badge className="bg-slate-800">Sim</Badge>
+                        ) : (
+                          <Badge variant="outline">Não</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {profile.status === "approved" || profile.status === "active" ? (
+                          <Badge variant="outline" className="text-emerald-600 border-emerald-600">Ativo</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-amber-600 border-amber-600">Pendente</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {profile.signature_url ? (
+                            <div className="relative group">
+                              <img src={profile.signature_url} alt="Assinatura" className="h-10 w-24 object-contain border rounded p-1 bg-slate-50" />
+                              <Label htmlFor={`sig-${profile.id}`} className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center cursor-pointer rounded">
+                                <Upload className="w-4 h-4 text-white" />
+                              </Label>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={`sig-${profile.id}`} className="flex items-center gap-1 text-xs text-blue-600 cursor-pointer hover:underline">
+                                <Upload className="w-3 h-3" /> Anexar PNG
+                              </Label>
+                            </div>
+                          )}
+                          <input 
+                            id={`sig-${profile.id}`} 
+                            type="file" 
+                            accept="image/png" 
+                            className="hidden" 
+                            onChange={(e) => handleSignatureUpload(profile.id, e)}
+                            disabled={uploading === profile.id}
+                          />
+                          {uploading === profile.id && <span className="text-[10px] animate-pulse">Enviando...</span>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        {(profile.status !== "approved" && profile.status !== "active") && (
+                          <Button variant="ghost" size="sm" onClick={() => handleApprove(profile.id)}>
+                            <UserCheck className="w-4 h-4 mr-1" />
+                            Aprovar
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
+                          <Shield className="w-4 h-4 mr-1" />
+                          {profile.is_admin ? "Remover Admin" : "Tornar Admin"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="roles" className="bg-white p-6 rounded-lg border shadow-sm">
+          <RoleManagement />
+        </TabsContent>
+
+        <TabsContent value="departments" className="bg-white p-6 rounded-lg border shadow-sm">
+          <DepartmentManagement />
+        </TabsContent>
+
+        <TabsContent value="sectors" className="bg-white p-6 rounded-lg border shadow-sm">
+          <SectorManagement />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
