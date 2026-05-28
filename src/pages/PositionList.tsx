@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Scissors, Briefcase, Trash2 } from "lucide-react";
+import { Plus, Search, Scissors, Briefcase, Trash2, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -25,6 +28,17 @@ export default function PositionList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
+      return data;
+    }
+  });
   
   const [newPosition, setNewPosition] = useState({
     title: "",
@@ -86,9 +100,17 @@ export default function PositionList() {
     <div className="space-y-6">
 
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
-          <p className="text-gray-600">Gestão de funções e carga horária semanal.</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Funções e Cargos</h1>
+            <p className="text-gray-600">Gestão de funções e carga horária semanal.</p>
+          </div>
+          {profile?.is_admin && (
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
+              <UserCog className="w-4 h-4" />
+              Gestão de Usuários
+            </Button>
+          )}
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

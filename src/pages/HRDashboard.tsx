@@ -1,8 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserCircle, Building, GraduationCap, Settings, FileBarChart } from "lucide-react";
+import { UserCircle, Building, GraduationCap, Settings, FileBarChart, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export default function HRDashboard() {
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
+      return data;
+    }
+  });
+
   const menuItems = [
     { 
       title: "Funcionários", 
@@ -45,6 +58,17 @@ export default function HRDashboard() {
       textColor: "text-gray-600"
     },
   ];
+
+  if (profile?.is_admin) {
+    menuItems.push({
+      title: "Gestão de Usuários",
+      description: "Gerenciar permissões e acessos",
+      icon: Users,
+      path: "/usuarios",
+      color: "bg-slate-800",
+      textColor: "text-slate-900"
+    });
+  }
 
   return (
     <div className="space-y-8">

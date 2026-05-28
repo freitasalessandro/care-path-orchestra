@@ -139,10 +139,19 @@ export default function ModuleSelection() {
             <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
             <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
           </div>
-          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+          <div className="flex gap-2">
+            {profile?.is_admin && (
+              <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-900 border-slate-200 hover:bg-slate-50">
+                <Users className="w-4 h-4 mr-2" />
+                Gestão de Usuários
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
+          </div>
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
