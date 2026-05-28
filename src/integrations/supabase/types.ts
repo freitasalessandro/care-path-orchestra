@@ -497,33 +497,48 @@ export type Database = {
       }
       sisapi_authorities: {
         Row: {
-          active: boolean | null
+          ativo: boolean
+          autoridade_user_id: string
           created_at: string
           id: string
-          name: string
-          position: string
-          signature_url: string | null
+          representante_user_id: string
+          tipo: string
           updated_at: string
         }
         Insert: {
-          active?: boolean | null
+          ativo?: boolean
+          autoridade_user_id: string
           created_at?: string
           id?: string
-          name: string
-          position: string
-          signature_url?: string | null
+          representante_user_id: string
+          tipo: string
           updated_at?: string
         }
         Update: {
-          active?: boolean | null
+          ativo?: boolean
+          autoridade_user_id?: string
           created_at?: string
           id?: string
-          name?: string
-          position?: string
-          signature_url?: string | null
+          representante_user_id?: string
+          tipo?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sisapi_authorities_autoridade_user_id_fkey"
+            columns: ["autoridade_user_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sisapi_authorities_representante_user_id_fkey"
+            columns: ["representante_user_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sisapi_departments: {
         Row: {
