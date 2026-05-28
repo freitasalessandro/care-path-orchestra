@@ -52,24 +52,9 @@ export default function SisapiDocumentEditor() {
     content: '',
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
+  const loadDocument = async (availableTemplates: any[]) => {
+    if (!id) return;
 
-  const fetchData = async () => {
-    // Fetch Templates
-    const { data: templatesData } = await supabase.from("sisapi_document_templates").select("*");
-    setTemplates(templatesData || []);
-
-    // Fetch Users (excluding current user)
-    const { data: usersData } = await supabase
-      .from("sisapi_profiles")
-      .select("id, full_name")
-      .neq("id", user?.id);
-    setUsers(usersData || []);
-  };
-
-  const loadDocument = async () => {
     const { data, error } = await supabase
       .from("sisapi_documents")
       .select("*, attachments:sisapi_archive_files(*)")
@@ -94,19 +79,41 @@ export default function SisapiDocumentEditor() {
     
     // Load template config if exists
     if (data.template_id) {
-      const template = templates.find(t => t.id === data.template_id);
+      const template = availableTemplates.find(t => t.id === data.template_id);
       if (template) {
         setActiveModules(template.modules_config || { items: false, budget: false, creditor: false });
       }
     }
   };
 
+  const fetchData = async () => {
+    // Fetch Templates
+    const { data: templatesData } = await supabase.from("sisapi_document_templates").select("*");
+    const tData = templatesData || [];
+    setTemplates(tData);
+
+    // Fetch Users (excluding current user)
+    const { data: usersData } = await supabase
+      .from("sisapi_profiles")
+      .select("id, full_name")
+      .neq("id", user?.id);
+    setUsers(usersData || []);
+
+    if (id) {
+      await loadDocument(tData);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id, user]);
+
   const handleTemplateChange = (value: string) => {
     setTemplateId(value);
     const template = templates.find(t => t.id === value);
     if (template) {
       setActiveModules(template.modules_config || { items: false, budget: false, creditor: false });
-      if (template.content && !editor?.getHTML() || editor?.getHTML() === '<p></p>') {
+      if (template.content && (!editor?.getHTML() || editor?.getHTML() === '<p></p>')) {
         editor?.commands.setContent(template.content);
       }
     }
@@ -191,6 +198,7 @@ export default function SisapiDocumentEditor() {
     }
 
     if (result.error) {
+      console.error("Save error:", result.error);
       toast.error("Erro ao salvar documento");
       setLoading(false);
       return;
@@ -198,7 +206,7 @@ export default function SisapiDocumentEditor() {
 
     const documentId = result.data.id;
 
-    // Handle attachments linking (new ones won't have document_id yet)
+    // Handle attachments linking
     if (attachments.length > 0) {
       const attachmentsToInsert = attachments
         .filter(a => !a.id)
