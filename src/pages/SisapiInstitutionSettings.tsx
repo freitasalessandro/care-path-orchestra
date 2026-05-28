@@ -9,6 +9,7 @@ import { Building2, Save, Upload, MapPin, Fingerprint } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 
 export default function SisapiInstitutionSettings() {
   const { user } = useAuth();
@@ -101,16 +102,15 @@ export default function SisapiInstitutionSettings() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Identidade Institucional</h1>
-          <p className="text-muted-foreground">Configure os dados que aparecerão no cabeçalho de todos os documentos.</p>
-        </div>
+      <SisapiPageHeader 
+        title="Identidade Institucional"
+        description="Configure os dados que aparecerão no cabeçalho de todos os documentos."
+      >
         <Button onClick={handleSave} disabled={loading} className="bg-slate-800 hover:bg-slate-700">
           <Save className="w-4 h-4 mr-2" />
           Salvar Alterações
         </Button>
-      </div>
+      </SisapiPageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-2">

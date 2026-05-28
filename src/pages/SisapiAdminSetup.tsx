@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 
 
 export default function SisapiAdminSetup() {
@@ -110,10 +111,10 @@ export default function SisapiAdminSetup() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Configurações SISAPI</h1>
-        <p className="text-muted-foreground">Tabelas de apoio para o sistema documental.</p>
-      </div>
+      <SisapiPageHeader 
+        title="Configurações SISAPI" 
+        description="Tabelas de apoio para o sistema documental." 
+      />
 
       <div className="grid grid-cols-1 gap-8">
         <Card>
