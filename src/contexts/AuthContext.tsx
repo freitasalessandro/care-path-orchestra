@@ -57,10 +57,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    localStorage.removeItem("sb-dummy-session");
-    await supabase.auth.signOut();
-    setSelectedModule(null);
+    try {
+      localStorage.removeItem("sb-dummy-session");
+      localStorage.removeItem("selectedModule");
+      setSelectedModuleState(null);
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      // Force reload to ensure all states are cleared
+      window.location.href = "/login";
+    }
   };
+
 
   return (
     <AuthContext.Provider
