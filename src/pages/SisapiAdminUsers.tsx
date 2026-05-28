@@ -312,6 +312,7 @@ export default function SisapiAdminUsers() {
                           </SelectContent>
                         </Select>
                       </TableCell>
+
                       <TableCell>
                         <Badge 
                           className={`cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
