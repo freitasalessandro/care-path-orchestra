@@ -34,8 +34,10 @@ export default function SisapiAdminUsers() {
     full_name: "",
     role_id: "",
     department_id: "",
+    sector_id: "",
     is_admin: false
   });
+
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
