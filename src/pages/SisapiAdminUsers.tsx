@@ -273,7 +273,9 @@ export default function SisapiAdminUsers() {
                           </div>
                           <div className="flex flex-col">
                             <span className="text-slate-900 font-medium">{profile.full_name}</span>
+                            <span className="text-xs text-slate-500">{profile.email || "Email não disponível"}</span>
                           </div>
+
                         </div>
                       </TableCell>
 
