@@ -30,8 +30,8 @@ export function useSisapiAuthorities() {
         .from("sisapi_authorities")
         .select(`
           *,
-          autoridade:autoridade_user_id(full_name, signature_url),
-          representante:representante_user_id(full_name, signature_url)
+          autoridade:sisapi_profiles!sisapi_authorities_autoridade_user_id_fkey(full_name, signature_url),
+          representante:sisapi_profiles!sisapi_authorities_representante_user_id_fkey(full_name, signature_url)
         `)
         .order("created_at", { ascending: false });
 
@@ -39,12 +39,12 @@ export function useSisapiAuthorities() {
         toast.error("Erro ao carregar autoridades");
         throw error;
       }
-      return data as SisapiAuthority[];
+      return data as any[] as SisapiAuthority[];
     },
   });
 
   const createAuthority = useMutation({
-    mutationFn: async (newAuth: Partial<SisapiAuthority>) => {
+    mutationFn: async (newAuth: { autoridade_user_id: string; representante_user_id: string; tipo: string; ativo?: boolean }) => {
       const { data, error } = await supabase
         .from("sisapi_authorities")
         .insert([newAuth])
@@ -65,7 +65,7 @@ export function useSisapiAuthorities() {
   });
 
   const updateAuthority = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<SisapiAuthority> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: string; autoridade_user_id?: string; representante_user_id?: string; tipo?: string; ativo?: boolean }) => {
       const { data, error } = await supabase
         .from("sisapi_authorities")
         .update(updates)
