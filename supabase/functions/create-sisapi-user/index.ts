@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { email, password, full_name, role_id, department_id, sector_id, is_admin } = await req.json()
+    const { email, password, full_name, role_id, department_id, sector_id, is_admin, allowed_modules } = await req.json()
 
     // 1. Create the user in Auth
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -41,6 +41,8 @@ serve(async (req) => {
         department_id,
         sector_id,
         is_admin: !!is_admin,
+        allowed_modules: allowed_modules || ['sisapi'],
+
 
         status: 'active'
       })
