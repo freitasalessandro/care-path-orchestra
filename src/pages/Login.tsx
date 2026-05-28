@@ -117,12 +117,13 @@ export default function Login() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-4">
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               {loading ? "Entrando..." : "Entrar"}
             </Button>
-            <div className="w-full text-center mt-4">
+            
+            <div className="w-full text-center">
               <Dialog open={isSignUpOpen} onOpenChange={setIsSignUpOpen}>
                 <DialogTrigger asChild>
                   <Button variant="link" className="text-sm">
@@ -180,6 +181,7 @@ export default function Login() {
                 </DialogContent>
               </Dialog>
             </div>
+
 
           </CardFooter>
         </form>
