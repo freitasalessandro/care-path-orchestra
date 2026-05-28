@@ -1,7 +1,7 @@
 import logoNeopolis from "@/assets/logo-neopolis.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, LogOut, User } from "lucide-react";
+import { LayoutGrid, LogOut, User, Bell } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +17,31 @@ export function AppTopbar() {
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-primary flex items-center justify-between px-6 z-50">
       <div className="flex items-center gap-4">
-        <span className="text-xl font-bold text-primary-foreground tracking-wide">sisapi</span>
+        <div className="flex flex-col leading-tight">
+          <span className="text-xl font-bold text-primary-foreground tracking-wide">SISAPI</span>
+          <span className="text-[10px] text-primary-foreground/70 font-medium">Sistema de Apoio à Gestão</span>
+        </div>
         <div className="w-px h-8 bg-primary-foreground/30" />
         <img src={logoNeopolis} alt="Logo Neópolis" className="h-9 object-contain" />
       </div>
 
       <div className="flex items-center gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full border border-primary" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-80" align="end">
+            <DropdownMenuLabel>Notificações</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-[300px] overflow-y-auto p-2">
+              <p className="text-xs text-center py-4 text-muted-foreground">Nenhuma notificação nova</p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">

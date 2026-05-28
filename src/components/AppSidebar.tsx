@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap, Settings, FileBarChart } from "lucide-react";
+import { LayoutDashboard, Users, Scissors, ClipboardList, ChevronLeft, ChevronRight, Building, UserCircle, Briefcase, GraduationCap, Settings, FileBarChart, FileText, Clock, Library, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebarContext } from "@/contexts/SidebarContext";
@@ -28,12 +28,21 @@ const ioseLinks = [
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
 ];
 
+const sisapiLinks = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/documentos", label: "Documentos", icon: FileText },
+  { to: "/pendentes", label: "Meus Pendentes", icon: Clock },
+  { to: "/acervo", label: "Acervo Digital", icon: Library },
+  { to: "/usuarios", label: "Gestão de Usuários", icon: Users },
+  { to: "/configuracoes", label: "Configurações", icon: ShieldCheck },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
   const { selectedModule } = useAuth();
   
-  const links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : surgeryLinks;
+  const links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : surgeryLinks;
 
   return (
     <aside
