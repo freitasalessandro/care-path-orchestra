@@ -259,7 +259,8 @@ export default function SisapiDocumentEditor() {
         author_name: authorProfile?.full_name,
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
-        is_finalized: false // Should be based on status
+        is_finalized: false, // Should be based on status
+        attachments: attachments
       });
       toast.success("PDF gerado com sucesso");
     } catch (error) {
