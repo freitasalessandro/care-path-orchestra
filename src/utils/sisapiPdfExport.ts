@@ -20,6 +20,11 @@ interface ExportData {
   assigned_role?: string;
   is_finalized?: boolean;
   attachments?: any[];
+  signer_name?: string;
+  signer_signature?: string;
+  authority_name?: string;
+  authority_role?: string;
+  is_delegated?: boolean;
 }
 
 export const exportToPdf = async (data: ExportData) => {
