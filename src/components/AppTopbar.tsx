@@ -1,5 +1,6 @@
-import logoNeopolis from "@/assets/logo-neopolis.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, LogOut, User, Bell } from "lucide-react";
 import {
@@ -14,6 +15,14 @@ import {
 export function AppTopbar() {
   const { user, signOut, setSelectedModule } = useAuth();
 
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
+    }
+  });
+
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-primary flex items-center justify-between px-6 z-50">
       <div className="flex items-center gap-4">
@@ -22,7 +31,7 @@ export function AppTopbar() {
           <span className="text-[10px] text-primary-foreground/70 font-medium">Sistema de Apoio à Gestão</span>
         </div>
         <div className="w-px h-8 bg-primary-foreground/30" />
-        <img src={logoNeopolis} alt="Logo Neópolis" className="h-9 object-contain" />
+        <img src={settings?.institution_logo_url || "/timbre-neopolis.png"} alt="Logo" className="h-9 object-contain" />
       </div>
 
       <div className="flex items-center gap-4">

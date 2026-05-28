@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,17 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -154,6 +165,28 @@ export default function SisapiAdminUsers() {
     }
   });
 
+  const deleteProfileMutation = useMutation({
+    mutationFn: async (profileId: string) => {
+      const { error: profileError } = await supabase.from("sisapi_profiles").delete().eq("id", profileId);
+      if (profileError) throw profileError;
+    },
+    onSuccess: () => {
+      toast.success("Usuário removido com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao remover usuário: " + error.message);
+    }
+  });
+
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
+    }
+  });
+
   const handleUpdateModules = async () => {
     if (!selectedProfile) return;
     updateProfileMutation.mutate({
@@ -199,9 +232,14 @@ export default function SisapiAdminUsers() {
   return (
     <div className="container mx-auto py-8 space-y-8">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
-          <p className="text-muted-foreground text-lg">Gerencie quem pode acessar o sistema e quais módulos estão visíveis.</p>
+        <div className="flex items-center gap-4">
+          {settings?.institution_logo_url && (
+            <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
+            <p className="text-muted-foreground text-lg">{settings?.institution_name || "Sistema de Apoio à Gestão - SISAPI"}</p>
+          </div>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -345,24 +383,56 @@ export default function SisapiAdminUsers() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-primary hover:bg-primary/10"
-                          onClick={() => {
-                            if (!profile.status || profile.status === 'pending') {
-                              toast.info("Ative o usuário para gerenciar módulos");
-                              return;
-                            }
-                            setSelectedProfile(profile);
-                            setEditingModules(profile.allowed_modules || []);
-                            setIsModulesDialogOpen(true);
-                          }}
-                          disabled={profile.is_admin}
-                          title={profile.is_admin ? "Admins possuem acesso total" : "Editar permissões"}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-primary hover:bg-primary/10"
+                            onClick={() => {
+                              if (!profile.status || profile.status === 'pending') {
+                                toast.info("Ative o usuário para gerenciar módulos");
+                                return;
+                              }
+                              setSelectedProfile(profile);
+                              setEditingModules(profile.allowed_modules || []);
+                              setIsModulesDialogOpen(true);
+                            }}
+                            disabled={profile.is_admin}
+                            title={profile.is_admin ? "Admins possuem acesso total" : "Editar permissões"}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Excluir usuário"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remover Usuário</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja remover o usuário <strong>{profile.full_name}</strong>? Esta ação excluirá apenas o perfil do sistema. O acesso no banco de autenticação deve ser removido manualmente se necessário.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => deleteProfileMutation.mutate(profile.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Remover
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

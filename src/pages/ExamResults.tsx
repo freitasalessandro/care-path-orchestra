@@ -40,7 +40,14 @@ export default function ExamResults() {
       if (!authUser) return null;
       const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
       return { ...data, email: authUser.email };
+    }
+  });
 
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
     }
   });
 
@@ -176,10 +183,14 @@ export default function ExamResults() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
+          {settings?.institution_logo_url && (
+            <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+          )}
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Resultados de Exames</h1>
-            <p className="text-muted-foreground">Controle de recebimento e entrega de exames na secretaria</p>
+            <p className="text-muted-foreground">{settings?.institution_name || "Controle de recebimento e entrega de exames"}</p>
           </div>
+        </div>
           {(profile?.is_admin || profile?.email === "admin@gmail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
               <UserCog className="w-4 h-4" />
