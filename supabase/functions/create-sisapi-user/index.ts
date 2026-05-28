@@ -57,11 +57,15 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    const msg = error?.message || String(error)
+    const friendly = /already been registered|email_exists|already registered/i.test(msg)
+      ? 'Já existe um usuário cadastrado com este e-mail.'
+      : msg
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: friendly }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 200,
       }
     )
   }
