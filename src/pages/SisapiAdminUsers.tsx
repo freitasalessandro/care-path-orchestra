@@ -166,6 +166,40 @@ export default function SisapiAdminUsers() {
     }
   });
 
+  const updateModulesMutation = useMutation({
+    mutationFn: async ({ userId, modules }: { userId: string; modules: string[] }) => {
+      const { error } = await supabase
+        .from("sisapi_profiles")
+        .update({ allowed_modules: modules })
+        .eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulos atualizados com sucesso");
+      setIsModulesDialogOpen(false);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar módulos: " + error.message);
+    }
+  });
+
+  const handleOpenModulesDialog = (profile: any) => {
+    setSelectedProfile(profile);
+    setEditingModules(profile.allowed_modules || ["sisapi"]);
+    setIsModulesDialogOpen(true);
+  };
+
+  const handleUpdateModules = () => {
+    if (selectedProfile) {
+      updateModulesMutation.mutate({
+        userId: selectedProfile.id,
+        modules: editingModules
+      });
+    }
+  };
+
+
   const handleApprove = async (id: string) => {
     const { error } = await supabase
       .from("sisapi_profiles")
