@@ -5,7 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight, Save, ArrowLeft, Upload, FileIcon, X } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight, Save, ArrowLeft, Upload, FileIcon, X, FileDown, Eye } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { ItemsModule, BudgetModule, CreditorModule } from "@/components/sisapi/DocumentModules";
 import { Separator } from "@/components/ui/separator";
+import { exportToPdf } from "@/utils/sisapiPdfExport";
 
 export default function SisapiDocumentEditor() {
   const { id } = useParams();
