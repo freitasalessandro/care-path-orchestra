@@ -1,9 +1,13 @@
 import { useState, useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Users, Scissors, ClipboardCheck, CalendarCheck, Calendar, Filter } from "lucide-react";
+import { Users, Scissors, ClipboardCheck, CalendarCheck, Calendar, Filter, UserCog } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+
 
 function StatCard({ icon: Icon, label, value, color, onClick }: {
   icon: React.ElementType; label: string; value: string | number; color: string; onClick?: () => void;
@@ -73,6 +77,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<PeriodFilter>("month");
 
+  const { data: profile } = useQuery({
+    queryKey: ["sisapi-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
+      return data;
+    }
+  });
+
+
   const filteredSurgeries = useMemo(() => {
     const range = getDateRange(period);
     if (!range) return surgeries;
@@ -103,9 +118,17 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
-          <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
+            <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
+          </div>
+          {profile?.is_admin && (
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
+              <UserCog className="w-4 h-4" />
+              Gestão de Usuários
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-muted-foreground" />
