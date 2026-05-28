@@ -142,12 +142,13 @@ export default function ModuleSelection() {
             <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
           </div>
           <div className="flex gap-2">
-            {profile?.is_admin && (
+            {(profile?.is_admin || user?.email === "alessandro@gmail.com") && (
               <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-900 border-slate-200 hover:bg-slate-50">
                 <Users className="w-4 h-4 mr-2" />
                 Gestão de Usuários
               </Button>
             )}
+
             <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
               <LogOut className="w-4 h-4 mr-2" />
               Sair
