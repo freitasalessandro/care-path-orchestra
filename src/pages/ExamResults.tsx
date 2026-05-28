@@ -3,14 +3,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription as CardDesc } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Search, Plus, CheckCircle, Clock, Trash2, UserCheck, Tabs, TabsList, TabsTrigger, TabsContent } from "lucide-react";
+import { Search, Plus, CheckCircle, Clock, Trash2, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -109,9 +109,6 @@ export default function ExamResults() {
         .update({
           status: "collected",
           collected_at: new Date().toISOString(),
-          // We could add columns for recipient data if needed, for now just marking as collected
-          // and using a note or metadata if the table allowed it. 
-          // Since the table is simple, we'll just log success.
         })
         .eq("id", selectedExamId);
       if (error) throw error;
@@ -238,7 +235,7 @@ export default function ExamResults() {
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
               <div>
                 <CardTitle>Listagem de Exames</CardTitle>
-                <CardDescription>Gerencie os exames disponíveis e as entregas realizadas.</CardDescription>
+                <CardDesc>Gerencie os exames disponíveis e as entregas realizadas.</CardDesc>
               </div>
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -359,7 +356,6 @@ export default function ExamResults() {
         </Card>
       </div>
 
-      {/* Delivery Dialog */}
       <Dialog open={isDeliveryDialogOpen} onOpenChange={setIsDeliveryDialogOpen}>
         <DialogContent>
           <DialogHeader>
