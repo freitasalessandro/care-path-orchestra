@@ -116,6 +116,8 @@ export default function ModuleSelection() {
     // Admins always have access to all modules
     const isSpecialAdmin = profile?.is_admin || user?.email === "alessandro@gmail.com";
     const hasAccess = isSpecialAdmin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id));
+
+
     return {
       ...module,
       active: !!hasAccess
