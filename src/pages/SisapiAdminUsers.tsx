@@ -339,8 +339,8 @@ export default function SisapiAdminUsers() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-
                 <DialogTitle>Configurações Gerais do Sistema</DialogTitle>
+
                 <DialogDescription>
                   Ajuste parâmetros globais do SISAPI.
                 </DialogDescription>
