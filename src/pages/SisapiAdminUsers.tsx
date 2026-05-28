@@ -177,9 +177,14 @@ export default function SisapiAdminUsers() {
   });
 
   if (!isSpecialAdmin && !loadingProfile && user?.email) {
-    console.warn("Acesso negado: Redirecionando usuário não-admin");
+    console.warn("Acesso negado: Redirecionando usuário não-admin", { 
+      email: user.email, 
+      isSpecial: isSpecialAdmin, 
+      profile: currentUserProfile 
+    });
     return <Navigate to="/modules" replace />;
   }
+
 
 
 
