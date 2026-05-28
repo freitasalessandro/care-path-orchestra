@@ -36,10 +36,11 @@ export default function ExamResults() {
   const { data: profile } = useQuery({
     queryKey: ["sisapi-profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", user.id).single();
-      return data;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return null;
+      const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
+      return { ...data, email: authUser.email };
+
     }
   });
 
