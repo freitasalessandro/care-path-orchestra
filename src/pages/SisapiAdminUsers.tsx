@@ -341,8 +341,8 @@ export default function SisapiAdminUsers() {
               <DialogHeader>
                 <DialogTitle>Configurações Gerais do Sistema</DialogTitle>
                 <DialogDescription>
-
                   Ajuste parâmetros globais do SISAPI.
+
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
