@@ -38,8 +38,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Login padrão temporário: admin@gemail.com / admin
-      if (email === "admin@gemail.com" && password === "admin") {
+      // Login padrão temporário: admin@gmail.com / admin
+      if (email === "admin@gmail.com" && password === "admin") {
+
         toast.success("Login administrativo realizado com sucesso!");
         localStorage.setItem("sb-dummy-session", "true");
         // Força recarregamento para o AuthContext detectar a nova sessão dummy
@@ -114,7 +115,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="text"
-                placeholder="admin@gemail.com"
+                placeholder="admin@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
