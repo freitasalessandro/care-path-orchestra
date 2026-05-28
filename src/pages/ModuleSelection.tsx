@@ -62,8 +62,9 @@ export default function ModuleSelection() {
         return { 
           is_admin: true, 
           allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
-          full_name: 'Administrador (Padrão)'
+          full_name: 'Administrador Mestre'
         };
+
       }
 
       const { data, error } = await supabase

@@ -63,6 +63,15 @@ export default function SisapiAdminUsers() {
   const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["current-profile", user?.id],
     queryFn: async () => {
+      if (user?.email === "admin@gmail.com") {
+        return {
+          id: user.id,
+          full_name: "Administrador Mestre",
+          is_admin: true,
+          allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams']
+        };
+      }
+
       const { data, error } = await supabase
         .from("sisapi_profiles")
         .select("*")
@@ -72,6 +81,7 @@ export default function SisapiAdminUsers() {
       return data;
     },
     enabled: !!user?.id,
+
   });
 
   const { data: profiles, isLoading, refetch } = useQuery({
@@ -86,7 +96,11 @@ export default function SisapiAdminUsers() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Filter out any entries that might be broken or incomplete if needed, 
+      // but ensure we return the list
+      return data || [];
+
     },
   });
 
@@ -311,9 +325,9 @@ export default function SisapiAdminUsers() {
     }
   };
 
-  const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "admin@gmail.com";
+  const isSpecialAdmin = user?.email === "admin@gmail.com" || currentUserProfile?.is_admin;
 
-  if (loadingProfile && !isSpecialAdmin) return (
+  if (loadingProfile && user?.email !== "admin@gmail.com") return (
     <div className="flex items-center justify-center min-h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
       <span className="ml-2">Verificando permissões...</span>
@@ -324,6 +338,7 @@ export default function SisapiAdminUsers() {
     console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
     return <Navigate to="/modules" replace />;
   }
+
 
 
 
