@@ -46,6 +46,7 @@ const SisapiArchive = lazy(() => import("@/pages/SisapiArchive"));
 const SisapiAdminUsers = lazy(() => import("@/pages/SisapiAdminUsers"));
 const SisapiAdminSetup = lazy(() => import("@/pages/SisapiAdminSetup"));
 const SisapiRoles = lazy(() => import("@/pages/SisapiRoles"));
+const SisapiInstitutionSettings = lazy(() => import("@/pages/SisapiInstitutionSettings"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
