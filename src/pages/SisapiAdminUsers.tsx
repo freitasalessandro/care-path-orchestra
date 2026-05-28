@@ -123,7 +123,7 @@ export default function SisapiAdminUsers() {
     createUserMutation.mutate(newUser);
   };
 
-
+  const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, roleId }: { userId: string; roleId: string | null }) => {
       const { error } = await supabase
         .from("sisapi_profiles")
@@ -139,6 +139,7 @@ export default function SisapiAdminUsers() {
       toast.error("Erro ao atualizar cargo: " + error.message);
     }
   });
+
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
