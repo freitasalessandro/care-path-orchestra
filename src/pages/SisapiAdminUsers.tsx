@@ -311,7 +311,12 @@ export default function SisapiAdminUsers() {
     }
   };
 
-  if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
+  if (loadingProfile) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <span className="ml-2">Verificando permissões...</span>
+    </div>
+  );
   
   const isSpecialAdmin = currentUserProfile?.is_admin || user?.email === "alessandro@gmail.com";
   
@@ -319,6 +324,7 @@ export default function SisapiAdminUsers() {
     console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
     return <Navigate to="/modules" replace />;
   }
+
 
 
 
@@ -469,7 +475,22 @@ export default function SisapiAdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {profiles?.map((profile) => (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
+                      Carregando usuários...
+                    </TableCell>
+                  </TableRow>
+                ) : profiles?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      Nenhum usuário encontrado.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  profiles?.map((profile) => (
+
                   <TableRow key={profile.id}>
                     <TableCell>{profile.full_name}</TableCell>
                     <TableCell>
