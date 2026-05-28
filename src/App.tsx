@@ -90,7 +90,7 @@ function AppLayout() {
                   <Route path="/funcoes" element={<PositionList />} />
                   <Route path="/configuracoes" element={<SecretariatSettings />} />
                 </>
-              ) : (
+              ) : selectedModule === "iose" ? (
                 <>
                   <Route path="/" element={<IoseDashboard />} />
                   <Route path="/pacientes" element={<IosePatientList />} />
