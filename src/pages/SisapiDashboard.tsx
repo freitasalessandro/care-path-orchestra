@@ -38,7 +38,8 @@ export default function SisapiDashboard() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) return null;
       const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
-      return data;
+      return { ...data, email: authUser.email };
+
     }
   });
 
