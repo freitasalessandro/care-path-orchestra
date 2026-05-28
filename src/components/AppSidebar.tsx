@@ -41,6 +41,10 @@ const sisapiLinks = [
   { to: "/configuracoes", label: "Configurações", icon: ShieldCheck, id: "settings", adminOnly: true },
 ];
 
+const examLinks = [
+  { to: "/", label: "Controle de Exames", icon: FileText },
+];
+
 export function AppSidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
