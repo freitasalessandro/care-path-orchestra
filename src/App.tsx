@@ -115,6 +115,7 @@ function AppLayout() {
                   <Route path="/acervo" element={<SisapiArchive />} />
                   <Route path="/usuarios" element={<SisapiAdminUsers />} />
                   <Route path="/funcoes" element={<SisapiRoles />} />
+                  <Route path="/autoridades" element={<SisapiAuthorities />} />
                   <Route path="/configuracoes" element={<SisapiAdminSetup />} />
                   <Route path="/identidade" element={<SisapiInstitutionSettings />} />
                 </>
