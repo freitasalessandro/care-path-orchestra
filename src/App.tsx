@@ -47,6 +47,7 @@ const SisapiAdminUsers = lazy(() => import("@/pages/SisapiAdminUsers"));
 const SisapiAdminSetup = lazy(() => import("@/pages/SisapiAdminSetup"));
 const SisapiRoles = lazy(() => import("@/pages/SisapiRoles"));
 const SisapiInstitutionSettings = lazy(() => import("@/pages/SisapiInstitutionSettings"));
+const SisapiAuthorities = lazy(() => import("@/pages/SisapiAuthorities"));
 const ExamResults = lazy(() => import("@/pages/ExamResults"));
 const queryClient = new QueryClient();
 
