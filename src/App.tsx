@@ -100,6 +100,10 @@ function AppLayout() {
                   <Route path="/lista" element={<IoseSurgeryList />} />
                   <Route path="/relatorios" element={<IoseReports />} />
                 </>
+              ) : selectedModule === "exams" ? (
+                <>
+                  <Route path="/" element={<ExamResults />} />
+                </>
               ) : (
                 <>
                   <Route path="/" element={<SisapiDashboard />} />
