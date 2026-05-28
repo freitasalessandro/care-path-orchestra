@@ -103,7 +103,9 @@ export default function ModuleSelection() {
     navigate("/");
   };
 
+  console.log("Current user profile:", profile);
   const filteredModules = modules.map(module => {
+
     // Admins always have access to all modules
     const hasAccess = profile?.is_admin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id));
     return {
