@@ -31,6 +31,14 @@ export default function SisapiAdminUsers() {
   const [isGeneralSettingsOpen, setIsGeneralSettingsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  const [moduleLabels] = useState<Record<string, string>>({
+    sisapi: "SISAPI - Gestão Documental",
+    surgeries: "Gestão de Cirurgias",
+    hr: "Recursos Humanos",
+    iose: "Lista Iose",
+    exams: "Resultados de Exames"
+  });
+
   const [generalSettings, setGeneralSettings] = useState({
     systemName: "SISAPI",
     maintenanceMode: false,
