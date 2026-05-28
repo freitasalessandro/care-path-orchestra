@@ -124,7 +124,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
             <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
           </div>
-          {(profile?.is_admin || profile?.email === "admin@sistema.com") && (
+          {(profile?.is_admin || profile?.email === "alessandro@gmail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>
               <UserCog className="w-4 h-4" />
               Gestão de Usuários
