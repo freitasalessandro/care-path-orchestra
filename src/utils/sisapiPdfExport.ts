@@ -19,6 +19,7 @@ interface ExportData {
   assigned_name?: string;
   assigned_role?: string;
   is_finalized?: boolean;
+  attachments?: any[];
 }
 
 export const exportToPdf = async (data: ExportData) => {
