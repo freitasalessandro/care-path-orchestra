@@ -88,9 +88,14 @@ export default function SisapiAdminUsers() {
       // ou teríamos o email duplicado na tabela de perfis para performance.
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
         const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
-        if (rpcError) console.error("Error fetching email for", profile.id, rpcError);
-        return { ...profile, email: userData || null };
+        if (rpcError) {
+          console.error("Error fetching email for", profile.id, rpcError);
+          // Tentativa alternativa caso o RPC falhe ou não encontre (o Alessandro é o usuário logado as vezes)
+          return { ...profile, email: profile.id === user?.id ? user.email : "Email não recuperado" };
+        }
+        return { ...profile, email: userData || (profile.id === user?.id ? user.email : null) };
       }));
+
 
 
       return profilesWithEmails;
