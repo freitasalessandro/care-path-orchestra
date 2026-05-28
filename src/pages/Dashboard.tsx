@@ -84,7 +84,14 @@ export default function Dashboard() {
       if (!authUser) return null;
       const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
       return { ...data, email: authUser.email };
+    }
+  });
 
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
     }
   });
 
@@ -120,9 +127,12 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {settings?.institution_logo_url && (
+            <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+          )}
           <div>
             <h1 className="text-2xl font-bold text-foreground">Painel de Controle</h1>
-            <p className="text-muted-foreground mt-1">Visão geral do sistema cirúrgico</p>
+            <p className="text-muted-foreground mt-1">{settings?.institution_name || "Gestão de Cirurgias"}</p>
           </div>
           {(profile?.is_admin || profile?.email === "admin@gmail.com") && (
             <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/usuarios")}>

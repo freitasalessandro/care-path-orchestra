@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,14 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function StaffList() {
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
+    }
+  });
+
   const [staff, setStaff] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [positions, setPositions] = useState<any[]>([]);
@@ -158,9 +167,14 @@ export default function StaffList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Funcionários</h1>
-          <p className="text-gray-600">Gestão de pessoal e cargos do sistema.</p>
+        <div className="flex items-center gap-4">
+          {settings?.institution_logo_url && (
+            <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+          )}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Funcionários</h1>
+            <p className="text-gray-600">{settings?.institution_name || "Gestão de pessoal e cargos do sistema"}</p>
+          </div>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={(open) => {

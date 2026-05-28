@@ -37,7 +37,14 @@ export default function IoseDashboard() {
       if (!authUser) return null;
       const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
       return { ...data, email: authUser.email };
+    }
+  });
 
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
     }
   });
 
@@ -86,9 +93,14 @@ export default function IoseDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Módulo Iose</h1>
-        <p className="text-gray-600">Gestão da lista de cirurgias oftalmológicas</p>
+      <div className="flex items-center gap-4">
+        {settings?.institution_logo_url && (
+          <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+        )}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Módulo Iose</h1>
+          <p className="text-gray-600">{settings?.institution_name || "Gestão da lista de cirurgias oftalmológicas"}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -13,7 +13,14 @@ export default function HRDashboard() {
       if (!authUser) return null;
       const { data } = await supabase.from("sisapi_profiles").select("*").eq("id", authUser.id).single();
       return { ...data, email: authUser.email };
+    }
+  });
 
+  const { data: settings } = useQuery({
+    queryKey: ["sisapi-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
+      return data;
     }
   });
 
@@ -75,9 +82,14 @@ export default function HRDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Módulo de Recursos Humanos</h1>
-        <p className="text-gray-600">Selecione uma das funções principais para começar.</p>
+      <div className="flex items-center gap-4">
+        {settings?.institution_logo_url && (
+          <img src={settings.institution_logo_url} alt="Logo" className="h-14 object-contain" />
+        )}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Módulo de Recursos Humanos</h1>
+          <p className="text-gray-600">{settings?.institution_name || "Secretaria de Saúde"}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
