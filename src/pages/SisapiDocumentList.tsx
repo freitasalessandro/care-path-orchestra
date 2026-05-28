@@ -184,6 +184,10 @@ export default function SisapiDocumentList() {
                         </ScrollArea>
                       </DialogContent>
                     </Dialog>
+                    <Button variant="ghost" size="sm" onClick={() => handleExportPdf(doc)} disabled={exporting === doc.id}>
+                      <FileDown className="w-4 h-4 mr-1" />
+                      PDF
+                    </Button>
                     <Button variant="ghost" size="sm" asChild>
                       <Link to={`/documentos/editar/${doc.id}`}>Editar</Link>
                     </Button>
