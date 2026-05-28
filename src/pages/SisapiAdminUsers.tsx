@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Upload, Settings, UserCog, UserPlus, Loader2, Edit2, UserCheck } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -23,36 +23,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 export default function SisapiAdminUsers() {
-  const [uploading, setUploading] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
-  const [isGeneralSettingsOpen, setIsGeneralSettingsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
-  const [moduleLabels] = useState<Record<string, string>>({
-    sisapi: "SISAPI - Gestão Documental",
-    surgeries: "Gestão de Cirurgias",
-    hr: "Recursos Humanos",
-    iose: "Lista Iose",
-    exams: "Resultados de Exames"
-  });
-
-  const [generalSettings, setGeneralSettings] = useState({
-    systemName: "SISAPI",
-    maintenanceMode: false,
-    allowPublicRegistration: false,
-    contactEmail: ""
-  });
-
+  
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
     full_name: "",
     role_id: "",
-    department_id: "",
-    sector_id: "",
     is_admin: false,
     allowed_modules: ["sisapi"] as string[]
   });
@@ -60,123 +43,46 @@ export default function SisapiAdminUsers() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  const moduleLabels: Record<string, string> = {
+    sisapi: "SISAPI - Gestão Documental",
+    surgeries: "Gestão de Cirurgias",
+    hr: "Recursos Humanos",
+    iose: "Lista Iose",
+    exams: "Resultados de Exames"
+  };
+
   const { data: currentUserProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["current-profile", user?.id],
     queryFn: async () => {
       if (user?.email === "admin@gmail.com") {
-        return {
-          id: user.id,
-          full_name: "Administrador Mestre",
-          is_admin: true,
-          allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams']
-        };
+        return { is_admin: true };
       }
-
-      const { data, error } = await supabase
-        .from("sisapi_profiles")
-        .select("*")
-        .eq("id", user?.id)
-        .single();
+      const { data, error } = await supabase.from("sisapi_profiles").select("is_admin").eq("id", user?.id).single();
       if (error) throw error;
       return data;
     },
     enabled: !!user?.id,
-
   });
 
-  const { data: profiles, isLoading, refetch } = useQuery({
-    queryKey: ["sisapi-admin-users"],
+  const { data: profiles, isLoading: loadingProfiles } = useQuery({
+    queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sisapi_profiles")
-        .select(`
-          *,
-          role:role_id(id, name)
-        `)
-        .order("created_at", { ascending: false });
-
+        .select(`*, role:role_id(id, name)`)
+        .order("full_name", { ascending: true });
       if (error) throw error;
-      
-      // Filter out any entries that might be broken or incomplete if needed, 
-      // but ensure we return the list
       return data || [];
-
     },
   });
 
   const { data: roles } = useQuery({
-    queryKey: ["sisapi-roles"],
+    queryKey: ["sisapi-roles-list"],
     queryFn: async () => {
       const { data, error } = await supabase.from("sisapi_roles").select("*").order("name");
       if (error) throw error;
-      return data;
+      return data || [];
     },
-  });
-
-  const { data: departments } = useQuery({
-    queryKey: ["sisapi-departments"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("sisapi_departments").select("*").order("name");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: sectors } = useQuery({
-    queryKey: ["sisapi-sectors", newUser.department_id],
-    queryFn: async () => {
-      if (!newUser.department_id) return [];
-      const { data, error } = await supabase
-        .from("sisapi_sectors")
-        .select("*")
-        .eq("department_id", newUser.department_id)
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!newUser.department_id
-  });
-
-  const { data: settings } = useQuery({
-    queryKey: ["sisapi-general-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sisapi_settings")
-        .select("general_settings, id")
-        .maybeSingle();
-      if (error) throw error;
-      if (data?.general_settings) {
-        setGeneralSettings(data.general_settings as any);
-      }
-      return data;
-    },
-  });
-
-  const saveSettingsMutation = useMutation({
-    mutationFn: async () => {
-      const { data: current } = await supabase.from("sisapi_settings").select("id").maybeSingle();
-      if (current) {
-        const { error: updateError } = await supabase
-          .from("sisapi_settings")
-          .update({ general_settings: generalSettings })
-          .eq("id", current.id);
-        if (updateError) throw updateError;
-      } else {
-        const { error: insertError } = await supabase.from("sisapi_settings").insert({ 
-          general_settings: generalSettings,
-          institution_name: generalSettings.systemName 
-        });
-        if (insertError) throw insertError;
-      }
-    },
-    onSuccess: () => {
-      toast.success("Configurações salvas com sucesso");
-      setIsGeneralSettingsOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["sisapi-general-settings"] });
-    },
-    onError: (error: any) => {
-      toast.error("Erro ao salvar configurações: " + error.message);
-    }
   });
 
   const createUserMutation = useMutation({
@@ -195,345 +101,196 @@ export default function SisapiAdminUsers() {
         password: "",
         full_name: "",
         role_id: "",
-        department_id: "",
-        sector_id: "",
         is_admin: false,
         allowed_modules: ["sisapi"]
       });
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
     },
     onError: (error: any) => {
       toast.error("Erro ao criar usuário: " + error.message);
     }
   });
 
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newUser.email || !newUser.password || !newUser.full_name) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
-    }
-    createUserMutation.mutate(newUser);
-  };
-
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, roleId }: { userId: string; roleId: string | null }) => {
-      const { error } = await supabase
-        .from("sisapi_profiles")
-        .update({ role_id: roleId })
-        .eq("id", userId);
+  const updateProfileMutation = useMutation({
+    mutationFn: async ({ userId, updates }: { userId: string; updates: any }) => {
+      const { error } = await supabase.from("sisapi_profiles").update(updates).eq("id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Cargo atualizado com sucesso");
-      refetch();
+      toast.success("Perfil atualizado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
     },
     onError: (error: any) => {
-      toast.error("Erro ao atualizar cargo: " + error.message);
+      toast.error("Erro ao atualizar: " + error.message);
     }
   });
 
-  const updateModulesMutation = useMutation({
-    mutationFn: async ({ userId, modules }: { userId: string; modules: string[] }) => {
-      const { error } = await supabase
-        .from("sisapi_profiles")
-        .update({ allowed_modules: modules })
-        .eq("id", userId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Módulos atualizados com sucesso");
-      setIsModulesDialogOpen(false);
-      refetch();
-    },
-    onError: (error: any) => {
-      toast.error("Erro ao atualizar módulos: " + error.message);
-    }
-  });
-
-  const handleOpenModulesDialog = (profile: any) => {
-    setSelectedProfile(profile);
-    setEditingModules(profile.allowed_modules || ["sisapi"]);
-    setIsModulesDialogOpen(true);
-  };
-
-  const handleUpdateModules = () => {
-    if (selectedProfile) {
-      updateModulesMutation.mutate({
-        userId: selectedProfile.id,
-        modules: editingModules
-      });
-    }
-  };
-
-  const handleApprove = async (id: string) => {
-    const { error } = await supabase
-      .from("sisapi_profiles")
-      .update({ status: "approved" })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("Erro ao aprovar usuário");
-    } else {
-      toast.success("Usuário aprovado com sucesso");
-      refetch();
-    }
-  };
-
-  const toggleAdmin = async (id: string, currentStatus: boolean) => {
-    const { error } = await supabase
-      .from("sisapi_profiles")
-      .update({ is_admin: !currentStatus })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("Erro ao alterar privilégios");
-    } else {
-      toast.success("Privilégios alterados com sucesso");
-      refetch();
-    }
-  };
-
-  const handleSignatureUpload = async (userId: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    const file = e.target.files[0];
-    if (file.type !== "image/png") {
-      toast.error("Por favor, envie uma imagem em formato PNG.");
-      return;
-    }
-    setUploading(userId);
-    try {
-      const fileName = `signatures/${userId}-${Date.now()}.png`;
-      const { error: uploadError } = await supabase.storage
-        .from('logos') 
-        .upload(fileName, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage
-        .from('logos')
-        .getPublicUrl(fileName);
-      const { error: updateError } = await supabase
-        .from("sisapi_profiles")
-        .update({ signature_url: publicUrl })
-        .eq("id", userId);
-      if (updateError) throw updateError;
-      toast.success("Assinatura atualizada com sucesso!");
-      refetch();
-    } catch (error: any) {
-      toast.error("Erro ao enviar assinatura: " + error.message);
-    } finally {
-      setUploading(null);
-    }
+  const handleUpdateModules = async () => {
+    if (!selectedProfile) return;
+    updateProfileMutation.mutate({
+      userId: selectedProfile.id,
+      updates: { allowed_modules: editingModules }
+    });
+    setIsModulesDialogOpen(false);
   };
 
   const isSpecialAdmin = user?.email === "admin@gmail.com" || currentUserProfile?.is_admin;
 
-  if (loadingProfile && user?.email !== "admin@gmail.com") return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      <span className="ml-2">Verificando permissões...</span>
-    </div>
-  );
+  if (loadingProfile && user?.email !== "admin@gmail.com") {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  }
   
   if (!isSpecialAdmin && !loadingProfile) {
-    console.log("Access denied. User email:", user?.email, "Is admin:", currentUserProfile?.is_admin);
     return <Navigate to="/modules" replace />;
   }
 
-
-
-
-
-
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
+    <div className="container mx-auto py-8 space-y-8">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Gestão de Usuários</h1>
-          <p className="text-muted-foreground">Controle de acessos, cargos e assinaturas dos usuários do SISAPI.</p>
+          <p className="text-muted-foreground text-lg">Gerencie quem pode acessar o sistema e quais módulos estão visíveis.</p>
         </div>
         
-        <div className="flex gap-2">
-          <Dialog open={isGeneralSettingsOpen} onOpenChange={setIsGeneralSettingsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Settings className="w-4 h-4 mr-2" />
-                Configurações Gerais
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90 shadow-lg">
+              <UserPlus className="w-5 h-5 mr-2" />
+              Novo Usuário
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <form onSubmit={(e) => { e.preventDefault(); createUserMutation.mutate(newUser); }}>
               <DialogHeader>
-                <DialogTitle>Configurações Gerais do Sistema</DialogTitle>
-                <DialogDescription>Ajuste parâmetros globais do SISAPI.</DialogDescription>
+                <DialogTitle className="text-2xl">Cadastrar Novo Usuário</DialogTitle>
+                <DialogDescription>Crie uma nova conta com acesso restrito ou administrativo.</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="systemName" className="text-right text-xs">Nome do Sistema</Label>
-                  <Input 
-                    id="systemName" 
-                    className="col-span-3" 
-                    value={generalSettings.systemName}
-                    onChange={(e) => setGeneralSettings({...generalSettings, systemName: e.target.value})}
+              <div className="grid gap-6 py-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input id="name" value={newUser.full_name} onChange={(e) => setNewUser({...newUser, full_name: e.target.value})} placeholder="Ex: João Silva" required />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input id="email" type="email" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} placeholder="usuario@gmail.com" required />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="pass">Senha Temporária</Label>
+                  <Input id="pass" type="password" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} placeholder="Mínimo 6 caracteres" required />
+                </div>
+                <div className="flex items-center space-x-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <Checkbox 
+                    id="is_admin_new" 
+                    checked={newUser.is_admin}
+                    onCheckedChange={(checked) => setNewUser({...newUser, is_admin: !!checked})}
                   />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="contactEmail" className="text-right text-xs">E-mail de Contato</Label>
-                  <Input 
-                    id="contactEmail" 
-                    className="col-span-3" 
-                    value={generalSettings.contactEmail}
-                    onChange={(e) => setGeneralSettings({...generalSettings, contactEmail: e.target.value})}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right text-xs">Público</Label>
-                  <div className="col-span-3 flex items-center space-x-2">
-                    <Checkbox 
-                      id="allowPublicRegistration" 
-                      checked={generalSettings.allowPublicRegistration}
-                      onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowPublicRegistration: !!checked})}
-                    />
-                    <label htmlFor="allowPublicRegistration" className="text-xs font-medium">Permitir cadastro público</label>
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right text-xs">Manutenção</Label>
-                  <div className="col-span-3 flex items-center space-x-2">
-                    <Checkbox 
-                      id="maintenanceMode" 
-                      checked={generalSettings.maintenanceMode}
-                      onCheckedChange={(checked) => setGeneralSettings({...generalSettings, maintenanceMode: !!checked})}
-                    />
-                    <label htmlFor="maintenanceMode" className="text-xs font-medium">Modo de manutenção</label>
-                  </div>
+                  <Label htmlFor="is_admin_new" className="font-semibold cursor-pointer">Definir como Administrador (Acesso total)</Label>
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsGeneralSettingsOpen(false)}>Cancelar</Button>
-                <Button onClick={() => saveSettingsMutation.mutate()} disabled={saveSettingsMutation.isPending}>
-                  {saveSettingsMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  Salvar
+                <Button type="button" variant="ghost" onClick={() => setIsCreateDialogOpen(false)}>Cancelar</Button>
+                <Button type="submit" disabled={createUserMutation.isPending} className="min-w-[120px]">
+                  {createUserMutation.isPending ? <Loader2 className="animate-spin" /> : "Criar Usuário"}
                 </Button>
               </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-slate-900">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Novo Usuário
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <form onSubmit={handleCreateUser}>
-                <DialogHeader>
-                  <DialogTitle>Criar Novo Usuário</DialogTitle>
-                  <DialogDescription>Adicione um novo colaborador ao SISAPI.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">Nome</Label>
-                    <Input id="name" className="col-span-3" value={newUser.full_name} onChange={(e) => setNewUser({...newUser, full_name: e.target.value})} required />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">Email</Label>
-                    <Input id="email" type="email" className="col-span-3" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} required />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pass" className="text-right">Senha</Label>
-                    <Input id="pass" type="password" className="col-span-3" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} required />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Departamento</Label>
-                    <div className="col-span-3">
-                      <Select value={newUser.department_id} onValueChange={(val) => setNewUser({...newUser, department_id: val, sector_id: ""})}>
-                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                        <SelectContent>{departments?.map((dept: any) => (<SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>))}</SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Setor</Label>
-                    <div className="col-span-3">
-                      <Select value={newUser.sector_id} onValueChange={(val) => setNewUser({...newUser, sector_id: val})} disabled={!newUser.department_id}>
-                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                        <SelectContent>{sectors?.map((sector: any) => (<SelectItem key={sector.id} value={sector.id}>{sector.name}</SelectItem>))}</SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancelar</Button>
-                  <Button type="submit" disabled={createUserMutation.isPending}>Criar</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="bg-white border">
-          <TabsTrigger value="users">Usuários</TabsTrigger>
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList className="bg-slate-100 p-1 mb-6">
+          <TabsTrigger value="users" className="px-8">Usuários Cadastrados</TabsTrigger>
           <TabsTrigger value="departments">Departamentos</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
         </TabsList>
-        <TabsContent value="users">
-          <div className="bg-white rounded-lg border shadow-sm">
+        
+        <TabsContent value="users" className="mt-0">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-slate-50">
                 <TableRow>
-                  <TableHead>Usuário</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Admin</TableHead>
-                  <TableHead>Assinatura</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="w-[300px]">Nome do Usuário</TableHead>
+                  <TableHead>Cargo/Função</TableHead>
+                  <TableHead>Tipo de Acesso</TableHead>
+                  <TableHead>Módulos Ativos</TableHead>
+                  <TableHead className="text-right">Gerenciar</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
-                      Carregando usuários...
-                    </TableCell>
-                  </TableRow>
+                {loadingProfiles ? (
+                  <TableRow><TableCell colSpan={5} className="h-40 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
                 ) : profiles?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      Nenhum usuário encontrado.
-                    </TableCell>
-                  </TableRow>
+                  <TableRow><TableCell colSpan={5} className="h-40 text-center text-muted-foreground">Nenhum usuário encontrado.</TableCell></TableRow>
                 ) : (
                   profiles?.map((profile) => (
-                    <TableRow key={profile.id}>
-                      <TableCell>{profile.full_name}</TableCell>
+                    <TableRow key={profile.id} className="hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                            <User className="w-5 h-5" />
+                          </div>
+                          <span className="text-slate-900">{profile.full_name}</span>
+                        </div>
+                      </TableCell>
                       <TableCell>
-                        <Select value={profile.role_id || "none"} onValueChange={(val) => updateRoleMutation.mutate({ userId: profile.id, roleId: val === "none" ? null : val })}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
+                        <Select 
+                          value={profile.role_id || "none"} 
+                          onValueChange={(val) => updateProfileMutation.mutate({ 
+                            userId: profile.id, 
+                            updates: { role_id: val === "none" ? null : val } 
+                          })}
+                        >
+                          <SelectTrigger className="w-[200px] bg-transparent border-slate-200">
+                            <SelectValue placeholder="Sem cargo definido" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">Sem cargo</SelectItem>
-                            {roles?.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
+                            {roles?.map((role: any) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
                           </SelectContent>
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" onClick={() => toggleAdmin(profile.id, profile.is_admin)}>
-                          <Shield className={profile.is_admin ? "fill-slate-900" : ""} />
-                        </Button>
+                        <Badge 
+                          className={`cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                          onClick={() => updateProfileMutation.mutate({ userId: profile.id, updates: { is_admin: !profile.is_admin } })}
+                        >
+                          {profile.is_admin ? <ShieldCheck className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
+                          {profile.is_admin ? "Administrador" : "Colaborador"}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <Input type="file" accept="image/png" onChange={(e) => handleSignatureUpload(profile.id, e)} className="hidden" id={`sig-${profile.id}`} />
-                        <Label htmlFor={`sig-${profile.id}`} className="cursor-pointer text-blue-600 underline">Upload</Label>
+                        <div className="flex flex-wrap gap-1">
+                          {profile.is_admin ? (
+                            <Badge variant="outline" className="bg-slate-50 border-slate-200 text-slate-600">Todos os Módulos</Badge>
+                          ) : profile.allowed_modules?.length > 0 ? (
+                            profile.allowed_modules.map((m: string) => (
+                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">{m}</Badge>
+                            ))
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Nenhum</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" onClick={() => handleOpenModulesDialog(profile)}><Edit2 /></Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-primary hover:bg-primary/10"
+                          onClick={() => {
+                            setSelectedProfile(profile);
+                            setEditingModules(profile.allowed_modules || []);
+                            setIsModulesDialogOpen(true);
+                          }}
+                          disabled={profile.is_admin}
+                          title={profile.is_admin ? "Admins possuem acesso total" : "Editar permissões"}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
                 )}
-
               </TableBody>
             </Table>
           </div>
@@ -543,30 +300,40 @@ export default function SisapiAdminUsers() {
       </Tabs>
 
       <Dialog open={isModulesDialogOpen} onOpenChange={setIsModulesDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Módulos</DialogTitle></DialogHeader>
-          <div className="grid gap-2 py-4">
-            {["sisapi", "surgeries", "hr", "iose", "exams"].map(mod => (
-              <div key={mod} className="flex items-center space-x-3 p-2 rounded hover:bg-slate-50 transition-colors">
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Permissões de Módulo</DialogTitle>
+            <DialogDescription>
+              Selecione quais áreas o usuário <strong>{selectedProfile?.full_name}</strong> poderá visualizar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 py-6">
+            {Object.entries(moduleLabels).map(([id, label]) => (
+              <div key={id} className="flex items-center space-x-3 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group" onClick={() => {
+                const newModules = editingModules.includes(id) 
+                  ? editingModules.filter(m => m !== id)
+                  : [...editingModules, id];
+                setEditingModules(newModules);
+              }}>
                 <Checkbox 
-                  id={`edit-mod-${mod}`} 
-                  checked={editingModules.includes(mod)}
-                  onCheckedChange={(checked) => checked ? setEditingModules([...editingModules, mod]) : setEditingModules(editingModules.filter(m => m !== mod))}
+                  id={`mod-${id}`} 
+                  checked={editingModules.includes(id)}
+                  className="data-[state=checked]:bg-primary"
                 />
-                <label htmlFor={`edit-mod-${mod}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
-                  {moduleLabels[mod] || mod}
-                </label>
+                <div className="flex-1">
+                  <label htmlFor={`mod-${id}`} className="text-sm font-semibold text-slate-700 cursor-pointer group-hover:text-primary transition-colors">
+                    {label}
+                  </label>
+                </div>
               </div>
             ))}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModulesDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleUpdateModules} disabled={updateModulesMutation.isPending}>
-              {updateModulesMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Salvar Alterações
+          <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-2 rounded-b-xl border-t border-slate-200">
+            <Button variant="ghost" onClick={() => setIsModulesDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateModules} disabled={updateProfileMutation.isPending} className="min-w-[150px] shadow-md">
+              {updateProfileMutation.isPending ? <Loader2 className="animate-spin" /> : "Confirmar Acessos"}
             </Button>
           </DialogFooter>
-
         </DialogContent>
       </Dialog>
     </div>
