@@ -330,6 +330,7 @@ export default function SisapiAdminUsers() {
         </div>
         
         <div className="flex gap-2">
+
           <Dialog open={isGeneralSettingsOpen} onOpenChange={setIsGeneralSettingsOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
