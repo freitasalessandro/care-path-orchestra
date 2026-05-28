@@ -215,7 +215,7 @@ export default function SisapiAdminUsers() {
             <form onSubmit={(e) => { e.preventDefault(); createUserMutation.mutate(newUser); }}>
               <DialogHeader>
                 <DialogTitle className="text-2xl">Cadastrar Novo Usuário</DialogTitle>
-                <DialogDescription>Crie uma nova conta com acesso restrito ou administrativo.</DialogDescription>
+                <DialogDescription>Crie uma nova conta que será ativada imediatamente.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-6 py-6">
                 <div className="grid gap-2">
@@ -350,6 +350,10 @@ export default function SisapiAdminUsers() {
                           size="icon" 
                           className="text-primary hover:bg-primary/10"
                           onClick={() => {
+                            if (!profile.status || profile.status === 'pending') {
+                              toast.info("Ative o usuário para gerenciar módulos");
+                              return;
+                            }
                             setSelectedProfile(profile);
                             setEditingModules(profile.allowed_modules || []);
                             setIsModulesDialogOpen(true);
