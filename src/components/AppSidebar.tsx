@@ -65,7 +65,7 @@ export function AppSidebar() {
     enabled: !!user?.id && selectedModule === "sisapi",
   });
   
-  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : surgeryLinks;
+  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : selectedModule === "exams" ? examLinks : surgeryLinks;
 
   // Filter links for SISAPI based on permissions and admin status
   if (selectedModule === "sisapi" && profile) {
