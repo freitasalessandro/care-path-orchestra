@@ -226,7 +226,7 @@ export const exportToPdf = async (data: ExportData) => {
       }
       
       const finalPdfBytes = await mergedPdf.save();
-      const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+      const blob = new Blob([finalPdfBytes as Uint8Array], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `${data.title || "documento"}_final.pdf`;
