@@ -67,6 +67,7 @@ export default function HRDashboard() {
       description: "Gerenciar permissões e acessos",
       icon: Users,
       path: "/usuarios",
+
       color: "bg-slate-800",
       textColor: "text-slate-900"
     });
