@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Search, Filter, Eye } from "lucide-react";
+import { FileText, Plus, Search, Filter, Eye, FileDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { exportToPdf } from "@/utils/sisapiPdfExport";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
