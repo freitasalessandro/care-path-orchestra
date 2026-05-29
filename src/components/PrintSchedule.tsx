@@ -92,7 +92,7 @@ export function PrintSchedule({ unitId, unitName }: Props) {
 
       const content = `
         <div class="print-container">
-          <img src="/timbre-neopolis.png" alt="Timbre" class="timbre" />
+          <h1>SISAPI - Relatório de Cirurgias</h1>
           
           <div class="header-info">
             <h1 class="report-title">ESCALA MENSAL DE PROFISSIONAIS</h1>
