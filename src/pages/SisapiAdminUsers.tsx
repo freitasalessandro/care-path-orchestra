@@ -564,7 +564,7 @@ export default function SisapiAdminUsers() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Remover Usuário</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tem certeza que deseja remover o usuário <strong>{profile.full_name}</strong>? Esta ação excluirá apenas o perfil do sistema. O acesso no banco de autenticação deve ser removido manualmente se necessário.
+                                  Tem certeza que deseja remover o usuário <strong>{profile.full_name}</strong>? Esta ação excluirá permanentemente o usuário, seu perfil e todo o seu acesso do sistema e do banco de dados.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
