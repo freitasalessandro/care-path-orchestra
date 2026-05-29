@@ -132,12 +132,20 @@ export default function SisapiDocumentList() {
         title="Documentos"
         description="Gerencie e visualize os documentos administrativos."
       >
-        <Button asChild className="bg-slate-800 hover:bg-slate-700">
-          <Link to="/documentos/novo">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Documento
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link to="/documentos/modelos">
+              <ClipboardList className="w-4 h-4 mr-2" />
+              Modelos
+            </Link>
+          </Button>
+          <Button asChild className="bg-slate-800 hover:bg-slate-700">
+            <Link to="/documentos/novo">
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Documento
+            </Link>
+          </Button>
+        </div>
       </SisapiPageHeader>
 
       <div className="flex gap-4">
