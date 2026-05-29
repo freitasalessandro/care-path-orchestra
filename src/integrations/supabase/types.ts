@@ -1107,6 +1107,7 @@ export type Database = {
     }
     Functions: {
       get_user_email: { Args: { user_uuid: string }; Returns: string }
+      is_sisapi_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
