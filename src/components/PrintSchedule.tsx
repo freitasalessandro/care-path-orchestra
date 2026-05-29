@@ -37,7 +37,7 @@ export function PrintSchedule({ unitId, unitName }: Props) {
             id,
             name,
             work_schedule,
-            positions (title)
+            
           )
         `)
         .eq("unit_id", unitId)
@@ -69,16 +69,14 @@ export function PrintSchedule({ unitId, unitName }: Props) {
                 <table>
                   <thead>
                     <tr>
-                      <th style="width: 40%">PROFISSIONAL</th>
-                      <th style="width: 30%">CARGO/FUNÇÃO</th>
-                      <th style="width: 30%">HORÁRIO/TURNO</th>
+                      <th style="width: 50%">PROFISSIONAL</th>
+                      <th style="width: 50%">HORÁRIO/TURNO</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${dept.staff.map((s: any) => `
                       <tr>
                         <td>${s.name}</td>
-                        <td>${s.positions?.title || "---"}</td>
                         <td>${s.work_schedule || unitData.operating_hours || "---"}</td>
                       </tr>
                     `).join('')}
