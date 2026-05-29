@@ -60,6 +60,8 @@ export default function SisapiAdminUsers() {
     password: "",
     full_name: "",
     role_id: "",
+    department_id: "",
+    sector_id: "",
     is_admin: false,
     allowed_modules: ["sisapi"] as string[]
   });
@@ -140,6 +142,24 @@ export default function SisapiAdminUsers() {
       return data || [];
     },
   });
+  
+  const { data: departments } = useQuery({
+    queryKey: ["sisapi-departments-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("sisapi_departments").select("*").order("name");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const { data: sectors } = useQuery({
+    queryKey: ["sisapi-sectors-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("sisapi_sectors").select("*").order("name");
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof newUser) => {
@@ -166,6 +186,8 @@ export default function SisapiAdminUsers() {
         password: "",
         full_name: "",
         role_id: "",
+        department_id: "",
+        sector_id: "",
         is_admin: false,
         allowed_modules: ["sisapi"]
       });
@@ -314,7 +336,7 @@ export default function SisapiAdminUsers() {
               Novo Usuário
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <form onSubmit={(e) => { e.preventDefault(); createUserMutation.mutate(newUser); }}>
               <DialogHeader>
                 <DialogTitle className="text-2xl">Cadastrar Novo Usuário</DialogTitle>
@@ -333,6 +355,54 @@ export default function SisapiAdminUsers() {
                   <Label htmlFor="pass">Senha Temporária</Label>
                   <Input id="pass" type="password" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} placeholder="Mínimo 6 caracteres" required />
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="new-dept">Departamento</Label>
+                    <Select value={newUser.department_id} onValueChange={(val) => setNewUser({...newUser, department_id: val, sector_id: ""})}>
+                      <SelectTrigger id="new-dept">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments?.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="new-sector">Setor</Label>
+                    <Select 
+                      value={newUser.sector_id} 
+                      onValueChange={(val) => setNewUser({...newUser, sector_id: val})}
+                      disabled={!newUser.department_id}
+                    >
+                      <SelectTrigger id="new-sector">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sectors?.filter(s => s.department_id === newUser.department_id).map((sector) => (
+                          <SelectItem key={sector.id} value={sector.id}>{sector.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="new-role">Cargo</Label>
+                  <Select value={newUser.role_id} onValueChange={(val) => setNewUser({...newUser, role_id: val})}>
+                    <SelectTrigger id="new-role">
+                      <SelectValue placeholder="Selecione um cargo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles?.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="flex items-center space-x-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
                   <Checkbox 
                     id="is_admin_new" 
@@ -367,6 +437,7 @@ export default function SisapiAdminUsers() {
               <TableHeader className="bg-slate-50">
                 <TableRow>
                   <TableHead className="w-[300px]">Nome do Usuário</TableHead>
+                  <TableHead>Departamento / Setor</TableHead>
                   <TableHead>Cargo/Função</TableHead>
                   <TableHead>Status / Acesso</TableHead>
                   <TableHead>Módulos Ativos</TableHead>
@@ -439,6 +510,46 @@ export default function SisapiAdminUsers() {
                         </div>
                       </TableCell>
                       <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Select 
+                            value={profile.department_id || "none"} 
+                            onValueChange={(val) => updateProfileMutation.mutate({ 
+                              userId: profile.id, 
+                              updates: { department_id: val === "none" ? null : val, sector_id: null } 
+                            })}
+                          >
+                            <SelectTrigger className="w-full h-8 bg-slate-50/50 border-slate-200 text-xs">
+                              <SelectValue placeholder="Depto" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Nenhum Depto</SelectItem>
+                              {departments?.map((dept) => (
+                                <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <Select 
+                            value={profile.sector_id || "none"} 
+                            onValueChange={(val) => updateProfileMutation.mutate({ 
+                              userId: profile.id, 
+                              updates: { sector_id: val === "none" ? null : val } 
+                            })}
+                            disabled={!profile.department_id}
+                          >
+                            <SelectTrigger className="w-full h-8 bg-slate-50/50 border-slate-200 text-xs">
+                              <SelectValue placeholder="Setor" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Nenhum Setor</SelectItem>
+                              {sectors?.filter(s => s.department_id === profile.department_id).map((sector) => (
+                                <SelectItem key={sector.id} value={sector.id}>{sector.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <Select 
                           value={profile.role_id || "none"} 
                           onValueChange={(val) => updateProfileMutation.mutate({ 
@@ -446,8 +557,8 @@ export default function SisapiAdminUsers() {
                             updates: { role_id: val === "none" ? null : val } 
                           })}
                         >
-                          <SelectTrigger className="w-full bg-slate-50/50 border-slate-200">
-                            <SelectValue placeholder="Selecione um cargo" />
+                          <SelectTrigger className="w-full bg-slate-50/50 border-slate-200 text-sm">
+                            <SelectValue placeholder="Cargo" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">Nenhum Cargo</SelectItem>
