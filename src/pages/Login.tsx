@@ -40,22 +40,32 @@ export default function Login() {
     try {
       // Login padrão temporário: admin@gmail.com / admin
       if (email === "admin@gmail.com" && password === "admin") {
-
         toast.success("Login administrativo realizado com sucesso!");
         localStorage.setItem("sb-dummy-session", "true");
-        // Força recarregamento para o AuthContext detectar a nova sessão dummy
         window.location.href = "/modules";
         return;
       }
 
-
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
       
+      // Verificar se o perfil está ativo
+      const { data: profile, error: profileError } = await supabase
+        .from("sisapi_profiles")
+        .select("status")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      if (profile && profile.status === 'pending') {
+        toast.error("Sua conta ainda não foi aprovada pelo administrador.");
+        await supabase.auth.signOut();
+        return;
+      }
+
       toast.success("Login realizado com sucesso!");
       navigate("/modules");
     } catch (error: any) {
