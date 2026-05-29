@@ -367,16 +367,24 @@ export default function SisapiAdminUsers() {
 
                       <TableCell>
                         <div className="flex flex-col gap-2">
-                          <Badge 
-                            className={`w-fit cursor-pointer gap-1.5 py-1 px-3 ${profile.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}`}
-                            onClick={() => updateProfileMutation.mutate({ 
-                              userId: profile.id, 
-                              updates: { status: profile.status === 'active' ? 'pending' : 'active' } 
-                            })}
+                          <Button
+                            variant={profile.status === 'active' ? 'outline' : 'default'}
+                            size="sm"
+                            className={`w-fit gap-1.5 py-1 px-3 h-auto ${profile.status === 'active' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold'}`}
+                            onClick={() => {
+                              const newStatus = profile.status === 'active' ? 'pending' : 'active';
+                              updateProfileMutation.mutate({ 
+                                userId: profile.id, 
+                                updates: { status: newStatus } 
+                              });
+                              if (newStatus === 'active') {
+                                toast.success(`Usuário ${profile.full_name} ativado com sucesso!`);
+                              }
+                            }}
                           >
                             {profile.status === 'active' ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
-                            {profile.status === 'active' ? "Ativo" : "Pendente"}
-                          </Badge>
+                            {profile.status === 'active' ? "Ativo" : "ATIVAR AGORA"}
+                          </Button>
                           
                           <Badge 
                             variant="outline"
