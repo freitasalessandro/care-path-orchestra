@@ -172,7 +172,7 @@ export default function StaffList() {
           setIsDialogOpen(open);
           if (!open) {
             setEditingStaff(null);
-            setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+            setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
           }
         }}>
           <DialogTrigger asChild>
