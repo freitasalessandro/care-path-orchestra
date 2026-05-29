@@ -293,6 +293,7 @@ export default function SisapiAdminUsers() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </SisapiPageHeader>
 
       <Tabs defaultValue="users" className="w-full">
