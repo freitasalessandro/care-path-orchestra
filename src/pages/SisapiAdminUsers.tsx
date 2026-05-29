@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X, KeyRound } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X, KeyRound, LayoutGrid, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +12,7 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
