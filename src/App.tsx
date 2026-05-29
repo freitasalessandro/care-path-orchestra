@@ -103,7 +103,8 @@ function AppLayout() {
                 </>
               ) : selectedModule === "exams" ? (
                 <>
-                  <Route path="/" element={<ExamResults />} />
+                  <Route path="/exams-control" element={<ExamResults />} />
+                  <Route path="/" element={<Navigate to="/exams-control" replace />} />
                 </>
               ) : (
                 <>

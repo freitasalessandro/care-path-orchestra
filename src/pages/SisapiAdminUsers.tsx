@@ -84,21 +84,25 @@ export default function SisapiAdminUsers() {
     enabled: !!user?.id,
   });
 
-  const { data: profiles, isLoading: loadingProfiles } = useQuery({
+  const { data: profiles, isLoading: loadingProfiles, error: fetchError } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
-      // Obter perfis da tabela sisapi_profiles
+      console.log("Iniciando busca de perfis...");
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select("*")
         .order("status", { ascending: false })
         .order("full_name", { ascending: true });
         
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error("Erro ao buscar perfis:", profilesError);
+        throw profilesError;
+      }
 
-      // Buscar os emails dos usuários no Auth via RPC ou campo direto
+      console.log("Perfis retornados pelo banco:", profilesData?.length);
+
+      // Se o email não estiver no perfil, tentamos via RPC
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
-        // Se já tiver email no perfil (vindo da nova migração), usa ele
         if (profile.email) return profile;
 
         try {
@@ -111,10 +115,16 @@ export default function SisapiAdminUsers() {
 
       return profilesWithEmails;
     },
-    // Forçar atualização frequente para garantir que novos usuários apareçam
     refetchOnWindowFocus: true,
     staleTime: 0
   });
+
+  // Notificar erro se houver
+  useEffect(() => {
+    if (fetchError) {
+      toast.error("Erro ao carregar lista de usuários. Verifique sua conexão ou permissões.");
+    }
+  }, [fetchError]);
 
 
   const { data: roles } = useQuery({
