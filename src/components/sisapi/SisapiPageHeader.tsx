@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, LogOut, LayoutGrid } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface SisapiPageHeaderProps {
   title: string;
@@ -8,6 +12,9 @@ interface SisapiPageHeaderProps {
 }
 
 export function SisapiPageHeader({ title, description, children }: SisapiPageHeaderProps) {
+  const { signOut, setSelectedModule } = useAuth();
+  const navigate = useNavigate();
+  
   const { data: settings } = useQuery({
     queryKey: ["sisapi-settings-header"],
     queryFn: async () => {
@@ -30,7 +37,32 @@ export function SisapiPageHeader({ title, description, children }: SisapiPageHea
           </p>
         </div>
       </div>
-      {children}
+      
+      <div className="flex items-center gap-3">
+        {children}
+        
+        <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setSelectedModule(null)}
+            className="text-slate-600 hover:text-primary gap-2"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Módulos
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => signOut()}
+            className="text-red-600 hover:bg-red-50 hover:text-red-700 gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
