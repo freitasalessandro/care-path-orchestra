@@ -33,10 +33,10 @@ const ioseLinks = [
 const sisapiLinks = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, id: "dashboard" },
   { to: "/documentos", label: "Documentos", icon: FileText, id: "documents" },
-  { to: "/documentos/modelos", label: "Modelos", icon: ClipboardList, id: "templates" },
+  { to: "/documentos/modelos", label: "Modelos de Documento", icon: ClipboardList, id: "templates" },
   { to: "/pendentes", label: "Meus Pendentes", icon: Clock, id: "pending" },
   { to: "/acervo", label: "Acervo Digital", icon: Library, id: "archive" },
-  { to: "/usuarios", label: "Gestão de Usuários", icon: Users, id: "users", adminOnly: true },
+  { to: "/usuarios", label: "Usuários", icon: Users, id: "users", adminOnly: true },
   
   { to: "/autoridades", label: "Autoridades", icon: ShieldCheck, id: "authorities", adminOnly: true },
   { to: "/identidade", label: "Identidade Visual", icon: Building, id: "branding", adminOnly: true },

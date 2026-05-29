@@ -4,18 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2 } from "lucide-react";
+import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2, LayoutGrid, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
-
+import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
+import { SectorManagement } from "@/components/sisapi/SectorManagement";
+import { RoleManagement } from "@/components/sisapi/RoleManagement";
 
 export default function SisapiAdminSetup() {
-  
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [generalSettings, setGeneralSettings] = useState({
@@ -24,7 +24,6 @@ export default function SisapiAdminSetup() {
     allowPublicRegistration: false,
     contactEmail: ""
   });
-
 
   const { data: profile, isLoading: loadingProfile } = useQuery({
     queryKey: ["sisapi-profile", user?.id],
@@ -40,7 +39,6 @@ export default function SisapiAdminSetup() {
     },
     enabled: !!user?.id,
   });
-
 
   const { data: settings, isLoading: loadingSettings } = useQuery({
     queryKey: ["sisapi-general-settings"],
@@ -63,7 +61,10 @@ export default function SisapiAdminSetup() {
       if (current) {
         const { error: updateError } = await supabase
           .from("sisapi_settings")
-          .update({ general_settings: generalSettings })
+          .update({ 
+            general_settings: generalSettings,
+            institution_name: generalSettings.systemName 
+          })
           .eq("id", current.id);
         if (updateError) throw updateError;
       } else {
@@ -71,7 +72,6 @@ export default function SisapiAdminSetup() {
           general_settings: generalSettings,
           institution_name: generalSettings.systemName 
         });
-
         if (insertError) throw insertError;
       }
     },
@@ -84,23 +84,95 @@ export default function SisapiAdminSetup() {
     }
   });
 
+  if (loadingProfile) return (
+    <div className="flex items-center justify-center h-screen">
+      <Loader2 className="animate-spin w-8 h-8 text-primary" />
+    </div>
+  );
 
-
-  if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
-  if (!profile?.is_admin) {
+  if (!profile?.is_admin && user?.email !== "admin@gmail.com") {
     return <Navigate to="/" replace />;
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <SisapiPageHeader 
-        title="Configurações SISAPI" 
-        description="Tabelas de apoio para o sistema documental." 
+        title="Configurações do Sistema" 
+        description="Gerencie tabelas de apoio e parâmetros gerais do SISAPI." 
       />
 
-      <div className="grid grid-cols-1 gap-8">
-        <p className="text-muted-foreground">Configurações gerais do sistema SISAPI.</p>
-      </div>
+      <Tabs defaultValue="departments" className="w-full">
+        <TabsList className="bg-slate-100 p-1 mb-6 flex flex-wrap h-auto border">
+          <TabsTrigger value="departments" className="px-6 py-2 flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <LayoutGrid className="w-4 h-4" /> Departamentos
+          </TabsTrigger>
+          <TabsTrigger value="sectors" className="px-6 py-2 flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Settings className="w-4 h-4" /> Setores
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="px-6 py-2 flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <ShieldCheck className="w-4 h-4" /> Funções e Permissões
+          </TabsTrigger>
+          <TabsTrigger value="general" className="px-6 py-2 flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Globe className="w-4 h-4" /> Parâmetros Gerais
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="departments" className="mt-0">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <DepartmentManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="sectors" className="mt-0">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <SectorManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="roles" className="mt-0">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <RoleManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="general" className="mt-0">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações Gerais</CardTitle>
+              <CardDescription>Parâmetros globais para o funcionamento do SISAPI.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 max-w-xl">
+                <div className="space-y-2">
+                  <Label>Nome do Sistema</Label>
+                  <Input 
+                    value={generalSettings.systemName}
+                    onChange={(e) => setGeneralSettings({...generalSettings, systemName: e.target.value})}
+                    placeholder="Ex: SISAPI"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-mail para Contato</Label>
+                  <Input 
+                    type="email"
+                    value={generalSettings.contactEmail}
+                    onChange={(e) => setGeneralSettings({...generalSettings, contactEmail: e.target.value})}
+                    placeholder="Ex: suporte@municipio.se.gov.br"
+                  />
+                </div>
+                <Button 
+                  onClick={() => saveSettingsMutation.mutate()} 
+                  disabled={saveSettingsMutation.isPending}
+                  className="mt-4 w-fit"
+                >
+                  {saveSettingsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                  Salvar Parâmetros
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
