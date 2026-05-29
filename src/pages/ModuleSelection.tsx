@@ -132,10 +132,10 @@ export default function ModuleSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col pt-16">
       <AppTopbar />
 
-      <div className="max-w-5xl mx-auto px-8 pb-12 mt-8">
+      <div className="max-w-5xl mx-auto px-8 pb-12 mt-8 flex-1">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
           <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
