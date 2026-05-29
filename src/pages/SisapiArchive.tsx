@@ -185,7 +185,7 @@ export default function SisapiArchive() {
                 <Select value={sectorId} onValueChange={(val) => {
                   setSectorId(val);
                   const sector = sectors?.find(s => s.id === val);
-                  if (sector) setDepartment(sector.department?.name + " - " + sector.name);
+                  if (sector) setDepartment(sector.department?.name + " > " + sector.name);
                 }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o setor..." />
@@ -193,7 +193,7 @@ export default function SisapiArchive() {
                   <SelectContent>
                     {sectors?.map((sector) => (
                       <SelectItem key={sector.id} value={sector.id}>
-                        {sector.department?.name} - {sector.name}
+                        {sector.department?.name} {">"} {sector.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

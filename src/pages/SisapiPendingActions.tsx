@@ -155,7 +155,7 @@ export default function SisapiPendingActions() {
     try {
       const { error } = await supabase
         .from("sisapi_documents")
-        .update({ status: "approved" })
+        .update({ status: "completed" })
         .eq("id", doc.id);
 
       if (error) throw error;
