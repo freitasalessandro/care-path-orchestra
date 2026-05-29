@@ -145,27 +145,36 @@ export default function ModuleSelection() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
-            <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
+    <div className="min-h-screen bg-gray-50">
+      <header className="h-16 bg-white flex items-center justify-between px-8 z-50 shadow-sm border-b border-slate-200 mb-8">
+        <div className="flex items-center gap-3">
+          <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-10 w-auto object-contain" />
+          <div className="w-px h-8 bg-slate-200" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-xl font-black text-slate-800 tracking-tighter">SISAPI</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
           </div>
-          <div className="flex gap-2">
-            {(profile?.is_admin || user?.email === "admin@gmail.com") && (
-              <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-900 border-slate-200 hover:bg-slate-50">
-                <Users className="w-4 h-4 mr-2" />
-                Gestão de Usuários
-              </Button>
-            )}
+        </div>
 
-            <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-              <LogOut className="w-4 h-4 mr-2" />
-              Sair
+        <div className="flex items-center gap-3">
+          {(profile?.is_admin || user?.email === "admin@gmail.com") && (
+            <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-600 border-slate-200 hover:bg-slate-100">
+              <Users className="w-4 h-4 mr-2" />
+              Gestão de Usuários
             </Button>
-          </div>
+          )}
 
+          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sair
+          </Button>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-8 pb-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
+          <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

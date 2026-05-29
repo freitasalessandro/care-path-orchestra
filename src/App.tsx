@@ -73,7 +73,7 @@ function AppLayout() {
   return (
     <div className="h-screen overflow-hidden">
       <AppTopbar />
-      <div className="flex pt-14 h-screen">
+      <div className="flex pt-16 h-screen">
         <AppSidebar />
         <main className={`flex-1 p-8 overflow-y-auto transition-all duration-200 ${collapsed ? "ml-16" : "ml-60"}`}>
           <Suspense fallback={<PageLoader />}>
