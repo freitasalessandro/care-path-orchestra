@@ -64,9 +64,10 @@ const PageLoader = () => (
 
 function AppLayout() {
   const { collapsed } = useSidebarContext();
+  const { pathname } = useLocation();
   const { selectedModule } = useAuth();
 
-  if (!selectedModule) {
+  if (!selectedModule && pathname !== "/usuarios") {
     return <Navigate to="/modules" replace />;
   }
 
