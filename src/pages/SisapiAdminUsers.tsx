@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
 import { SectorManagement } from "@/components/sisapi/SectorManagement";
-import { RoleManagement } from "@/components/sisapi/RoleManagement";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
@@ -59,7 +59,6 @@ export default function SisapiAdminUsers() {
     email: "",
     password: "",
     full_name: "",
-    role_id: "",
     department_id: "",
     sector_id: "",
     is_admin: false,
@@ -134,14 +133,6 @@ export default function SisapiAdminUsers() {
   }, [fetchError]);
 
 
-  const { data: roles } = useQuery({
-    queryKey: ["sisapi-roles-list"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("sisapi_roles").select("*").order("name");
-      if (error) throw error;
-      return data || [];
-    },
-  });
   
   const { data: departments } = useQuery({
     queryKey: ["sisapi-departments-list"],
@@ -185,7 +176,6 @@ export default function SisapiAdminUsers() {
         email: "",
         password: "",
         full_name: "",
-        role_id: "",
         department_id: "",
         sector_id: "",
         is_admin: false,
@@ -389,19 +379,6 @@ export default function SisapiAdminUsers() {
                   </div>
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="new-role">Cargo</Label>
-                  <Select value={newUser.role_id} onValueChange={(val) => setNewUser({...newUser, role_id: val})}>
-                    <SelectTrigger id="new-role">
-                      <SelectValue placeholder="Selecione um cargo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles?.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 <div className="flex items-center space-x-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
                   <Checkbox 
@@ -435,9 +412,6 @@ export default function SisapiAdminUsers() {
           <TabsTrigger value="sectors" className="px-6 py-2 flex items-center gap-2">
             <Settings className="w-4 h-4" /> Setores
           </TabsTrigger>
-          <TabsTrigger value="roles" className="px-6 py-2 flex items-center gap-2">
-            <Shield className="w-4 h-4" /> Funções / Cargos
-          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="mt-0">
@@ -447,7 +421,7 @@ export default function SisapiAdminUsers() {
                 <TableRow>
                   <TableHead className="w-[300px]">Nome do Usuário</TableHead>
                   <TableHead>Departamento / Setor</TableHead>
-                  <TableHead>Cargo/Função</TableHead>
+                  
                   <TableHead>Status / Acesso</TableHead>
                   <TableHead>Módulos Ativos</TableHead>
                   <TableHead className="text-right">Gerenciar</TableHead>
@@ -559,25 +533,6 @@ export default function SisapiAdminUsers() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Select 
-                          value={profile.role_id || "none"} 
-                          onValueChange={(val) => updateProfileMutation.mutate({ 
-                            userId: profile.id, 
-                            updates: { role_id: val === "none" ? null : val } 
-                          })}
-                        >
-                          <SelectTrigger className="w-full bg-slate-50/50 border-slate-200 text-sm">
-                            <SelectValue placeholder="Cargo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Nenhum Cargo</SelectItem>
-                            {roles?.map((role) => (
-                              <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
                         <div className="flex items-center gap-2">
                           {profile.is_admin ? (
                             <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100 gap-1 px-3 py-1">
@@ -684,11 +639,6 @@ export default function SisapiAdminUsers() {
           </div>
         </TabsContent>
 
-        <TabsContent value="roles">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <RoleManagement />
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* DIALOGS PARA MODULOS E SENHA */}
