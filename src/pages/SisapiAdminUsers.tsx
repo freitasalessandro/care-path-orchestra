@@ -394,6 +394,12 @@ export default function SisapiAdminUsers() {
                               </div>
                             )}
                             <span className="text-xs text-slate-500 truncate">{profile.email || "Email não disponível"}</span>
+                            {profile.must_change_password && (
+                              <Badge variant="outline" className="w-fit text-[10px] mt-1 text-orange-600 border-orange-200 bg-orange-50">
+                                Senha Temporária
+                              </Badge>
+                            )}
+
                           </div>
                         </div>
                       </TableCell>
