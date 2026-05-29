@@ -49,7 +49,6 @@ export default function StaffList() {
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
     name: "",
-    position_id: "",
     department_id: "",
     condition: "",
     phone: "",
@@ -59,10 +58,9 @@ export default function StaffList() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [staffRes, deptRes, posRes] = await Promise.all([
-      supabase.from("staff").select("*, departments(name), positions(title, work_hours)").order("name"),
+    const [staffRes, deptRes] = await Promise.all([
+      supabase.from("staff").select("*, departments(name)").order("name"),
       supabase.from("departments").select("*, units(name)").order("name"),
-      supabase.from("positions").select("*").order("title"),
     ]);
     
     if (staffRes.error) {
@@ -92,7 +90,6 @@ export default function StaffList() {
     const payload = {
       registration_code: registration,
       name: newStaff.name,
-      position_id: newStaff.position_id || null,
       department_id: newStaff.department_id || null,
       condition: newStaff.condition || null,
       phone: newStaff.phone,
@@ -112,7 +109,7 @@ export default function StaffList() {
         toast.success("Funcionário atualizado com sucesso!");
         setIsDialogOpen(false);
         setEditingStaff(null);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+        setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
         fetchData();
       }
     } else {
@@ -123,7 +120,7 @@ export default function StaffList() {
       } else {
         toast.success("Funcionário cadastrado com sucesso!");
         setIsDialogOpen(false);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+        setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
         fetchData();
       }
     }
@@ -134,7 +131,6 @@ export default function StaffList() {
     setNewStaff({
       registration_code: s.registration_code || "",
       name: s.name || "",
-      position_id: s.position_id || "",
       department_id: s.department_id || "",
       condition: s.condition || "",
       phone: s.phone || "",
