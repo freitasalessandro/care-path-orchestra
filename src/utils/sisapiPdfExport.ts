@@ -25,6 +25,7 @@ interface ExportData {
   authority_name?: string;
   authority_role?: string;
   is_delegated?: boolean;
+  header_data?: any;
 }
 
 export const exportToPdf = async (data: ExportData) => {
@@ -39,11 +40,15 @@ export const exportToPdf = async (data: ExportData) => {
     .limit(1)
     .maybeSingle();
 
-  const instName = settings?.institution_name || "SISAPI - SISTEMA DE GESTÃO";
-  const instLogo = settings?.institution_logo_url;
-  const instAddress = settings?.address || "";
-  const instCity = settings?.city_state || "";
-  const instCnpj = settings?.cnpj || "";
+  // Use header_data from the document if available, otherwise fallback to settings
+  const hData = data.header_data || {};
+  
+  const instName = hData.orgao || settings?.institution_name || "SISAPI - SISTEMA DE GESTÃO";
+  const instLogo = hData.brasao_url || settings?.institution_logo_url;
+  const instAddress = hData.endereco || settings?.address || "";
+  const instCity = hData.cidade_uf || settings?.city_state || "";
+  const instCnpj = hData.cnpj || settings?.cnpj || "";
+  const docTypeHeader = hData.titulo_documento || data.document_type || "Documento";
 
   // 2. Draw Header
   let currentY = 15;
@@ -57,7 +62,7 @@ export const exportToPdf = async (data: ExportData) => {
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("ESTADO DE SERGIPE", 45, currentY + 5);
+  doc.text(hData.estado || "ESTADO DE SERGIPE", 45, currentY + 5);
   doc.text(instName, 45, currentY + 10);
   
   doc.setFont("helvetica", "normal");
@@ -69,7 +74,7 @@ export const exportToPdf = async (data: ExportData) => {
   // Document Title (Right side)
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  const docTitle = `${data.document_type || "Documento"} / ${data.title}`;
+  const docTitle = hData.titulo_documento ? `${docTypeHeader} / ${data.title}` : `${data.document_type || "Documento"} / ${data.title}`;
   doc.text(docTitle, pageWidth - 15, currentY + 10, { align: "right" });
   
   doc.setFontSize(9);

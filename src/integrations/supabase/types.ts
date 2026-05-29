@@ -567,6 +567,7 @@ export type Database = {
           content: string | null
           created_at: string
           created_by: string | null
+          header_data: Json | null
           id: string
           modules_config: Json | null
           title: string
@@ -577,6 +578,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           created_by?: string | null
+          header_data?: Json | null
           id?: string
           modules_config?: Json | null
           title: string
@@ -587,6 +589,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           created_by?: string | null
+          header_data?: Json | null
           id?: string
           modules_config?: Json | null
           title?: string
@@ -612,6 +615,7 @@ export type Database = {
           creditor_info: Json | null
           department: string | null
           document_type: string | null
+          header_data: Json | null
           id: string
           is_signed: boolean | null
           items: Json | null
@@ -631,6 +635,7 @@ export type Database = {
           creditor_info?: Json | null
           department?: string | null
           document_type?: string | null
+          header_data?: Json | null
           id?: string
           is_signed?: boolean | null
           items?: Json | null
@@ -650,6 +655,7 @@ export type Database = {
           creditor_info?: Json | null
           department?: string | null
           document_type?: string | null
+          header_data?: Json | null
           id?: string
           is_signed?: boolean | null
           items?: Json | null
