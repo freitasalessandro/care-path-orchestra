@@ -309,9 +309,7 @@ export default function SisapiAdminUsers() {
         <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500 px-8">
         <SisapiPageHeader title="Gestão de Usuários" description="Controle de acessos, permissões e aprovação de novos colaboradores.">
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => window.history.back()} className="border-slate-300">
-            Voltar
-          </Button>
+
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 shadow-lg">
