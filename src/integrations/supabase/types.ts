@@ -1116,7 +1116,7 @@ export type Database = {
       is_sisapi_admin: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      sisapi_user_status: "pending" | "active" | "blocked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1243,6 +1243,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      sisapi_user_status: ["pending", "active", "blocked"],
+    },
   },
 } as const
