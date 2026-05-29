@@ -77,11 +77,6 @@ export default function StaffList() {
       setDepartments(deptRes.data || []);
     }
 
-    if (posRes.error) {
-      toast.error("Erro ao carregar funções");
-    } else {
-      setPositions(posRes.data || []);
-    }
     setLoading(false);
   };
 
