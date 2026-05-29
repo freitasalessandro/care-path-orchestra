@@ -9,6 +9,8 @@ import { SidebarProvider, useSidebarContext } from "@/contexts/SidebarContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
+import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDialog";
+
 
 // Shared Pages
 const Login = lazy(() => import("@/pages/Login"));
@@ -145,6 +147,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ChangePasswordDialog />
+
         <AppProvider>
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
