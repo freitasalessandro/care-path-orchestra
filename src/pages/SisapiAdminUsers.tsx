@@ -121,8 +121,8 @@ export default function SisapiAdminUsers() {
 
       return profilesWithEmails;
     },
-    refetchOnWindowFocus: true,
-    staleTime: 0
+    refetchOnWindowFocus: false,
+    staleTime: 5000
   });
 
   // Notificar erro se houver
