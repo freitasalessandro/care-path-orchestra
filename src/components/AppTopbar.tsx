@@ -79,12 +79,6 @@ export function AppTopbar() {
               <LayoutGrid className="mr-2 h-4 w-4" />
               <span>Trocar Módulo</span>
             </DropdownMenuItem>
-            {isAdmin && (
-              <DropdownMenuItem onClick={() => navigate("/usuarios")} className="cursor-pointer md:hidden">
-                <Users className="mr-2 h-4 w-4" />
-                <span>Gestão de Usuários</span>
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-600 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sair</span>
