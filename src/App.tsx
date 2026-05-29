@@ -154,14 +154,6 @@ const App = () => (
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/login" element={<Login />} />
-                <Route
-                  path="/usuarios"
-                  element={
-                    <PrivateRoute>
-                      <SisapiAdminUsers />
-                    </PrivateRoute>
-                  }
-                />
 
                 <Route
                   path="/modules"
