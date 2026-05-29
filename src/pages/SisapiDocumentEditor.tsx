@@ -28,6 +28,7 @@ export default function SisapiDocumentEditor() {
   const [docType, setDocType] = useState("");
   const [department, setDepartment] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const [headerData, setHeaderData] = useState<any>({
     brasao_url: "",
     estado: "",
