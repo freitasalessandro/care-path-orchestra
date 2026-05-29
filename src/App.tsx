@@ -51,6 +51,7 @@ const SisapiRoles = lazy(() => import("@/pages/SisapiRoles"));
 const SisapiInstitutionSettings = lazy(() => import("@/pages/SisapiInstitutionSettings"));
 const SisapiAuthorities = lazy(() => import("@/pages/SisapiAuthorities"));
 const ExamResults = lazy(() => import("@/pages/ExamResults"));
+const SisapiDocumentTemplates = lazy(() => import("@/pages/SisapiDocumentTemplates"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -120,6 +121,7 @@ function AppLayout() {
                   <Route path="/documentos" element={<SisapiDocumentList />} />
                   <Route path="/documentos/novo" element={<SisapiDocumentEditor />} />
                   <Route path="/documentos/editar/:id" element={<SisapiDocumentEditor />} />
+                  <Route path="/documentos/modelos" element={<SisapiDocumentTemplates />} />
                   <Route path="/pendentes" element={<SisapiPendingActions />} />
                   <Route path="/acervo" element={<SisapiArchive />} />
                   <Route path="/usuarios" element={<SisapiAdminUsers />} />
