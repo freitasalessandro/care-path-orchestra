@@ -675,6 +675,12 @@ export default function SisapiAdminUsers() {
             <SectorManagement />
           </div>
         </TabsContent>
+
+        <TabsContent value="roles">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <RoleManagement />
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* DIALOGS PARA MODULOS E SENHA */}
