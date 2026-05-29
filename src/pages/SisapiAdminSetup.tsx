@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2, LayoutGrid, Users } from "lucide-react";
+import { Briefcase, ShieldCheck, Plus, Trash, Settings, Globe, Loader2, LayoutGrid, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -61,7 +61,10 @@ export default function SisapiAdminSetup() {
       if (current) {
         const { error: updateError } = await supabase
           .from("sisapi_settings")
-          .update({ general_settings: generalSettings })
+          .update({ 
+            general_settings: generalSettings,
+            institution_name: generalSettings.systemName 
+          })
           .eq("id", current.id);
         if (updateError) throw updateError;
       } else {
@@ -135,33 +138,34 @@ export default function SisapiAdminSetup() {
         <TabsContent value="general" className="mt-0">
           <Card>
             <CardHeader>
-              <CardTitle>Parâmetros do Sistema</CardTitle>
-              <CardDescription>Configure o comportamento global do SISAPI.</CardDescription>
+              <CardTitle>Configurações Gerais</CardTitle>
+              <CardDescription>Parâmetros globais para o funcionamento do SISAPI.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <div className="grid gap-4 max-w-xl">
                 <div className="space-y-2">
                   <Label>Nome do Sistema</Label>
                   <Input 
                     value={generalSettings.systemName}
                     onChange={(e) => setGeneralSettings({...generalSettings, systemName: e.target.value})}
+                    placeholder="Ex: SISAPI"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Email de Contato</Label>
+                  <Label>E-mail para Contato</Label>
                   <Input 
                     type="email"
                     value={generalSettings.contactEmail}
                     onChange={(e) => setGeneralSettings({...generalSettings, contactEmail: e.target.value})}
-                    placeholder="admin@exemplo.com"
+                    placeholder="Ex: suporte@municipio.se.gov.br"
                   />
                 </div>
                 <Button 
                   onClick={() => saveSettingsMutation.mutate()} 
                   disabled={saveSettingsMutation.isPending}
-                  className="w-fit"
+                  className="mt-4 w-fit"
                 >
-                  {saveSettingsMutation.isPending && <Loader2 className="mr-2 animate-spin w-4 h-4" />}
+                  {saveSettingsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                   Salvar Parâmetros
                 </Button>
               </div>
