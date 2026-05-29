@@ -14,8 +14,10 @@ import {
 export function AppTopbar() {
   const { user, signOut, setSelectedModule, profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isAdmin = user?.email === "admin@gmail.com" || profile?.is_admin;
+  const isModuleSelection = location.pathname === "/modules";
 
   const handleModuleClick = () => {
     setSelectedModule(null);
@@ -33,17 +35,17 @@ export function AppTopbar() {
       </div>
 
       <div className="flex items-center gap-4">
-
-
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleModuleClick}
-          className="text-white hover:bg-white/10 gap-2 font-medium"
-        >
-          <LayoutGrid className="h-4 w-4" />
-          <span className="hidden sm:inline">Módulos</span>
-        </Button>
+        {!isModuleSelection && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleModuleClick}
+            className="text-white hover:bg-white/10 gap-2 font-medium"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="hidden sm:inline">Módulos</span>
+          </Button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
