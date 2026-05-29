@@ -12,7 +12,7 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
-import { AppTopbar } from "@/components/AppTopbar";
+
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   AlertDialog,
