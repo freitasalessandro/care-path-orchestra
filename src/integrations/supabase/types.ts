@@ -719,7 +719,15 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sisapi_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "sisapi_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sisapi_profiles: {
         Row: {
