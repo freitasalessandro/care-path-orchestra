@@ -111,7 +111,7 @@ function AppLayout() {
                 </>
               ) : (
                 <>
-                  <Route path="/" element={<SisapiDashboard />} />
+                  <Route path="/" element={selectedModule === "sisapi" ? <SisapiDashboard /> : <Navigate to="/modules" replace />} />
                   <Route path="/documentos" element={<SisapiDocumentList />} />
                   <Route path="/documentos/novo" element={<SisapiDocumentEditor />} />
                   <Route path="/documentos/editar/:id" element={<SisapiDocumentEditor />} />
