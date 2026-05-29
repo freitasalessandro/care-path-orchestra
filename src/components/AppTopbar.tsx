@@ -26,8 +26,8 @@ export function AppTopbar() {
     <header className="fixed top-0 left-0 right-0 h-16 bg-primary flex items-center justify-between px-8 z-50 shadow-md shrink-0">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-3">
-          <span className="text-xl font-bold text-white tracking-tight">
-            SISAPI - Sistema de automação de processos internos
+          <span className="text-lg md:text-xl font-bold text-white tracking-tight truncate max-w-[200px] md:max-w-none">
+            SISAPI <span className="hidden sm:inline">- Sistema de automação de processos internos</span>
           </span>
         </div>
       </div>
