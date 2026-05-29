@@ -55,7 +55,9 @@ serve(async (req) => {
         sector_id: sector_id || null,
         is_admin: !!is_admin,
         allowed_modules: allowed_modules || ['sisapi'],
-        status: 'active'
+        status: 'active',
+        must_change_password: true
+
       })
 
     if (profileError) throw profileError

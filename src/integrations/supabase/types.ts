@@ -730,6 +730,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_admin: boolean | null
+          must_change_password: boolean | null
           role_id: string | null
           sector_id: string | null
           signature_url: string | null
@@ -744,6 +745,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_admin?: boolean | null
+          must_change_password?: boolean | null
           role_id?: string | null
           sector_id?: string | null
           signature_url?: string | null
@@ -758,6 +760,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          must_change_password?: boolean | null
           role_id?: string | null
           sector_id?: string | null
           signature_url?: string | null
