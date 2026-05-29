@@ -17,7 +17,7 @@ const surgeryLinks = [
 const hrLinks = [
   { to: "/", label: "Painel RH", icon: LayoutDashboard },
   { to: "/funcionarios", label: "Funcionários", icon: UserCircle },
-  { to: "/funcoes", label: "Funções", icon: GraduationCap },
+  
   { to: "/unidades", label: "UBS / Unidades", icon: Building },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/configuracoes", label: "Dados da Secretaria", icon: Settings },
@@ -36,7 +36,7 @@ const sisapiLinks = [
   { to: "/pendentes", label: "Meus Pendentes", icon: Clock, id: "pending" },
   { to: "/acervo", label: "Acervo Digital", icon: Library, id: "archive" },
   { to: "/usuarios", label: "Gestão de Usuários", icon: Users, id: "users", adminOnly: true },
-  { to: "/funcoes", label: "Funções e Cargos", icon: Key, id: "roles", adminOnly: true },
+  
   { to: "/autoridades", label: "Autoridades", icon: ShieldCheck, id: "authorities", adminOnly: true },
   { to: "/identidade", label: "Identidade Visual", icon: Building, id: "branding", adminOnly: true },
   { to: "/configuracoes", label: "Configurações", icon: Settings, id: "settings", adminOnly: true },
@@ -57,7 +57,7 @@ export function AppSidebar() {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("sisapi_profiles")
-        .select(`*, role:role_id(*)`)
+        .select(`*`)
         .eq("id", user.id)
         .maybeSingle();
       if (error) return null;
@@ -81,10 +81,6 @@ export function AppSidebar() {
       // If it's admin only and user is not admin, hide it
       if (link.adminOnly) return false;
 
-      // Check if user's role has permission for this link
-      if (profile.role && Array.isArray(profile.role.permissions)) {
-        return profile.role.permissions.includes(link.id);
-      }
 
       // Default to visible if no specific permission required (unless it was adminOnly)
       return true;

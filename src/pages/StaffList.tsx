@@ -37,7 +37,7 @@ export default function StaffList() {
 
   const [staff, setStaff] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
-  const [positions, setPositions] = useState<any[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,7 +49,6 @@ export default function StaffList() {
   const [newStaff, setNewStaff] = useState({
     registration_code: "",
     name: "",
-    position_id: "",
     department_id: "",
     condition: "",
     phone: "",
@@ -59,10 +58,9 @@ export default function StaffList() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [staffRes, deptRes, posRes] = await Promise.all([
-      supabase.from("staff").select("*, departments(name), positions(title, work_hours)").order("name"),
+    const [staffRes, deptRes] = await Promise.all([
+      supabase.from("staff").select("*, departments(name)").order("name"),
       supabase.from("departments").select("*, units(name)").order("name"),
-      supabase.from("positions").select("*").order("title"),
     ]);
     
     if (staffRes.error) {
@@ -77,11 +75,6 @@ export default function StaffList() {
       setDepartments(deptRes.data || []);
     }
 
-    if (posRes.error) {
-      toast.error("Erro ao carregar funções");
-    } else {
-      setPositions(posRes.data || []);
-    }
     setLoading(false);
   };
 
@@ -97,7 +90,6 @@ export default function StaffList() {
     const payload = {
       registration_code: registration,
       name: newStaff.name,
-      position_id: newStaff.position_id || null,
       department_id: newStaff.department_id || null,
       condition: newStaff.condition || null,
       phone: newStaff.phone,
@@ -117,7 +109,7 @@ export default function StaffList() {
         toast.success("Funcionário atualizado com sucesso!");
         setIsDialogOpen(false);
         setEditingStaff(null);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+        setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
         fetchData();
       }
     } else {
@@ -128,7 +120,7 @@ export default function StaffList() {
       } else {
         toast.success("Funcionário cadastrado com sucesso!");
         setIsDialogOpen(false);
-        setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+        setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
         fetchData();
       }
     }
@@ -139,7 +131,6 @@ export default function StaffList() {
     setNewStaff({
       registration_code: s.registration_code || "",
       name: s.name || "",
-      position_id: s.position_id || "",
       department_id: s.department_id || "",
       condition: s.condition || "",
       phone: s.phone || "",
@@ -181,7 +172,7 @@ export default function StaffList() {
           setIsDialogOpen(open);
           if (!open) {
             setEditingStaff(null);
-            setNewStaff({ registration_code: "", name: "", position_id: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
+            setNewStaff({ registration_code: "", name: "", department_id: "", condition: "", phone: "", cpf: "", work_schedule: "" });
           }
         }}>
           <DialogTrigger asChild>
@@ -226,28 +217,6 @@ export default function StaffList() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="pos">Função / Cargo</Label>
-                  <Link to="/funcoes" className="text-[10px] text-primary hover:underline flex items-center gap-1">
-                    <Plus className="w-2.5 h-2.5" /> Cadastrar nova função
-                  </Link>
-                </div>
-                <Select 
-                  value={newStaff.position_id} 
-                  onValueChange={v => setNewStaff({...newStaff, position_id: v})}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a função" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.title} ({p.work_hours}h)</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -330,7 +299,7 @@ export default function StaffList() {
             <TableRow>
               <TableHead>Funcionário</TableHead>
               <TableHead>Setor</TableHead>
-              <TableHead>Cargo / CH</TableHead>
+              
               <TableHead>Condição</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -364,14 +333,6 @@ export default function StaffList() {
                     </div>
                   </TableCell>
                   <TableCell>{s.departments?.name || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span>{s.positions?.title || "-"}</span>
-                      {s.positions?.work_hours && (
-                        <span className="text-[10px] text-muted-foreground">{s.positions.work_hours}h mensais</span>
-                      )}
-                    </div>
-                  </TableCell>
                   <TableCell>
                     {s.condition ? (
                       <span className="text-xs font-semibold">{s.condition}</span>

@@ -15,7 +15,7 @@ import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
 
 
 export default function SisapiAdminSetup() {
-  const [roleName, setRoleName] = useState("");
+  
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [generalSettings, setGeneralSettings] = useState({
@@ -41,14 +41,6 @@ export default function SisapiAdminSetup() {
     enabled: !!user?.id,
   });
 
-  const { data: roles, refetch: refetchRoles } = useQuery({
-    queryKey: ["sisapi-roles"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("sisapi_roles").select("*").order("name");
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: settings, isLoading: loadingSettings } = useQuery({
     queryKey: ["sisapi-general-settings"],
@@ -92,16 +84,6 @@ export default function SisapiAdminSetup() {
     }
   });
 
-  const handleAddRole = async () => {
-    if (!roleName) return;
-    const { error } = await supabase.from("sisapi_roles").insert([{ name: roleName }]);
-    if (error) toast.error("Erro ao adicionar função");
-    else {
-      toast.success("Função adicionada");
-      setRoleName("");
-      refetchRoles();
-    }
-  };
 
 
   if (loadingProfile) return <div className="p-8">Verificando permissões...</div>;
@@ -117,48 +99,7 @@ export default function SisapiAdminSetup() {
       />
 
       <div className="grid grid-cols-1 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
-              Funções / Cargos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nome da Função"
-                value={roleName}
-                onChange={(e) => setRoleName(e.target.value)}
-              />
-              <Button onClick={handleAddRole}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="border rounded-md overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead className="text-right">Ação</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {roles?.map((role) => (
-                    <TableRow key={role.id}>
-                      <TableCell>{role.name}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" className="text-red-600">
-                          <Trash className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <p className="text-muted-foreground">Configurações gerais do sistema SISAPI.</p>
       </div>
     </div>
   );
