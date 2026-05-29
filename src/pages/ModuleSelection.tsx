@@ -145,21 +145,21 @@ export default function ModuleSelection() {
           {filteredModules.map((module) => (
             <Card 
               key={module.id} 
-              className="overflow-hidden border-2 transition-all duration-200 hover:border-primary cursor-pointer shadow-md"
+              className="flex flex-col h-full overflow-hidden border-2 transition-all duration-200 hover:border-primary cursor-pointer shadow-md"
               onClick={() => handleModuleSelect(module.id)}
             >
               <CardHeader className={`${module.color} text-white pb-8`}>
                 <div className="p-3 bg-white/20 rounded-lg w-fit mb-4">
                   <module.icon className="w-8 h-8" />
                 </div>
-                <CardTitle className="text-xl">{module.title}</CardTitle>
+                <CardTitle className="text-xl line-clamp-1">{module.title}</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 mb-6">
+              <CardContent className="pt-6 flex flex-col flex-1">
+                <CardDescription className="text-gray-600 mb-6 flex-1 line-clamp-3">
                   {module.description}
                 </CardDescription>
                 <Button 
-                  className="w-full" 
+                  className="w-full mt-auto" 
                   variant="default"
                 >
                   Acessar Módulo
