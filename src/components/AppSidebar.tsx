@@ -81,10 +81,6 @@ export function AppSidebar() {
       // If it's admin only and user is not admin, hide it
       if (link.adminOnly) return false;
 
-      // Check if user's role has permission for this link
-      if (profile.role && Array.isArray(profile.role.permissions)) {
-        return profile.role.permissions.includes(link.id);
-      }
 
       // Default to visible if no specific permission required (unless it was adminOnly)
       return true;
