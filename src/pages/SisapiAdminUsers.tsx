@@ -1,12 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2 } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
@@ -44,6 +42,8 @@ export default function SisapiAdminUsers() {
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
   
   useEffect(() => {
     console.log("SisapiAdminUsers mounted");
@@ -335,14 +335,59 @@ export default function SisapiAdminUsers() {
                     <TableRow key={profile.id} className="hover:bg-slate-50/50 transition-colors">
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0">
                             <User className="w-5 h-5" />
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-slate-900 font-medium">{profile.full_name}</span>
-                            <span className="text-xs text-slate-500">{profile.email || "Email não disponível"}</span>
+                          <div className="flex flex-col flex-1 min-w-0">
+                            {editingProfileId === profile.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input 
+                                  value={editingName} 
+                                  onChange={(e) => setEditingName(e.target.value)}
+                                  className="h-8 py-1 text-sm"
+                                  autoFocus
+                                />
+                                <Button 
+                                  size="icon" 
+                                  variant="ghost" 
+                                  className="h-8 w-8 text-green-600"
+                                  onClick={() => {
+                                    updateProfileMutation.mutate({ 
+                                      userId: profile.id, 
+                                      updates: { full_name: editingName } 
+                                    });
+                                    setEditingProfileId(null);
+                                  }}
+                                >
+                                  <Save className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  size="icon" 
+                                  variant="ghost" 
+                                  className="h-8 w-8 text-slate-400"
+                                  onClick={() => setEditingProfileId(null)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 group">
+                                <span className="text-slate-900 font-medium truncate">{profile.full_name}</span>
+                                <Button 
+                                  size="icon" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    setEditingProfileId(profile.id);
+                                    setEditingName(profile.full_name || "");
+                                  }}
+                                >
+                                  <Edit2 className="w-3 h-3 text-slate-400" />
+                                </Button>
+                              </div>
+                            )}
+                            <span className="text-xs text-slate-500 truncate">{profile.email || "Email não disponível"}</span>
                           </div>
-
                         </div>
                       </TableCell>
 
@@ -370,7 +415,7 @@ export default function SisapiAdminUsers() {
                           <Button
                             variant={profile.status === 'active' ? 'outline' : 'default'}
                             size="sm"
-                            className={`w-fit gap-1.5 py-1 px-3 h-auto ${profile.status === 'active' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold'}`}
+                            className={`w-fit gap-1.5 py-1 px-3 h-auto ${profile.status === 'active' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'}`}
                             onClick={() => {
                               const newStatus = profile.status === 'active' ? 'pending' : 'active';
                               updateProfileMutation.mutate({ 
