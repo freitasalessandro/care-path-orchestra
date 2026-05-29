@@ -180,6 +180,8 @@ export default function SisapiDocumentEditor() {
       budget_info: budgetInfo,
       creditor_info: creditorInfo,
       status: "pending_approval",
+      is_signed: false, // Ensure it's not signed when created or updated
+      signed_by_user_id: null,
     };
 
     let result;
@@ -256,7 +258,7 @@ export default function SisapiDocumentEditor() {
         author_name: authorProfile?.full_name,
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
-        is_finalized: false,
+        is_finalized: data.status === "completed",
         attachments: attachments
       });
       toast.success("PDF gerado com sucesso");
@@ -340,7 +342,7 @@ export default function SisapiDocumentEditor() {
               </div>
               <div className="space-y-2">
                 <Label>Departamento</Label>
-                <Input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Setor de Compras" />
+                <Input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Secretaria / Setor" />
               </div>
               <div className="space-y-2">
                 <Label>Data</Label>
@@ -428,7 +430,7 @@ export default function SisapiDocumentEditor() {
                 <div className="flex items-center text-sm text-blue-600 hover:text-blue-700">
                   <Upload className="w-4 h-4 mr-1" /> Adicionar
                 </div>
-                <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
+                <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} accept=".pdf,image/*" />
               </Label>
             </div>
             <div className="space-y-2">
