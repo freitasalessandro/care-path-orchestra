@@ -213,9 +213,9 @@ export default function SisapiDocumentTemplates() {
                   <TableCell>{template.category || "Geral"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      {template.modules_config?.items && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Itens</span>}
-                      {template.modules_config?.budget && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Dotação</span>}
-                      {template.modules_config?.creditor && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Credor</span>}
+                      {(template.modules_config as any)?.items && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Itens</span>}
+                      {(template.modules_config as any)?.budget && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Dotação</span>}
+                      {(template.modules_config as any)?.creditor && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">Credor</span>}
                     </div>
                   </TableCell>
                   <TableCell className="text-right space-x-1">
