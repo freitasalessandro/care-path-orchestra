@@ -453,12 +453,14 @@ export default function SisapiAdminUsers() {
                         <div className="flex flex-wrap gap-1">
                           {profile.is_admin ? (
                             <Badge variant="outline" className="bg-slate-50 border-slate-200 text-slate-600">Todos os Módulos</Badge>
-                          ) : profile.allowed_modules?.length > 0 ? (
+                          ) : profile.allowed_modules && profile.allowed_modules.length > 0 ? (
                             profile.allowed_modules.map((m: string) => (
-                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">{m}</Badge>
+                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">
+                                {moduleLabels[m] || m}
+                              </Badge>
                             ))
                           ) : (
-                            <span className="text-xs text-muted-foreground">Nenhum</span>
+                            <span className="text-xs text-muted-foreground">Nenhum módulo</span>
                           )}
                         </div>
                       </TableCell>
