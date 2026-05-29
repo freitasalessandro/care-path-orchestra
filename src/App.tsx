@@ -93,6 +93,7 @@ function AppLayout() {
               ) : selectedModule === "hr" ? (
                 <>
                   <Route path="/" element={<HRDashboard />} />
+                  <Route path="/hr-dashboard" element={<HRDashboard />} />
                   <Route path="/funcionarios" element={<StaffList />} />
                   <Route path="/unidades" element={<UnitList />} />
                   <Route path="/relatorios" element={<HRReports />} />
@@ -102,6 +103,7 @@ function AppLayout() {
               ) : selectedModule === "iose" ? (
                 <>
                   <Route path="/" element={<IoseDashboard />} />
+                  <Route path="/iose-dashboard" element={<IoseDashboard />} />
                   <Route path="/pacientes" element={<IosePatientList />} />
                   <Route path="/lista" element={<IoseSurgeryList />} />
                   <Route path="/relatorios" element={<IoseReports />} />
@@ -114,6 +116,7 @@ function AppLayout() {
               ) : (
                 <>
                   <Route path="/" element={selectedModule === "sisapi" ? <SisapiDashboard /> : <Navigate to="/modules" replace />} />
+                  <Route path="/sisapi" element={<SisapiDashboard />} />
                   <Route path="/documentos" element={<SisapiDocumentList />} />
                   <Route path="/documentos/novo" element={<SisapiDocumentEditor />} />
                   <Route path="/documentos/editar/:id" element={<SisapiDocumentEditor />} />
