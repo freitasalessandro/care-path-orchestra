@@ -37,7 +37,7 @@ export default function StaffList() {
 
   const [staff, setStaff] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
-  const [positions, setPositions] = useState<any[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -226,28 +226,6 @@ export default function StaffList() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="pos">Função / Cargo</Label>
-                  <Link to="/funcoes" className="text-[10px] text-primary hover:underline flex items-center gap-1">
-                    <Plus className="w-2.5 h-2.5" /> Cadastrar nova função
-                  </Link>
-                </div>
-                <Select 
-                  value={newStaff.position_id} 
-                  onValueChange={v => setNewStaff({...newStaff, position_id: v})}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a função" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.title} ({p.work_hours}h)</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -330,7 +308,7 @@ export default function StaffList() {
             <TableRow>
               <TableHead>Funcionário</TableHead>
               <TableHead>Setor</TableHead>
-              <TableHead>Cargo / CH</TableHead>
+              
               <TableHead>Condição</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -364,14 +342,6 @@ export default function StaffList() {
                     </div>
                   </TableCell>
                   <TableCell>{s.departments?.name || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span>{s.positions?.title || "-"}</span>
-                      {s.positions?.work_hours && (
-                        <span className="text-[10px] text-muted-foreground">{s.positions.work_hours}h mensais</span>
-                      )}
-                    </div>
-                  </TableCell>
                   <TableCell>
                     {s.condition ? (
                       <span className="text-xs font-semibold">{s.condition}</span>
