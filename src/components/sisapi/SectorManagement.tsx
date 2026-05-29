@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit2 } from "lucide-react";
+import { Plus, Trash2, Edit2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function SectorManagement() {
@@ -15,9 +15,11 @@ export function SectorManagement() {
   const [editingSector, setEditingSector] = useState<any>(null);
   const [name, setName] = useState("");
   const [departmentId, setDepartmentId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
-  const { data: sectors, isLoading, refetch } = useQuery({
-    queryKey: ["sisapi-sectors"],
+  const { data: sectors, isLoading } = useQuery({
+    queryKey: ["sisapi-sectors-list"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sisapi_sectors")
@@ -29,7 +31,7 @@ export function SectorManagement() {
   });
 
   const { data: departments } = useQuery({
-    queryKey: ["sisapi-departments"],
+    queryKey: ["sisapi-departments-list"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sisapi_departments")
@@ -47,46 +49,49 @@ export function SectorManagement() {
       return;
     }
 
-    const sectorData = { name, department_id: departmentId };
+    setIsSubmitting(true);
+    try {
+      const sectorData = { name, department_id: departmentId };
 
-    if (editingSector) {
-      const { error } = await supabase
-        .from("sisapi_sectors")
-        .update(sectorData)
-        .eq("id", editingSector.id);
-      if (error) toast.error("Erro ao atualizar setor");
-      else {
+      if (editingSector) {
+        const { error } = await supabase
+          .from("sisapi_sectors")
+          .update(sectorData)
+          .eq("id", editingSector.id);
+        if (error) throw error;
         toast.success("Setor atualizado");
-        setIsOpen(false);
-        refetch();
-      }
-    } else {
-      const { error } = await supabase
-        .from("sisapi_sectors")
-        .insert([sectorData]);
-      if (error) toast.error("Erro ao criar setor");
-      else {
+      } else {
+        const { error } = await supabase
+          .from("sisapi_sectors")
+          .insert([sectorData]);
+        if (error) throw error;
         toast.success("Setor criado");
-        setIsOpen(false);
-        refetch();
       }
+      setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["sisapi-sectors-list"] });
+    } catch (error: any) {
+      toast.error("Erro: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este setor?")) return;
-    const { error } = await supabase.from("sisapi_sectors").delete().eq("id", id);
-    if (error) toast.error("Erro ao excluir setor.");
-    else {
+    try {
+      const { error } = await supabase.from("sisapi_sectors").delete().eq("id", id);
+      if (error) throw error;
       toast.success("Setor excluído");
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["sisapi-sectors-list"] });
+    } catch (error: any) {
+      toast.error("Erro ao excluir: " + error.message);
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Setores</h2>
+        <h2 className="text-xl font-semibold text-slate-800">Setores</h2>
         <Dialog open={isOpen} onOpenChange={(open) => {
           setIsOpen(open);
           if (!open) {
@@ -96,18 +101,18 @@ export function SectorManagement() {
           }
         }}>
           <DialogTrigger asChild>
-            <Button size="sm">
+            <Button className="bg-primary shadow-sm">
               <Plus className="w-4 h-4 mr-2" /> Novo Setor
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{editingSector ? "Editar Setor" : "Novo Setor"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="sector-name">Nome do Setor</Label>
-                <Input id="sector-name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Input id="sector-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Recepção" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dept-select">Departamento</Label>
@@ -122,17 +127,17 @@ export function SectorManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full">
-                {editingSector ? "Salvar Alterações" : "Criar Setor"}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingSector ? "Salvar Alterações" : "Criar Setor")}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-xl overflow-hidden bg-white">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-slate-50">
             <TableRow>
               <TableHead>Setor</TableHead>
               <TableHead>Departamento</TableHead>
@@ -141,13 +146,15 @@ export function SectorManagement() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={3} className="text-center py-4">Carregando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} className="text-center py-8 text-slate-400"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></TableCell></TableRow>
+            ) : sectors?.length === 0 ? (
+              <TableRow><TableCell colSpan={3} className="text-center py-8 text-slate-500">Nenhum setor cadastrado.</TableCell></TableRow>
             ) : sectors?.map((sector) => (
-              <TableRow key={sector.id}>
-                <TableCell className="font-medium">{sector.name}</TableCell>
-                <TableCell>{sector.department?.name}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="ghost" size="icon" onClick={() => {
+              <TableRow key={sector.id} className="hover:bg-slate-50/50 transition-colors">
+                <TableCell className="font-medium text-slate-700">{sector.name}</TableCell>
+                <TableCell className="text-slate-600">{sector.department?.name || "Sem depto"}</TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-primary" onClick={() => {
                     setEditingSector(sector);
                     setName(sector.name);
                     setDepartmentId(sector.department_id);
@@ -155,7 +162,7 @@ export function SectorManagement() {
                   }}>
                     <Edit2 className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(sector.id)} className="text-red-600 hover:text-red-700">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600" onClick={() => handleDelete(sector.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </TableCell>
@@ -167,3 +174,4 @@ export function SectorManagement() {
     </div>
   );
 }
+
