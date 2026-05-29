@@ -31,6 +31,16 @@ export function AppTopbar() {
           <span className="text-[10px] text-primary-foreground/70 font-medium">Sistema de Apoio à Gestão</span>
         </div>
         <div className="w-px h-8 bg-primary-foreground/30" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setSelectedModule(null)}
+          className="text-primary-foreground hover:bg-primary-foreground/10 gap-2 font-medium"
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Módulos
+        </Button>
+        <div className="w-px h-8 bg-primary-foreground/30" />
         <img src={settings?.institution_logo_url || "/timbre-neopolis.png"} alt="Logo" className="h-9 object-contain" />
       </div>
 
