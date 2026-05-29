@@ -176,15 +176,22 @@ export default function SisapiAdminUsers() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async ({ userId, updates }: { userId: string; updates: any }) => {
-      const { error } = await supabase.from("sisapi_profiles").update(updates).eq("id", userId);
-      if (error) throw error;
+      console.log(`Atualizando usuário ${userId}:`, updates);
+      const { data, error } = await supabase.from("sisapi_profiles").update(updates).eq("id", userId).select();
+      if (error) {
+        console.error("Erro na atualização:", error);
+        throw error;
+      }
+      console.log("Resposta da atualização:", data);
+      return data;
     },
     onSuccess: () => {
       toast.success("Perfil atualizado com sucesso");
       queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
     },
     onError: (error: any) => {
-      toast.error("Erro ao atualizar: " + error.message);
+      console.error("Erro ao atualizar perfil:", error);
+      toast.error("Erro ao atualizar: " + (error.message || "Erro desconhecido"));
     }
   });
 
