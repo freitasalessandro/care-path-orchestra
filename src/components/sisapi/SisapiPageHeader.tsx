@@ -45,7 +45,10 @@ export function SisapiPageHeader({ title, description, children }: SisapiPageHea
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setSelectedModule(null)}
+            onClick={() => {
+              setSelectedModule(null);
+              navigate("/modules");
+            }}
             className="text-slate-600 hover:text-primary gap-2"
           >
             <LayoutGrid className="h-4 w-4" />

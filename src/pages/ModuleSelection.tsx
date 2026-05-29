@@ -110,6 +110,14 @@ export default function ModuleSelection() {
     setSelectedModule(moduleId);
     if (moduleId === "exams") {
       navigate("/exams-control");
+    } else if (moduleId === "sisapi") {
+      navigate("/sisapi");
+    } else if (moduleId === "hr") {
+      navigate("/hr-dashboard");
+    } else if (moduleId === "iose") {
+      navigate("/iose-dashboard");
+    } else if (moduleId === "surgeries") {
+      navigate("/");
     } else {
       navigate("/");
     }
