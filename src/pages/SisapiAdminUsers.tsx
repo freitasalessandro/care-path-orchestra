@@ -306,8 +306,7 @@ export default function SisapiAdminUsers() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <AppTopbar />
       <div className="pt-16">
-
-      <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500 px-8">
+        <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500 px-8">
         <SisapiPageHeader title="Gestão de Usuários" description="Controle de acessos, permissões e aprovação de novos colaboradores.">
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => window.history.back()} className="border-slate-300">
