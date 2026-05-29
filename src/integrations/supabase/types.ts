@@ -726,6 +726,7 @@ export type Database = {
           allowed_modules: string[] | null
           created_at: string
           department_id: string | null
+          email: string | null
           full_name: string | null
           id: string
           is_admin: boolean | null
@@ -739,6 +740,7 @@ export type Database = {
           allowed_modules?: string[] | null
           created_at?: string
           department_id?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
           is_admin?: boolean | null
@@ -752,6 +754,7 @@ export type Database = {
           allowed_modules?: string[] | null
           created_at?: string
           department_id?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
