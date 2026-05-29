@@ -258,7 +258,7 @@ export default function SisapiDocumentEditor() {
         author_name: authorProfile?.full_name,
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
-        is_finalized: data.status === "completed",
+        is_finalized: false, // In editor mode, it's always a draft/in-progress export
         attachments: attachments
       });
       toast.success("PDF gerado com sucesso");
