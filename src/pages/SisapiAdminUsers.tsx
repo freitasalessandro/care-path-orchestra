@@ -415,20 +415,29 @@ export default function SisapiAdminUsers() {
                           <Button
                             variant={profile.status === 'active' ? 'outline' : 'default'}
                             size="sm"
-                            className={`w-fit gap-1.5 py-1 px-3 h-auto ${profile.status === 'active' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'}`}
+                            className={`w-fit gap-1.5 py-1 px-3 h-auto transition-all ${
+                              profile.status === 'active' 
+                                ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' 
+                                : profile.status === 'inactive'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                                : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'
+                            }`}
                             onClick={() => {
-                              const newStatus = profile.status === 'active' ? 'pending' : 'active';
+                              const newStatus = profile.status === 'active' ? 'inactive' : 'active';
                               updateProfileMutation.mutate({ 
                                 userId: profile.id, 
                                 updates: { status: newStatus } 
                               });
+                              
                               if (newStatus === 'active') {
                                 toast.success(`Usuário ${profile.full_name} ativado com sucesso!`);
+                              } else {
+                                toast.info(`Usuário ${profile.full_name} inativado.`);
                               }
                             }}
                           >
                             {profile.status === 'active' ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
-                            {profile.status === 'active' ? "Ativo" : "ATIVAR AGORA"}
+                            {profile.status === 'active' ? "Ativo" : profile.status === 'inactive' ? "Inativo" : "ATIVAR AGORA"}
                           </Button>
                           
                           <Badge 
@@ -460,10 +469,6 @@ export default function SisapiAdminUsers() {
                             size="icon" 
                             className="text-primary hover:bg-primary/10"
                             onClick={() => {
-                              if (!profile.status || profile.status === 'pending') {
-                                toast.info("Ative o usuário para gerenciar módulos");
-                                return;
-                              }
                               setSelectedProfile(profile);
                               setEditingModules(profile.allowed_modules || []);
                               setIsModulesDialogOpen(true);
