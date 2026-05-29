@@ -9,167 +9,20 @@ import { supabase } from "@/integrations/supabase/client";
 
 const modules = [
   {
-    id: "surgeries",
-    title: "Gestão de Cirurgias",
-    description: "Controle de pacientes, agendamentos e checklists cirúrgicos.",
-    icon: ClipboardList,
-    color: "bg-blue-500",
-    active: true,
-  },
-  {
-    id: "hr",
-    title: "Recursos Humanos",
-    description: "Cadastro de funcionários, UBS, setores e gestão de pessoal.",
-    icon: Users,
-    color: "bg-purple-500",
-    active: true,
-  },
-  {
-    id: "iose",
-    title: "Lista Iose",
-    description: "Cadastro de pacientes oftalmológicos e montagem de listas de cirurgia.",
-    icon: Scissors,
-    color: "bg-emerald-500",
-    active: true,
-  },
-  {
-    id: "sisapi",
-    title: "SISAPI - Gestão Documental",
-    description: "Sistema de apoio à gestão com controle de documentos, fluxos e acervo digital.",
-    icon: FileText,
-    color: "bg-slate-800",
-    active: true,
-  },
-  {
-    id: "exams",
-    title: "Resultados de Exames",
-    description: "Controle de chegada e entrega de resultados de exames para pacientes.",
-    icon: FileText,
-    color: "bg-rose-500",
-    active: true,
-  },
-];
+import { AppTopbar } from "@/components/AppTopbar";
 
-export default function ModuleSelection() {
-  const { setSelectedModule, signOut, user } = useAuth();
-  const navigate = useNavigate();
-
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile-modules", user?.id],
-    queryFn: async () => {
-      // If it's a dummy session, return a virtual admin profile
-      if (localStorage.getItem("sb-dummy-session") === "true") {
-        return { 
-          is_admin: true, 
-          allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
-          full_name: 'Administrador Mestre'
-        };
-
-      }
-
-      const { data, error } = await supabase
-        .from("sisapi_profiles")
-        .select("allowed_modules, is_admin")
-        .eq("id", user?.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      // If no profile exists, create one with admin rights
-      if (!data && user?.id) {
-        try {
-          const { data: newProfile, error: createError } = await supabase
-            .from("sisapi_profiles")
-            .upsert({
-              id: user.id,
-              full_name: user.email?.split('@')[0] || 'Administrador',
-              is_admin: true,
-              allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
-              status: 'active'
-            })
-            .select("allowed_modules, is_admin")
-            .single();
-
-          if (createError) throw createError;
-          return newProfile;
-        } catch (e) {
-          console.error("Error creating initial profile:", e);
-          return { is_admin: true, allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'] };
-        }
-      }
-
-      return data;
-    },
-
-
-
-    enabled: !!user?.id,
-  });
-
-  const handleModuleSelect = (moduleId: string) => {
-    setSelectedModule(moduleId);
-    if (moduleId === "exams") {
-      navigate("/exams-control");
-    } else if (moduleId === "sisapi") {
-      navigate("/sisapi");
-    } else if (moduleId === "hr") {
-      navigate("/hr-dashboard");
-    } else if (moduleId === "iose") {
-      navigate("/iose-dashboard");
-    } else if (moduleId === "surgeries") {
-      navigate("/");
-    } else {
-      navigate("/");
-    }
-  };
-
-  console.log("Current user profile:", profile);
-  const filteredModules = modules.filter(module => {
-    // Admins always have access to all modules
-    const isSpecialAdmin = profile?.is_admin || user?.email === "admin@gmail.com";
-    
-    // Check if module is allowed in allowed_modules array
-    const hasAccess = isSpecialAdmin || (profile?.allowed_modules && Array.isArray(profile.allowed_modules) && profile.allowed_modules.includes(module.id));
-
-    return !!hasAccess;
-  });
-
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-
+// ... keep existing code
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="h-16 bg-white flex items-center justify-between px-8 z-50 shadow-sm border-b border-slate-200 mb-8">
-        <div className="flex items-center gap-3">
-          <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-10 w-auto object-contain" />
-          <div className="w-px h-8 bg-slate-200" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl font-black text-slate-800 tracking-tighter">SISAPI</span>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <AppTopbar />
 
-        <div className="flex items-center gap-3">
-          {(profile?.is_admin || user?.email === "admin@gmail.com") && (
-            <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-600 border-slate-200 hover:bg-slate-100">
-              <Users className="w-4 h-4 mr-2" />
-              Gestão de Usuários
-            </Button>
-          )}
-
-          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+      <div className="max-w-5xl mx-auto px-8 pb-12 mt-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
+          <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
         </div>
-      </header>
+// ... keep existing code
+
 
       <div className="max-w-5xl mx-auto px-8 pb-12">
         <div className="mb-8">
