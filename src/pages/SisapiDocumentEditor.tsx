@@ -28,7 +28,15 @@ export default function SisapiDocumentEditor() {
   const [docType, setDocType] = useState("");
   const [department, setDepartment] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
-  const [templateId, setTemplateId] = useState("");
+  const [headerData, setHeaderData] = useState<any>({
+    brasao_url: "",
+    estado: "",
+    orgao: "",
+    endereco: "",
+    cidade_uf: "",
+    cnpj: "",
+    titulo_documento: ""
+  });
   
   // Module Data
   const [items, setItems] = useState<any[]>([]);
@@ -72,6 +80,15 @@ export default function SisapiDocumentEditor() {
     setDepartment(data.department || "");
     setAssignedTo(data.assigned_to || "");
     setTemplateId(data.template_id || "");
+    setHeaderData(data.header_data || {
+      brasao_url: "",
+      estado: "",
+      orgao: "",
+      endereco: "",
+      cidade_uf: "",
+      cnpj: "",
+      titulo_documento: ""
+    });
     setItems((data.items as any[]) || []);
     setBudgetInfo((data.budget_info as any) || { action: "", expense_element: "", resource_source: "" });
     setCreditorInfo((data.creditor_info as any) || { name: "", document: "", address: "", bank_details: "" });
@@ -114,6 +131,15 @@ export default function SisapiDocumentEditor() {
     const template = templates.find(t => t.id === value);
     if (template) {
       setActiveModules(template.modules_config || { items: false, budget: false, creditor: false });
+      
+      // Apply header data from template
+      if (template.header_data) {
+        setHeaderData(template.header_data);
+        if (!title && template.header_data.titulo_documento) {
+          setTitle(template.header_data.titulo_documento);
+        }
+      }
+
       if (template.content && (!editor?.getHTML() || editor?.getHTML() === '<p></p>')) {
         editor?.commands.setContent(template.content);
       }
@@ -176,6 +202,7 @@ export default function SisapiDocumentEditor() {
       author_id: user?.id,
       assigned_to: assignedTo,
       template_id: templateId || null,
+      header_data: headerData,
       items,
       budget_info: budgetInfo,
       creditor_info: creditorInfo,
@@ -259,7 +286,8 @@ export default function SisapiDocumentEditor() {
         author_role: authorProfile?.role?.name,
         author_signature: authorProfile?.signature_url,
         is_finalized: false, // In editor mode, it's always a draft/in-progress export
-        attachments: attachments
+        attachments: attachments,
+        header_data: headerData
       });
       toast.success("PDF gerado com sucesso");
     } catch (error) {
@@ -299,6 +327,29 @@ export default function SisapiDocumentEditor() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           {/* Header Section */}
+          {/* Header Preview Section */}
+          {headerData.orgao && (
+            <div className="bg-white p-6 rounded-lg border shadow-sm border-dashed flex items-center justify-between text-center min-h-[100px] opacity-80 scale-[0.98]">
+              <div className="w-16 h-16 border rounded flex items-center justify-center bg-white overflow-hidden shrink-0">
+                {headerData.brasao_url ? (
+                  <img src={headerData.brasao_url} alt="Brasão" className="max-w-full max-h-full object-contain" />
+                ) : (
+                  <FileIcon className="w-6 h-6 text-slate-300" />
+                )}
+              </div>
+              <div className="flex-1 px-4 text-[10px] font-semibold space-y-0.5">
+                <p>{headerData.estado}</p>
+                <p className="text-xs font-bold uppercase">{headerData.orgao}</p>
+                <p className="font-normal text-[8px] text-slate-500">{headerData.endereco}</p>
+                <p className="font-normal text-[8px] text-slate-500">{headerData.cidade_uf}</p>
+                <p className="font-normal text-[8px] text-slate-500">C.N.P.J.: {headerData.cnpj}</p>
+              </div>
+              <div className="w-32 text-right text-[8px] font-bold shrink-0 border-l pl-4">
+                {headerData.titulo_documento}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
