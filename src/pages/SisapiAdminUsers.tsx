@@ -12,7 +12,7 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
-import { AppTopbar } from "@/components/AppTopbar";
+
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   AlertDialog,
@@ -303,10 +303,7 @@ export default function SisapiAdminUsers() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <AppTopbar />
-      <div className="pt-16 flex-1 overflow-auto">
-        <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500 px-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
         <SisapiPageHeader title="Gestão de Usuários" description="Controle de acessos, permissões e aprovação de novos colaboradores.">
         <div className="flex gap-3">
 
@@ -662,8 +659,6 @@ export default function SisapiAdminUsers() {
           </form>
         </DialogContent>
       </Dialog>
-        </div>
-      </div>
     </div>
   );
 }
