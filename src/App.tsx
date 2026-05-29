@@ -71,12 +71,14 @@ function AppLayout() {
     return <Navigate to="/modules" replace />;
   }
 
+  const showSidebar = pathname !== "/usuarios";
+
   return (
     <div className="h-screen overflow-hidden">
       <AppTopbar />
       <div className="flex pt-16 h-screen">
-        <AppSidebar />
-        <main className={`flex-1 p-8 overflow-y-auto transition-all duration-200 ${collapsed ? "ml-16" : "ml-60"}`}>
+        {showSidebar && <AppSidebar />}
+        <main className={`flex-1 p-8 overflow-y-auto transition-all duration-200 ${showSidebar ? (collapsed ? "ml-16" : "ml-60") : "ml-0"}`}>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {selectedModule === "surgeries" ? (
