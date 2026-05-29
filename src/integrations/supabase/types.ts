@@ -486,13 +486,6 @@ export type Database = {
             referencedRelation: "sisapi_documents"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "sisapi_archive_files_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "sisapi_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       sisapi_authorities: {
@@ -592,15 +585,7 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "sisapi_document_templates_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "sisapi_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       sisapi_documents: {
         Row: {
@@ -661,20 +646,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "sisapi_documents_assigned_to_fkey"
-            columns: ["assigned_to"]
-            isOneToOne: false
-            referencedRelation: "sisapi_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sisapi_documents_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "sisapi_profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "sisapi_documents_signed_by_user_id_fkey"
             columns: ["signed_by_user_id"]
