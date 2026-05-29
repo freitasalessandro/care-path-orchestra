@@ -24,24 +24,23 @@ export function AppTopbar() {
   });
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-14 bg-primary flex items-center justify-between px-6 z-50">
+    <header className="fixed top-0 left-0 right-0 h-14 bg-primary flex items-center justify-between px-6 z-50 shadow-md">
       <div className="flex items-center gap-4">
-        <div className="flex flex-col leading-tight">
-          <span className="text-xl font-bold text-primary-foreground tracking-wide">SISAPI</span>
-          <span className="text-[10px] text-primary-foreground/70 font-medium">Sistema de Apoio à Gestão</span>
-        </div>
-        <div className="w-px h-8 bg-primary-foreground/30" />
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => setSelectedModule(null)}
-          className="text-primary-foreground hover:bg-primary-foreground/10 gap-2 font-medium"
+          className="text-primary-foreground hover:bg-white/20 gap-2 font-semibold border border-white/20"
         >
           <LayoutGrid className="h-4 w-4" />
-          Módulos
+          <span className="hidden sm:inline">Início / Módulos</span>
         </Button>
-        <div className="w-px h-8 bg-primary-foreground/30" />
-        <img src={settings?.institution_logo_url || "/timbre-neopolis.png"} alt="Logo" className="h-9 object-contain" />
+        <div className="w-px h-8 bg-white/20 mx-2" />
+        <div className="flex flex-col leading-tight mr-4">
+          <span className="text-xl font-black text-primary-foreground tracking-tighter">SISAPI</span>
+          <span className="text-[10px] text-primary-foreground/80 font-bold uppercase tracking-widest">Gestão Documental</span>
+        </div>
+        <img src={settings?.institution_logo_url || "/timbre-neopolis.png"} alt="Logo" className="h-9 w-auto object-contain bg-white/10 p-1 rounded" />
       </div>
 
       <div className="flex items-center gap-4">

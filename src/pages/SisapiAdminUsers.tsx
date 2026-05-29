@@ -128,15 +128,23 @@ export default function SisapiAdminUsers() {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof newUser) => {
+      console.log("Iniciando criação de usuário:", userData.email);
       const { data, error } = await supabase.functions.invoke("create-sisapi-user", {
         body: userData,
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (error) {
+        console.error("Erro na Edge Function:", error);
+        throw error;
+      }
+      if (data?.error) {
+        console.error("Erro retornado pela função:", data.error);
+        throw new Error(data.error);
+      }
       return data;
     },
-    onSuccess: () => {
-      toast.success("Usuário criado com sucesso!");
+    onSuccess: (data) => {
+      console.log("Usuário criado com sucesso:", data);
+      toast.success("Usuário criado e ativado com sucesso!");
       setIsCreateDialogOpen(false);
       setNewUser({
         email: "",
@@ -146,7 +154,10 @@ export default function SisapiAdminUsers() {
         is_admin: false,
         allowed_modules: ["sisapi"]
       });
-      queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
+      // Delay pequeno para garantir que o banco processou a transação antes do refetch
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
+      }, 500);
     },
     onError: (error: any) => {
       toast.error("Erro ao criar usuário: " + error.message);
@@ -232,9 +243,13 @@ export default function SisapiAdminUsers() {
 
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <SisapiPageHeader title="Gestão de Usuários">
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+    <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500">
+      <SisapiPageHeader title="Gestão de Usuários" description="Controle de acessos, permissões e aprovação de novos colaboradores.">
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => window.history.back()} className="border-slate-300">
+            Voltar
+          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 shadow-lg">
               <UserPlus className="w-5 h-5 mr-2" />
@@ -278,6 +293,7 @@ export default function SisapiAdminUsers() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </SisapiPageHeader>
 
       <Tabs defaultValue="users" className="w-full">
