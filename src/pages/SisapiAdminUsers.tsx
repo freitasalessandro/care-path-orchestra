@@ -200,14 +200,29 @@ export default function SisapiAdminUsers() {
 
   const deleteProfileMutation = useMutation({
     mutationFn: async (profileId: string) => {
-      const { error: profileError } = await supabase.from("sisapi_profiles").delete().eq("id", profileId);
-      if (profileError) throw profileError;
+      console.log(`Solicitando exclusão completa do usuário: ${profileId}`);
+      const { data, error } = await supabase.functions.invoke("delete-user", {
+        body: { userId: profileId },
+      });
+      
+      if (error) {
+        console.error("Erro ao chamar delete-user:", error);
+        throw error;
+      }
+      
+      if (data?.error) {
+        console.error("Erro retornado pela função delete-user:", data.error);
+        throw new Error(data.error);
+      }
+      
+      return data;
     },
     onSuccess: () => {
-      toast.success("Usuário removido com sucesso");
+      toast.success("Usuário excluído permanentemente do banco de dados");
       queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
     },
     onError: (error: any) => {
+      console.error("Erro na mutação de exclusão:", error);
       toast.error("Erro ao remover usuário: " + error.message);
     }
   });
