@@ -97,7 +97,6 @@ export default function SisapiAdminUsers() {
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select("*")
-        .order("status", { ascending: false })
         .order("full_name", { ascending: true });
         
       if (profilesError) {
@@ -122,7 +121,7 @@ export default function SisapiAdminUsers() {
       return profilesWithEmails;
     },
     refetchOnWindowFocus: false,
-    staleTime: 5000
+    staleTime: 30000 // Aumentado para 30 segundos para evitar re-fetch constante
   });
 
   // Notificar erro se houver
