@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,7 +42,10 @@ export default function SisapiAdminUsers() {
   const [isModulesDialogOpen, setIsModulesDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [editingModules, setEditingModules] = useState<string[]>([]);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+  const [resetPasswordData, setResetPasswordData] = useState({ userId: "", password: "" });
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+
   const [editingName, setEditingName] = useState("");
   
   useEffect(() => {
@@ -209,7 +212,30 @@ export default function SisapiAdminUsers() {
     }
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, password }: { userId: string; password: string }) => {
+      console.log(`Resetando senha para usuário ${userId}`);
+      // Usamos uma Edge Function para resetar a senha via Admin Auth
+      const { data, error } = await supabase.functions.invoke("reset-user-password", {
+        body: { userId, password },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Senha redefinida com sucesso! O usuário deverá alterá-la no próximo acesso.");
+      setIsResetPasswordOpen(false);
+      setResetPasswordData({ userId: "", password: "" });
+      queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao redefinir senha: " + error.message);
+    }
+  });
+
   const { data: settings } = useQuery({
+
     queryKey: ["sisapi-settings"],
     queryFn: async () => {
       const { data } = await supabase.from("sisapi_settings").select("*").limit(1).maybeSingle();
@@ -482,6 +508,20 @@ export default function SisapiAdminUsers() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
+                            className="text-amber-600 hover:bg-amber-50"
+                            onClick={() => {
+                              setResetPasswordData({ userId: profile.id, password: "" });
+                              setIsResetPasswordOpen(true);
+                            }}
+                            title="Redefinir senha temporária"
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </Button>
+
+                          <Button 
+
+                            variant="ghost" 
+                            size="icon" 
                             className="text-primary hover:bg-primary/10"
                             onClick={() => {
                               setSelectedProfile(profile);
@@ -573,6 +613,38 @@ export default function SisapiAdminUsers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isResetPasswordOpen} onOpenChange={setIsResetPasswordOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <form onSubmit={(e) => { e.preventDefault(); resetPasswordMutation.mutate(resetPasswordData); }}>
+            <DialogHeader>
+              <DialogTitle>Redefinir Senha Temporária</DialogTitle>
+              <DialogDescription>
+                Defina uma nova senha temporária. O usuário será obrigado a alterá-la no próximo login.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Label htmlFor="reset-pass">Nova Senha Temporária</Label>
+              <Input 
+                id="reset-pass" 
+                type="password" 
+                value={resetPasswordData.password} 
+                onChange={(e) => setResetPasswordData({...resetPasswordData, password: e.target.value})} 
+                placeholder="Mínimo 6 caracteres" 
+                required 
+                className="mt-2"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setIsResetPasswordOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={resetPasswordMutation.isPending}>
+                {resetPasswordMutation.isPending ? <Loader2 className="animate-spin" /> : "Redefinir e Forçar Troca"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
