@@ -425,11 +425,19 @@ export default function SisapiAdminUsers() {
       </SisapiPageHeader>
 
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className="bg-slate-100 p-1 mb-6">
-          <TabsTrigger value="users" className="px-8">Usuários Cadastrados</TabsTrigger>
-          <TabsTrigger value="departments">Departamentos</TabsTrigger>
-          <TabsTrigger value="sectors">Setores</TabsTrigger>
-          <TabsTrigger value="roles">Funções / Cargos</TabsTrigger>
+        <TabsList className="bg-slate-100 p-1 mb-6 flex flex-wrap h-auto">
+          <TabsTrigger value="users" className="px-6 py-2 flex items-center gap-2">
+            <User className="w-4 h-4" /> Usuários
+          </TabsTrigger>
+          <TabsTrigger value="departments" className="px-6 py-2 flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4" /> Departamentos
+          </TabsTrigger>
+          <TabsTrigger value="sectors" className="px-6 py-2 flex items-center gap-2">
+            <Settings className="w-4 h-4" /> Setores
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="px-6 py-2 flex items-center gap-2">
+            <Shield className="w-4 h-4" /> Funções / Cargos
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="mt-0">
