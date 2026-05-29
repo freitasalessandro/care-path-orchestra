@@ -5,9 +5,9 @@ import { LayoutGrid, LogOut, Users } from "lucide-react";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const { signOut, user, profile } = useAuth();
 
-  const isAdmin = user?.email === "admin@gmail.com";
+  const isAdmin = user?.email === "admin@gmail.com" || profile?.is_admin;
 
   return (
     <header className="h-16 bg-primary flex items-center justify-between px-8 z-50 shadow-md mb-8">
