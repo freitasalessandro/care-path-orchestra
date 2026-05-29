@@ -35,6 +35,18 @@ export function AppTopbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        {isAdmin && location.pathname !== "/usuarios" && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/usuarios")}
+            className="text-white hover:bg-white/10 gap-2 font-medium"
+          >
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Gestão de Usuários</span>
+          </Button>
+        )}
+
         {!isModuleSelection && (
           <Button 
             variant="ghost" 
