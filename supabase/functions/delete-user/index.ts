@@ -26,33 +26,18 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Iniciando exclusão do usuário: ${userId}`)
+    console.log(`Iniciando exclusão definitiva do usuário: ${userId}`)
 
-    // 1. Deletar primeiro os registros que podem ter FK para auth.users sem CASCADE
-    // Embora sisapi_profiles tenha CASCADE, outras tabelas podem não ter.
-    // Vamos tentar deletar o usuário do Auth diretamente, se falhar por FK, saberemos.
-    
+    // Com as constraints configuradas como CASCADE ou SET NULL no banco,
+    // deletar do Auth removerá automaticamente o perfil e limpará referências.
     const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(userId)
 
     if (deleteError) {
       console.error('Erro ao excluir usuário do Auth:', deleteError)
-      
-      // Se for erro de FK, vamos tentar limpar as referências conhecidas
-      if (deleteError.message.includes('foreign key constraint')) {
-        console.log('Detectado erro de chave estrangeira, tentando limpar referências...')
-        
-        // Exemplo: Notificações
-        await supabaseClient.from('sisapi_notifications').delete().eq('user_id', userId)
-        
-        // Tentar novamente
-        const { error: retryError } = await supabaseClient.auth.admin.deleteUser(userId)
-        if (retryError) throw retryError
-      } else {
-        throw deleteError
-      }
+      throw deleteError
     }
 
-    console.log(`Usuário ${userId} excluído com sucesso do Auth e do Banco de Dados.`)
+    console.log(`Usuário ${userId} e todas as suas referências foram removidos com sucesso.`)
 
     return new Response(
       JSON.stringify({ message: 'Usuário excluído com sucesso' }),
@@ -67,7 +52,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200, // Retornamos 200 com o objeto error para o frontend tratar
+        status: 200,
       }
     )
   }
