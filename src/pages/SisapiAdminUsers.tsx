@@ -87,29 +87,23 @@ export default function SisapiAdminUsers() {
   const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
-      console.log("Fetching profiles...");
-      // Obter perfis da tabela sisapi_profiles
+      // Obter perfis da tabela sisapi_profiles (agora incluindo o email direto)
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select("*")
         .order("status", { ascending: false })
         .order("full_name", { ascending: true });
         
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-        throw profilesError;
-      }
+      if (profilesError) throw profilesError;
 
-      console.log("Profiles found:", profilesData?.length);
-
-      // Buscar os emails dos usuários no Auth via RPC
+      // Se o email não estiver no perfil, ainda tentamos via RPC como fallback
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
+        if (profile.email) return profile;
+
         try {
-          const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
-          if (rpcError) throw rpcError;
-          return { ...profile, email: userData || (profile.id === user?.id ? user.email : "Email não encontrado") };
+          const { data: userData } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
+          return { ...profile, email: userData || (profile.id === user?.id ? user.email : "Email não recuperado") };
         } catch (err) {
-          console.error("Error fetching email for", profile.id, err);
           return { ...profile, email: profile.id === user?.id ? user.email : "Email não recuperado" };
         }
       }));
