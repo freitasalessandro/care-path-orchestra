@@ -3,16 +3,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X, KeyRound, LayoutGrid, LogOut } from "lucide-react";
+import { Shield, User, Settings, UserPlus, Loader2, Edit2, ShieldCheck, ShieldAlert, Trash2, Save, X, KeyRound, LayoutGrid, LogOut, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DepartmentManagement } from "@/components/sisapi/DepartmentManagement";
 import { SectorManagement } from "@/components/sisapi/SectorManagement";
+import { RoleManagement } from "@/components/sisapi/RoleManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
-
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   AlertDialog,
@@ -425,10 +425,19 @@ export default function SisapiAdminUsers() {
       </SisapiPageHeader>
 
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className="bg-slate-100 p-1 mb-6">
-          <TabsTrigger value="users" className="px-8">Usuários Cadastrados</TabsTrigger>
-          <TabsTrigger value="departments">Departamentos</TabsTrigger>
-          <TabsTrigger value="sectors">Setores</TabsTrigger>
+        <TabsList className="bg-slate-100 p-1 mb-6 flex flex-wrap h-auto">
+          <TabsTrigger value="users" className="px-6 py-2 flex items-center gap-2">
+            <User className="w-4 h-4" /> Usuários
+          </TabsTrigger>
+          <TabsTrigger value="departments" className="px-6 py-2 flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4" /> Departamentos
+          </TabsTrigger>
+          <TabsTrigger value="sectors" className="px-6 py-2 flex items-center gap-2">
+            <Settings className="w-4 h-4" /> Setores
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="px-6 py-2 flex items-center gap-2">
+            <Shield className="w-4 h-4" /> Funções / Cargos
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="mt-0">
@@ -672,6 +681,12 @@ export default function SisapiAdminUsers() {
         <TabsContent value="sectors">
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <SectorManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="roles">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <RoleManagement />
           </div>
         </TabsContent>
       </Tabs>
