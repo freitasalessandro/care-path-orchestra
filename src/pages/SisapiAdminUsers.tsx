@@ -434,18 +434,10 @@ export default function SisapiAdminUsers() {
                                 </Button>
                               </div>
                             )}
-                            <span className="text-xs text-slate-500 truncate">{profile.email || "Email não disponível"}</span>
-                            {profile.must_change_password && (
-                              <Badge variant="outline" className="w-fit text-[10px] mt-1 text-orange-600 border-orange-200 bg-orange-50">
-                                Senha Temporária
-                              </Badge>
-                            )}
-
+                            <span className="text-xs text-slate-500 font-normal truncate">{profile.email}</span>
                           </div>
                         </div>
                       </TableCell>
-
-
                       <TableCell>
                         <Select 
                           value={profile.role_id || "none"} 
@@ -454,99 +446,71 @@ export default function SisapiAdminUsers() {
                             updates: { role_id: val === "none" ? null : val } 
                           })}
                         >
-                          <SelectTrigger className="w-[200px] bg-transparent border-slate-200">
-                            <SelectValue placeholder="Sem cargo definido" />
+                          <SelectTrigger className="w-full bg-slate-50/50 border-slate-200">
+                            <SelectValue placeholder="Selecione um cargo" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">Sem cargo</SelectItem>
-                            {roles?.map((role: any) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
+                            <SelectItem value="none">Nenhum Cargo</SelectItem>
+                            {roles?.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </TableCell>
-
                       <TableCell>
-                        <div className="flex flex-col gap-2">
-                          <Button
-                            variant={profile.status === 'active' ? 'outline' : 'default'}
-                            size="sm"
-                            className={`w-fit gap-1.5 py-1 px-3 h-auto transition-all ${
-                              profile.status === 'active' 
-                                ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' 
-                                : profile.status === 'inactive'
-                                ? 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
-                                : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'
-                            }`}
-                            onClick={() => {
-                              const newStatus = profile.status === 'active' ? 'inactive' : 'active';
-                              updateProfileMutation.mutate({ 
-                                userId: profile.id, 
-                                updates: { status: newStatus } 
-                              });
-                              
-                              if (newStatus === 'active') {
-                                toast.success(`Usuário ${profile.full_name} ativado com sucesso!`);
-                              } else {
-                                toast.info(`Usuário ${profile.full_name} inativado.`);
-                              }
-                            }}
-                          >
-                            {profile.status === 'active' ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
-                            {profile.status === 'active' ? "Ativo" : profile.status === 'inactive' ? "Inativo" : "ATIVAR AGORA"}
-                          </Button>
-                          
-                          <Badge 
-                            variant="outline"
-                            className={`w-fit cursor-pointer gap-1.5 py-1 px-3 ${profile.is_admin ? 'border-amber-500 text-amber-700 bg-amber-50' : 'border-blue-500 text-blue-700 bg-blue-50'}`}
-                            onClick={() => updateProfileMutation.mutate({ userId: profile.id, updates: { is_admin: !profile.is_admin } })}
-                          >
-                            {profile.is_admin ? "Administrador" : "Colaborador"}
+                        <div className="flex items-center gap-2">
+                          {profile.is_admin ? (
+                            <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100 gap-1 px-3 py-1">
+                              <ShieldCheck className="w-3 h-3" /> Admin
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-slate-600 px-3 py-1">Colaborador</Badge>
+                          )}
+                          <Badge className={`${profile.status === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-slate-100 text-slate-700 border-slate-200'} hover:bg-opacity-100 px-3 py-1 capitalize`}>
+                            {profile.status === 'active' ? 'Ativo' : 'Pendente'}
                           </Badge>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {profile.is_admin ? (
-                            <Badge variant="outline" className="bg-slate-50 border-slate-200 text-slate-600">Todos os Módulos</Badge>
-                          ) : profile.allowed_modules && profile.allowed_modules.length > 0 ? (
-                            profile.allowed_modules.map((m: string) => (
-                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">
-                                {moduleLabels[m] || m}
+                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          {profile.allowed_modules?.length > 0 ? (
+                            profile.allowed_modules.map((mod: string) => (
+                              <Badge key={mod} variant="secondary" className="text-[10px] h-5 bg-slate-100 text-slate-600 border-none font-medium">
+                                {mod.toUpperCase()}
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-xs text-muted-foreground">Nenhum módulo</span>
+                            <span className="text-xs text-slate-400 italic">Nenhum</span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-1">
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="text-amber-600 hover:bg-amber-50"
-                            onClick={() => {
-                              setResetPasswordData({ userId: profile.id, password: "" });
-                              setIsResetPasswordOpen(true);
-                            }}
-                            title="Redefinir senha temporária"
-                          >
-                            <KeyRound className="w-4 h-4" />
-                          </Button>
-
-                          <Button 
-
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-primary hover:bg-primary/10"
+                            className="h-9 w-9 text-slate-400 hover:text-primary hover:bg-primary/5"
+                            title="Gerenciar Módulos"
                             onClick={() => {
                               setSelectedProfile(profile);
                               setEditingModules(profile.allowed_modules || []);
                               setIsModulesDialogOpen(true);
                             }}
-                            disabled={profile.is_admin}
-                            title={profile.is_admin ? "Admins possuem acesso total" : "Editar permissões"}
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <LayoutGrid className="w-4 h-4" />
+                          </Button>
+
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-9 w-9 text-slate-400 hover:text-primary hover:bg-primary/5"
+                            title="Redefinir Senha"
+                            onClick={() => {
+                              setResetPasswordData({ userId: profile.id, password: "" });
+                              setIsResetPasswordOpen(true);
+                            }}
+                          >
+                            <KeyRound className="w-4 h-4" />
                           </Button>
 
                           <AlertDialog>
@@ -554,17 +518,17 @@ export default function SisapiAdminUsers() {
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                title="Excluir usuário"
+                                className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                title="Excluir Usuário"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Remover Usuário</AlertDialogTitle>
+                                <AlertDialogTitle>Excluir Usuário permanentemente?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tem certeza que deseja remover o usuário <strong>{profile.full_name}</strong>? Esta ação excluirá permanentemente o usuário, seu perfil e todo o seu acesso do sistema e do banco de dados.
+                                  Esta ação não pode ser desfeita. O usuário <strong>{profile.full_name}</strong> será removido do sistema e perderá todos os acessos imediatamente.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -573,7 +537,7 @@ export default function SisapiAdminUsers() {
                                   onClick={() => deleteProfileMutation.mutate(profile.id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  Remover
+                                  {deleteProfileMutation.isPending ? <Loader2 className="animate-spin" /> : "Confirmar Exclusão"}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -587,19 +551,33 @@ export default function SisapiAdminUsers() {
             </Table>
           </div>
         </TabsContent>
-        <TabsContent value="departments"><DepartmentManagement /></TabsContent>
-        <TabsContent value="sectors"><SectorManagement /></TabsContent>
+
+        <TabsContent value="departments">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <DepartmentManagement />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="sectors">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <SectorManagement />
+          </div>
+        </TabsContent>
       </Tabs>
 
+      {/* DIALOGS PARA MODULOS E SENHA */}
       <Dialog open={isModulesDialogOpen} onOpenChange={setIsModulesDialogOpen}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Permissões de Módulo</DialogTitle>
-            <DialogDescription>
-              Selecione quais áreas o usuário <strong>{selectedProfile?.full_name}</strong> poderá visualizar.
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-primary p-6 text-white">
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Gerenciar Módulos
+            </DialogTitle>
+            <DialogDescription className="text-primary-foreground/80">
+              Selecione quais áreas <strong>{selectedProfile?.full_name}</strong> pode acessar.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 py-6">
+          <div className="grid gap-3 py-6 px-6">
             {Object.entries(moduleLabels).map(([id, label]) => (
               <div key={id} className="flex items-center space-x-3 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group" onClick={() => {
                 const newModules = editingModules.includes(id) 
@@ -620,7 +598,7 @@ export default function SisapiAdminUsers() {
               </div>
             ))}
           </div>
-          <DialogFooter className="bg-slate-50 -mx-6 -mb-6 p-6 mt-2 rounded-b-xl border-t border-slate-200">
+          <DialogFooter className="bg-slate-50 p-6 border-t border-slate-200">
             <Button variant="ghost" onClick={() => setIsModulesDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleUpdateModules} disabled={updateProfileMutation.isPending} className="min-w-[150px] shadow-md">
               {updateProfileMutation.isPending ? <Loader2 className="animate-spin" /> : "Confirmar Acessos"}
