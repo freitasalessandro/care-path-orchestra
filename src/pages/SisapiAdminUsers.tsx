@@ -12,6 +12,7 @@ import { SectorManagement } from "@/components/sisapi/SectorManagement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { SisapiPageHeader } from "@/components/sisapi/SisapiPageHeader";
+import { AppTopbar } from "@/components/AppTopbar";
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   AlertDialog,
@@ -302,34 +303,9 @@ export default function SisapiAdminUsers() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="h-16 bg-white flex items-center justify-between px-8 z-50 shadow-sm border-b border-slate-200 mb-8">
-        <div className="flex items-center gap-3">
-          <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-10 w-auto object-contain" />
-          <div className="w-px h-8 bg-slate-200" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl font-black text-slate-800 tracking-tighter">SISAPI</span>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate("/modules")}
-            className="text-slate-600 hover:bg-slate-100 gap-2 font-medium"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Módulos
-          </Button>
-
-          <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-2">
-            <LogOut className="w-4 h-4" />
-            Sair
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <AppTopbar />
+      <div className="pt-16">
 
       <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500 px-8">
         <SisapiPageHeader title="Gestão de Usuários" description="Controle de acessos, permissões e aprovação de novos colaboradores.">
