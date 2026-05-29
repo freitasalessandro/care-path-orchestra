@@ -92,7 +92,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-14 h-[calc(100vh-3.5rem)] bg-card border-r border-border flex flex-col z-40 transition-all duration-200",
+        "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-card border-r border-border flex flex-col z-40 transition-all duration-200",
         collapsed ? "w-16" : "w-60"
       )}
     >

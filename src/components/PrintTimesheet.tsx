@@ -187,7 +187,7 @@ export function PrintTimesheet({ staff, month }: Props) {
       </Button>
 
       <div ref={printRef} className="hidden">
-        <img src="/timbre-neopolis.png" alt="Timbre" className="timbre" />
+        <h1 className="text-xl font-bold">SISAPI - Folha de Ponto</h1>
 
         <div className="employee-info">
           <div>SETOR: {staff.departments?.name || "_______________________"}</div>

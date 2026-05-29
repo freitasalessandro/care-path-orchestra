@@ -105,14 +105,10 @@ export default function Login() {
 
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-      <div className="flex items-center gap-3 mb-8">
-        <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-16 w-auto object-contain" />
-        <div className="w-px h-12 bg-slate-300" />
-        <div className="flex flex-col leading-tight">
-          <span className="text-3xl font-black text-slate-800 tracking-tighter">SISAPI</span>
-          <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-primary px-4">
+      <div className="flex flex-col items-center gap-2 mb-8 text-white">
+        <h1 className="text-4xl font-bold tracking-tight">SISAPI</h1>
+        <p className="text-sm font-medium opacity-80">Sistema de automação de processos internos</p>
       </div>
 
       <Card className="w-full max-w-md">

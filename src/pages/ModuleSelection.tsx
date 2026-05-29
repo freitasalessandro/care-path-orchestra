@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Users, LogOut, Scissors, FileText, Loader2 } from "lucide-react";
+import { ClipboardList, Users, Scissors, FileText, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
+import { AppTopbar } from "@/components/AppTopbar";
 
 const modules = [
   {
@@ -51,20 +51,18 @@ const modules = [
 ];
 
 export default function ModuleSelection() {
-  const { setSelectedModule, signOut, user } = useAuth();
+  const { setSelectedModule, user } = useAuth();
   const navigate = useNavigate();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile-modules", user?.id],
     queryFn: async () => {
-      // If it's a dummy session, return a virtual admin profile
       if (localStorage.getItem("sb-dummy-session") === "true") {
         return { 
           is_admin: true, 
           allowed_modules: ['sisapi', 'surgeries', 'hr', 'iose', 'exams'],
           full_name: 'Administrador Mestre'
         };
-
       }
 
       const { data, error } = await supabase
@@ -75,7 +73,6 @@ export default function ModuleSelection() {
 
       if (error) throw error;
 
-      // If no profile exists, create one with admin rights
       if (!data && user?.id) {
         try {
           const { data: newProfile, error: createError } = await supabase
@@ -100,9 +97,6 @@ export default function ModuleSelection() {
 
       return data;
     },
-
-
-
     enabled: !!user?.id,
   });
 
@@ -123,17 +117,11 @@ export default function ModuleSelection() {
     }
   };
 
-  console.log("Current user profile:", profile);
   const filteredModules = modules.filter(module => {
-    // Admins always have access to all modules
     const isSpecialAdmin = profile?.is_admin || user?.email === "admin@gmail.com";
-    
-    // Check if module is allowed in allowed_modules array
     const hasAccess = isSpecialAdmin || (profile?.allowed_modules && Array.isArray(profile.allowed_modules) && profile.allowed_modules.includes(module.id));
-
     return !!hasAccess;
   });
-
 
   if (isLoading) {
     return (
@@ -143,35 +131,11 @@ export default function ModuleSelection() {
     );
   }
 
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="h-16 bg-white flex items-center justify-between px-8 z-50 shadow-sm border-b border-slate-200 mb-8">
-        <div className="flex items-center gap-3">
-          <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-10 w-auto object-contain" />
-          <div className="w-px h-8 bg-slate-200" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-xl font-black text-slate-800 tracking-tighter">SISAPI</span>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <AppTopbar />
 
-        <div className="flex items-center gap-3">
-          {(profile?.is_admin || user?.email === "admin@gmail.com") && (
-            <Button variant="outline" onClick={() => navigate("/usuarios")} className="text-slate-600 border-slate-200 hover:bg-slate-100">
-              <Users className="w-4 h-4 mr-2" />
-              Gestão de Usuários
-            </Button>
-          )}
-
-          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
-        </div>
-      </header>
-
-      <div className="max-w-5xl mx-auto px-8 pb-12">
+      <div className="max-w-5xl mx-auto px-8 pb-12 mt-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Olá, {user?.email?.split('@')[0]}</h1>
           <p className="text-gray-600">Selecione o módulo que deseja acessar hoje</p>
