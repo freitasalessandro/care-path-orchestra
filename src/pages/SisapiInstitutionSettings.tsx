@@ -60,7 +60,8 @@ export default function SisapiInstitutionSettings() {
       }]);
 
     if (error) {
-      toast.error("Erro ao salvar configurações");
+      console.error("Erro ao salvar sisapi_settings:", error);
+      toast.error(`Erro ao salvar: ${error.message}`);
     } else {
       toast.success("Configurações salvas com sucesso");
     }
