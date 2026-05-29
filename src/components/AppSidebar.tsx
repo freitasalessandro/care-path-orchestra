@@ -63,13 +63,15 @@ export function AppSidebar() {
       if (error) return null;
       return data;
     },
-    enabled: !!user?.id && selectedModule === "sisapi",
+    enabled: !!user?.id && (selectedModule === "sisapi" || location.pathname === "/usuarios"),
   });
   
-  let links = selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : selectedModule === "exams" ? examLinks : surgeryLinks;
+  const isUserManagement = location.pathname === "/usuarios";
+  
+  let links = isUserManagement ? sisapiLinks : selectedModule === "hr" ? hrLinks : selectedModule === "iose" ? ioseLinks : selectedModule === "sisapi" ? sisapiLinks : selectedModule === "exams" ? examLinks : surgeryLinks;
 
   // Filter links for SISAPI based on permissions and admin status
-  if (selectedModule === "sisapi" && profile) {
+  if ((selectedModule === "sisapi" || isUserManagement) && profile) {
     links = sisapiLinks.filter(link => {
       // Admins see everything
       const isSpecialAdmin = profile.is_admin || user?.email === "admin@gmail.com";
