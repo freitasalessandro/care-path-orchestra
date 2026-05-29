@@ -40,32 +40,8 @@ export function SisapiPageHeader({ title, description, children }: SisapiPageHea
       
       <div className="flex items-center gap-3">
         {children}
-        
-        <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => {
-              setSelectedModule(null);
-              navigate("/modules");
-            }}
-            className="text-slate-600 hover:text-primary gap-2"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Módulos
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => signOut()}
-            className="text-red-600 hover:bg-red-50 hover:text-red-700 gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Sair
-          </Button>
-        </div>
       </div>
+
     </div>
   );
 }
