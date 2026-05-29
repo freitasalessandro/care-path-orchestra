@@ -124,17 +124,14 @@ export default function ModuleSelection() {
   };
 
   console.log("Current user profile:", profile);
-  const filteredModules = modules.map(module => {
+  const filteredModules = modules.filter(module => {
     // Admins always have access to all modules
     const isSpecialAdmin = profile?.is_admin || user?.email === "admin@gmail.com";
     
     // Check if module is allowed in allowed_modules array
     const hasAccess = isSpecialAdmin || (profile?.allowed_modules && Array.isArray(profile.allowed_modules) && profile.allowed_modules.includes(module.id));
 
-    return {
-      ...module,
-      active: !!hasAccess
-    };
+    return !!hasAccess;
   });
 
 
@@ -175,12 +172,8 @@ export default function ModuleSelection() {
           {filteredModules.map((module) => (
             <Card 
               key={module.id} 
-              className={`overflow-hidden border-2 transition-all duration-200 ${
-                module.active 
-                  ? "hover:border-primary cursor-pointer shadow-md" 
-                  : "opacity-60 grayscale cursor-not-allowed"
-              }`}
-              onClick={() => module.active && handleModuleSelect(module.id)}
+              className="overflow-hidden border-2 transition-all duration-200 hover:border-primary cursor-pointer shadow-md"
+              onClick={() => handleModuleSelect(module.id)}
             >
               <CardHeader className={`${module.color} text-white pb-8`}>
                 <div className="p-3 bg-white/20 rounded-lg w-fit mb-4">
@@ -194,10 +187,9 @@ export default function ModuleSelection() {
                 </CardDescription>
                 <Button 
                   className="w-full" 
-                  variant={module.active ? "default" : "secondary"}
-                  disabled={!module.active}
+                  variant="default"
                 >
-                  {module.active ? "Acessar Módulo" : "Em breve"}
+                  Acessar Módulo
                 </Button>
               </CardContent>
             </Card>
