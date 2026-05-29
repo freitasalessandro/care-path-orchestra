@@ -108,23 +108,25 @@ export default function ModuleSelection() {
 
   const handleModuleSelect = (moduleId: string) => {
     setSelectedModule(moduleId);
-    navigate("/");
+    if (moduleId === "exams") {
+      navigate("/exams-control");
+    } else {
+      navigate("/");
+    }
   };
 
   console.log("Current user profile:", profile);
   const filteredModules = modules.map(module => {
-
     // Admins always have access to all modules
     const isSpecialAdmin = profile?.is_admin || user?.email === "admin@gmail.com";
-    const hasAccess = isSpecialAdmin || (profile?.allowed_modules && profile.allowed_modules.includes(module.id));
-
-
+    
+    // Check if module is allowed in allowed_modules array
+    const hasAccess = isSpecialAdmin || (profile?.allowed_modules && Array.isArray(profile.allowed_modules) && profile.allowed_modules.includes(module.id));
 
     return {
       ...module,
       active: !!hasAccess
     };
-
   });
 
 
