@@ -35,6 +35,18 @@ export function AppTopbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        {isAdmin && location.pathname !== "/usuarios" && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/usuarios")}
+            className="text-white hover:bg-white/10 gap-2 font-medium"
+          >
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Gestão de Usuários</span>
+          </Button>
+        )}
+
         {!isModuleSelection && (
           <Button 
             variant="ghost" 
@@ -67,12 +79,6 @@ export function AppTopbar() {
               <LayoutGrid className="mr-2 h-4 w-4" />
               <span>Trocar Módulo</span>
             </DropdownMenuItem>
-            {isAdmin && (
-              <DropdownMenuItem onClick={() => navigate("/usuarios")} className="cursor-pointer md:hidden">
-                <Users className="mr-2 h-4 w-4" />
-                <span>Gestão de Usuários</span>
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-600 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sair</span>
