@@ -87,7 +87,7 @@ export default function SisapiAdminUsers() {
   const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
-      // Obter perfis da tabela sisapi_profiles (agora incluindo o email direto)
+      // Obter perfis da tabela sisapi_profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select("*")
@@ -96,8 +96,9 @@ export default function SisapiAdminUsers() {
         
       if (profilesError) throw profilesError;
 
-      // Se o email não estiver no perfil, ainda tentamos via RPC como fallback
+      // Buscar os emails dos usuários no Auth via RPC ou campo direto
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
+        // Se já tiver email no perfil (vindo da nova migração), usa ele
         if (profile.email) return profile;
 
         try {
@@ -110,6 +111,9 @@ export default function SisapiAdminUsers() {
 
       return profilesWithEmails;
     },
+    // Forçar atualização frequente para garantir que novos usuários apareçam
+    refetchOnWindowFocus: true,
+    staleTime: 0
   });
 
 
