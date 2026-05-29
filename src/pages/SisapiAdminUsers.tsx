@@ -87,32 +87,34 @@ export default function SisapiAdminUsers() {
   const { data: profiles, isLoading: loadingProfiles } = useQuery({
     queryKey: ["sisapi-admin-users-list"],
     queryFn: async () => {
+      console.log("Fetching profiles...");
       // Obter perfis da tabela sisapi_profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("sisapi_profiles")
         .select("*")
-        .order("status", { ascending: false }) // Prioriza ativos/pendentes
+        .order("status", { ascending: false })
         .order("full_name", { ascending: true });
         
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
 
-      // Buscar os emails dos usuários no Auth
-      // Nota: Em uma aplicação real com muitos usuários, faríamos um JOIN via RPC 
-      // ou teríamos o email duplicado na tabela de perfis para performance.
+      console.log("Profiles found:", profilesData?.length);
+
+      // Buscar os emails dos usuários no Auth via RPC
       const profilesWithEmails = await Promise.all((profilesData || []).map(async (profile) => {
-        const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
-        if (rpcError) {
-          console.error("Error fetching email for", profile.id, rpcError);
-          // Tentativa alternativa caso o RPC falhe ou não encontre (o Alessandro é o usuário logado as vezes)
+        try {
+          const { data: userData, error: rpcError } = await supabase.rpc('get_user_email' as any, { user_uuid: profile.id });
+          if (rpcError) throw rpcError;
+          return { ...profile, email: userData || (profile.id === user?.id ? user.email : "Email não encontrado") };
+        } catch (err) {
+          console.error("Error fetching email for", profile.id, err);
           return { ...profile, email: profile.id === user?.id ? user.email : "Email não recuperado" };
         }
-        return { ...profile, email: userData || (profile.id === user?.id ? user.email : null) };
       }));
 
-
-
       return profilesWithEmails;
-
     },
   });
 
