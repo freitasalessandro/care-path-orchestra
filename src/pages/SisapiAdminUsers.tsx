@@ -428,7 +428,7 @@ export default function SisapiAdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loadingProfiles ? (
+                {loadingProfiles && !profiles ? (
                   <TableRow><TableCell colSpan={5} className="h-40 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
                 ) : profiles?.length === 0 ? (
                   <TableRow><TableCell colSpan={5} className="h-40 text-center text-muted-foreground">Nenhum usuário encontrado.</TableCell></TableRow>
