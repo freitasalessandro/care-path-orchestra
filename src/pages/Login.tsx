@@ -105,14 +105,18 @@ export default function Login() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="flex items-center gap-3 mb-8">
+        <img src="/timbre-neopolis.png" alt="Prefeitura de Neópolis" className="h-16 w-auto object-contain" />
+        <div className="w-px h-12 bg-slate-300" />
+        <div className="flex flex-col leading-tight">
+          <span className="text-3xl font-black text-slate-800 tracking-tighter">SISAPI</span>
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Gestão Documental</span>
+        </div>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary rounded-xl">
-              <LogIn className="w-8 h-8 text-white" />
-            </div>
-          </div>
           <CardTitle className="text-2xl font-bold">Acesso ao Sistema</CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar os módulos
