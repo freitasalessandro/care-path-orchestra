@@ -63,7 +63,8 @@ export default function SisapiAdminUsers() {
     allowed_modules: ["sisapi"] as string[]
   });
 
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
 
   const moduleLabels: Record<string, string> = {
