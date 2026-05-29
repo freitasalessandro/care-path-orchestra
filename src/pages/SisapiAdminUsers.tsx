@@ -664,6 +664,7 @@ export default function SisapiAdminUsers() {
           </form>
         </DialogContent>
       </Dialog>
+        </div>
       </div>
     </div>
   );
