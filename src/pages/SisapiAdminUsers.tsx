@@ -176,15 +176,22 @@ export default function SisapiAdminUsers() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async ({ userId, updates }: { userId: string; updates: any }) => {
-      const { error } = await supabase.from("sisapi_profiles").update(updates).eq("id", userId);
-      if (error) throw error;
+      console.log(`Atualizando usuário ${userId}:`, updates);
+      const { data, error } = await supabase.from("sisapi_profiles").update(updates).eq("id", userId).select();
+      if (error) {
+        console.error("Erro na atualização:", error);
+        throw error;
+      }
+      console.log("Resposta da atualização:", data);
+      return data;
     },
     onSuccess: () => {
       toast.success("Perfil atualizado com sucesso");
       queryClient.invalidateQueries({ queryKey: ["sisapi-admin-users-list"] });
     },
     onError: (error: any) => {
-      toast.error("Erro ao atualizar: " + error.message);
+      console.error("Erro ao atualizar perfil:", error);
+      toast.error("Erro ao atualizar: " + (error.message || "Erro desconhecido"));
     }
   });
 
@@ -415,20 +422,29 @@ export default function SisapiAdminUsers() {
                           <Button
                             variant={profile.status === 'active' ? 'outline' : 'default'}
                             size="sm"
-                            className={`w-fit gap-1.5 py-1 px-3 h-auto ${profile.status === 'active' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'}`}
+                            className={`w-fit gap-1.5 py-1 px-3 h-auto transition-all ${
+                              profile.status === 'active' 
+                                ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800' 
+                                : profile.status === 'inactive'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                                : 'bg-primary text-white hover:bg-primary/90 shadow-sm font-bold animate-pulse'
+                            }`}
                             onClick={() => {
-                              const newStatus = profile.status === 'active' ? 'pending' : 'active';
+                              const newStatus = profile.status === 'active' ? 'inactive' : 'active';
                               updateProfileMutation.mutate({ 
                                 userId: profile.id, 
                                 updates: { status: newStatus } 
                               });
+                              
                               if (newStatus === 'active') {
                                 toast.success(`Usuário ${profile.full_name} ativado com sucesso!`);
+                              } else {
+                                toast.info(`Usuário ${profile.full_name} inativado.`);
                               }
                             }}
                           >
                             {profile.status === 'active' ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
-                            {profile.status === 'active' ? "Ativo" : "ATIVAR AGORA"}
+                            {profile.status === 'active' ? "Ativo" : profile.status === 'inactive' ? "Inativo" : "ATIVAR AGORA"}
                           </Button>
                           
                           <Badge 
@@ -444,12 +460,14 @@ export default function SisapiAdminUsers() {
                         <div className="flex flex-wrap gap-1">
                           {profile.is_admin ? (
                             <Badge variant="outline" className="bg-slate-50 border-slate-200 text-slate-600">Todos os Módulos</Badge>
-                          ) : profile.allowed_modules?.length > 0 ? (
+                          ) : profile.allowed_modules && profile.allowed_modules.length > 0 ? (
                             profile.allowed_modules.map((m: string) => (
-                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">{m}</Badge>
+                              <Badge key={m} variant="secondary" className="text-[10px] uppercase tracking-wider">
+                                {moduleLabels[m] || m}
+                              </Badge>
                             ))
                           ) : (
-                            <span className="text-xs text-muted-foreground">Nenhum</span>
+                            <span className="text-xs text-muted-foreground">Nenhum módulo</span>
                           )}
                         </div>
                       </TableCell>
@@ -460,10 +478,6 @@ export default function SisapiAdminUsers() {
                             size="icon" 
                             className="text-primary hover:bg-primary/10"
                             onClick={() => {
-                              if (!profile.status || profile.status === 'pending') {
-                                toast.info("Ative o usuário para gerenciar módulos");
-                                return;
-                              }
                               setSelectedProfile(profile);
                               setEditingModules(profile.allowed_modules || []);
                               setIsModulesDialogOpen(true);
